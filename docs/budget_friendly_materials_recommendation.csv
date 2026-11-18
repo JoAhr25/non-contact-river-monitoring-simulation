@@ -1,0 +1,9 @@
+subsystem,baseline_component,baseline_usd,budget_alternative,budget_usd,savings_usd,tradeoff_notes
+Compute,Raspberry Pi 3 Model B (1 GB),42.00,Raspberry Pi Zero 2 W (512 MB),18.00,24.00,Tighter 512MB RAM requires smaller YOLO input or swap
+Camera,Pi Camera Module 3 NoIR,28.00,OV5647 5MP NoIR Camera Module,8.50,19.50,Lower dynamic range at night; adequate for 320x240 LSPIV
+Water Level Sensor,Benewake TF-Luna ToF LiDAR,24.50,JSN-SR04T Waterproof Ultrasonic,4.50,20.00,Wider beam cone & temperature drift vs narrow ToF laser
+Night Illumination,12V 850nm 4-LED IR Illuminator,9.00,DIY 850nm 12-LED IR Ring Board,4.00,5.00,Shorter effective range (~10m vs 25-40m)
+Telemetry Radio,ESP32 + Ra-02 (SX1278) 433MHz,12.50,Arduino Pro Mini + Ra-02 (SX1278),8.50,4.00,No Wi-Fi/BLE fallback; requires 3.3V logic level shifter
+Local Archive,External 2.5-in SATA SSD + USB,22.00,64 GB High-Endurance microSD Card,10.00,12.00,Lower write endurance over multi-month continuous video
+Power Storage,3S2P 12V LiFePO4 Battery w/ BMS,11.00,12V 7Ah Sealed Lead Acid (SLA),8.00,3.00,Heavier and shorter cycle life than LiFePO4
+Enclosure,2x IP65 Weatherproof Enclosures,4.00,Upcycled IP65 Electrical Junction Box,2.50,1.50,Requires manual drilling and silicone cable glands

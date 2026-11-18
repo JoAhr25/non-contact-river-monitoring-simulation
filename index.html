@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>River Monitoring 3D Digital Twin</title>
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1220'/%3E%3Cpath d='M10 42 Q21 34 32 42 T54 42' fill='none' stroke='%2338bdf8' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M32 10 L32 34' stroke='%2310b981' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='38' r='4' fill='%2310b981'/%3E%3C/svg%3E"
+  />
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <main id="viewport-wrap" class="viewport-wrap">
+      <canvas id="sim-canvas" aria-label="3D River Monitoring Simulation Viewport"></canvas>
+      <div id="hud-overlay-root" class="hud-overlay-root"></div>
+      <div id="dashboard-root" class="dashboard-root"></div>
+      <div id="alert-toast-root" class="alert-toast-root" aria-live="polite"></div>
+      <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-card">
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <div class="loading-title">River Monitoring 3D Digital Twin</div>
+          <div id="loading-status" class="loading-status">Initializing Three.js engine &amp; solvers…</div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

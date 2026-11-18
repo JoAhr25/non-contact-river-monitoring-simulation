@@ -1,0 +1,35 @@
+# Python caches & build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+
+# YOLO / ML model binaries
+*.pt
+*.onnx
+*.engine
+*.tflite
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & agent folders
+.gemini/
+.vscode/
+.idea/

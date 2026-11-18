@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software or hardware architecture in your research, please cite it as below."
+title: "Non-Contact River Monitoring System: 3D Digital Twin & Raspberry Pi Edge Node"
+type: software
+authors:
+  - family-names: "Thesis Authors"
+    given-names: "River Monitoring"
+version: 1.0.0
+date-released: 2026-11-18
+license: MIT
+keywords:
+  - river monitoring
+  - LSPIV
+  - ToF LiDAR
+  - YOLOv8-nano
+  - LoRa
+  - Three.js
+  - digital twin
+  - Raspberry Pi
