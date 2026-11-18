@@ -13,14 +13,21 @@ function clamp(v, lo, hi) {
 /**
  * Generates a CanvasTexture using a user draw callback.
  */
-function createCanvasTexture(width, height, drawFn, repeatX = 1, repeatY = 1) {
+function createCanvasTexture(
+  width,
+  height,
+  drawFn,
+  repeatX = 1,
+  repeatY = 1,
+  colorSpace = THREE.SRGBColorSpace
+) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   drawFn(ctx, width, height);
   const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.colorSpace = colorSpace;
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(repeatX, repeatY);
@@ -116,6 +123,300 @@ function createFoamTexture() {
       ctx.fill();
     }
   }, 2, 2);
+}
+
+/**
+ * Deterministic PRNG for reproducible sand contours and rock packing.
+ */
+function createSeededRng(seed = 2026) {
+  let s = seed >>> 0;
+  return () => {
+    s = (1664525 * s + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+/**
+ * Builds washed river-sand color and granular bump textures for the flume substrate beds.
+ */
+function createSandTextures() {
+  const rng = createSeededRng(7319);
+  const map = createCanvasTexture(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = '#b49971';
+    ctx.fillRect(0, 0, w, h);
+
+    // Soft natural moisture & mineral patches (tiled cleanly across edges)
+    for (let i = 0; i < 90; i++) {
+      const x = rng() * w;
+      const y = rng() * h;
+      const r = 8 + rng() * 18;
+      const col =
+        i % 3 === 0
+          ? 'rgba(146, 119, 83, 0.14)'
+          : i % 3 === 1
+            ? 'rgba(208, 186, 148, 0.14)'
+            : 'rgba(122, 98, 68, 0.10)';
+      ctx.fillStyle = col;
+      for (const ox of [-w, 0, w]) {
+        for (const oy of [-h, 0, h]) {
+          if (x + ox + r < 0 || x + ox - r > w || y + oy + r < 0 || y + oy - r > h) continue;
+          ctx.beginPath();
+          ctx.arc(x + ox, y + oy, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    // Fine mineral sand grains: quartz, warm tan, ochre, and dark mica flecks
+    const grainCols = ['#d9c7a8', '#c8b08a', '#9c8058', '#856b48', '#564736', '#e3d5bc'];
+    for (let i = 0; i < 5600; i++) {
+      const x = rng() * w;
+      const y = rng() * h;
+      const sz = 1.0 + rng() * 1.4;
+      ctx.fillStyle = grainCols[Math.floor(rng() * grainCols.length)];
+      ctx.globalAlpha = 0.4 + rng() * 0.45;
+      ctx.fillRect(x, y, sz, sz);
+    }
+    ctx.globalAlpha = 1.0;
+  });
+
+  const bumpRng = createSeededRng(7319);
+  const bumpMap = createCanvasTexture(
+    256,
+    256,
+    (ctx, w, h) => {
+      ctx.fillStyle = '#808080';
+      ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < 6000; i++) {
+        const x = bumpRng() * w;
+        const y = bumpRng() * h;
+        const sz = 1.0 + bumpRng() * 1.4;
+        const v = Math.floor(60 + bumpRng() * 165);
+        ctx.fillStyle = `rgb(${v},${v},${v})`;
+        ctx.fillRect(x, y, sz, sz);
+      }
+    },
+    1,
+    1,
+    THREE.NoColorSpace
+  );
+
+  return { map, bumpMap };
+}
+
+/**
+ * Builds neutral stone grain color & bump textures (tinted per rock via InstancedMesh colors).
+ */
+function createRockTextures() {
+  const rng = createSeededRng(9413);
+  const map = createCanvasTexture(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = '#e7e2d8';
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle sedimentary weathering streaks and mineral mottling
+    for (let i = 0; i < 160; i++) {
+      const x = rng() * w;
+      const y = rng() * h;
+      const rx = 6 + rng() * 22;
+      const ry = 2 + rng() * 8;
+      const shade = Math.floor(170 + rng() * 75);
+      ctx.fillStyle = `rgba(${shade}, ${shade - 4}, ${shade - 10}, 0.24)`;
+      ctx.beginPath();
+      ctx.ellipse(x, y, rx, ry, (rng() - 0.5) * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (let i = 0; i < 2400; i++) {
+      const x = rng() * w;
+      const y = rng() * h;
+      const sz = 1.0 + rng() * 1.5;
+      const v = rng() > 0.35 ? Math.floor(195 + rng() * 55) : Math.floor(95 + rng() * 65);
+      ctx.fillStyle = `rgba(${v},${v - 3},${v - 7},0.38)`;
+      ctx.fillRect(x, y, sz, sz);
+    }
+  });
+
+  const bumpRng = createSeededRng(9413);
+  const bumpMap = createCanvasTexture(
+    256,
+    256,
+    (ctx, w, h) => {
+      ctx.fillStyle = '#828282';
+      ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < 180; i++) {
+        const y = bumpRng() * h;
+        const thick = 1 + bumpRng() * 3.5;
+        const v = Math.floor(95 + bumpRng() * 90);
+        ctx.fillStyle = `rgba(${v},${v},${v},0.35)`;
+        ctx.fillRect(0, y, w, thick);
+      }
+      for (let i = 0; i < 2600; i++) {
+        const x = bumpRng() * w;
+        const y = bumpRng() * h;
+        const sz = 1.0 + bumpRng() * 1.6;
+        const v = Math.floor(55 + bumpRng() * 175);
+        ctx.fillStyle = `rgba(${v},${v},${v},0.45)`;
+        ctx.fillRect(x, y, sz, sz);
+      }
+    },
+    1,
+    1,
+    THREE.NoColorSpace
+  );
+
+  return { map, bumpMap };
+}
+
+/**
+ * Generates watertight organic river rock & cobble geometries via purely spatial noise.
+ * Variants 0-1: angular/stratified feature stones; Variants 2-4: smooth water-worn cobbles/pebbles.
+ */
+function createOrganicRockGeometry(variantIdx) {
+  const geom = new THREE.IcosahedronGeometry(1, 2);
+  const pos = geom.attributes.position;
+  let maxExtent = 1.0;
+
+  for (let i = 0; i < pos.count; i++) {
+    const vx = pos.getX(i);
+    const vy = pos.getY(i);
+    const vz = pos.getZ(i);
+    const len = Math.hypot(vx, vy, vz) || 1;
+    const nx = vx / len;
+    const ny = vy / len;
+    const nz = vz / len;
+
+    let sx = 1.0;
+    let sy = 1.0;
+    let sz = 1.0;
+    let disp = 1.0;
+
+    if (variantIdx === 0) {
+      // Stratified / grooved weathered river rock
+      sx = 1.12;
+      sy = 0.74;
+      sz = 0.92;
+      const strata = Math.sin(ny * 13.0 + nx * 2.8) * 0.065;
+      const lobe = Math.sin(nx * 3.6 + 0.7) * Math.cos(nz * 3.2 - 0.4) * 0.14;
+      const facet = Math.sin(nx * 5.8 - nz * 4.9 + ny * 3.1) * 0.06;
+      disp = 0.96 + strata + lobe + facet;
+    } else if (variantIdx === 1) {
+      // Craggy asymmetric river boulder
+      sx = 1.06;
+      sy = 0.78;
+      sz = 0.96;
+      const lobe = Math.cos(nx * 2.9 - ny * 2.2) * Math.sin(nz * 3.7 + 0.8) * 0.15;
+      const ridge = Math.sin(ny * 6.4 + nz * 4.2) * 0.07;
+      disp = 0.97 + lobe + ridge;
+    } else if (variantIdx === 2) {
+      // Smooth water-worn oval river cobble
+      sx = 1.16;
+      sy = 0.64;
+      sz = 0.90;
+      const smoothAsym = Math.sin(nx * 2.1 + nz * 1.7) * 0.06 + Math.cos(ny * 2.5 - nx * 1.4) * 0.04;
+      disp = 0.98 + smoothAsym;
+    } else if (variantIdx === 3) {
+      // Flat skimming river pebble
+      sx = 1.10;
+      sy = 0.52;
+      sz = 0.96;
+      const pillow = Math.sin(nx * 2.4 - nz * 2.1) * 0.055;
+      disp = 0.98 + pillow;
+    } else {
+      // Chunky rounded pebble
+      sx = 1.02;
+      sy = 0.76;
+      sz = 0.94;
+      const dimple = Math.cos(nx * 3.1 + ny * 2.6 + nz * 2.9) * 0.07;
+      disp = 0.98 + dimple;
+    }
+
+    const px = nx * sx * disp;
+    const py = ny * sy * disp;
+    const pz = nz * sz * disp;
+    pos.setXYZ(i, px, py, pz);
+    maxExtent = Math.max(maxExtent, Math.abs(px), Math.abs(py), Math.abs(pz));
+  }
+
+  pos.needsUpdate = true;
+  geom.computeVertexNormals();
+  geom.computeBoundingSphere();
+  geom.userData.maxExtent = maxExtent;
+  return geom;
+}
+
+/**
+ * Deterministic undulating sand-bed elevation at (worldX, worldZ) inside a stepped compartment.
+ */
+function sampleSandTopY(spec, worldX, worldZ) {
+  const u = clamp((worldX - spec.xMin) / Math.max(0.01, spec.xMax - spec.xMin), 0, 1);
+  const v = clamp((worldZ + 0.171) / 0.342, 0, 1);
+  const amp = spec.sandWaveAmp ?? 0.0042;
+  const ripple =
+    Math.sin(u * Math.PI * 2.4 + spec.phase) * Math.cos(v * Math.PI * 1.8 - spec.phase * 0.7) * amp +
+    Math.sin((u * 3.7 - v * 2.5) * Math.PI + spec.phase) * (amp * 0.42);
+  // Subtle rise away from the very front glass wall so pebbles bed cleanly along the glass
+  const gentleSlope = (0.5 - v) * 0.0022;
+  return spec.sandTopY + ripple + gentleSlope;
+}
+
+/**
+ * Builds an undulating sand bed mesh flush against the step compartment walls above the styrofoam.
+ */
+function buildStepSandBed(spec, sandMat) {
+  const widthX = spec.xMax - spec.xMin - 0.004;
+  const centerX = 0.5 * (spec.xMin + spec.xMax);
+  const depthZ = 0.342;
+  const sandBaseY = spec.foamSlabTopY - 0.001;
+
+  const geom = new THREE.BoxGeometry(widthX, 1, depthZ, 20, 3, 16);
+  geom.translate(0, 0.5, 0); // local y in [0, 1]
+
+  const pos = geom.attributes.position;
+  const norm = geom.attributes.normal;
+  const uv = geom.attributes.uv;
+  const colors = new Float32Array(pos.count * 3);
+
+  for (let i = 0; i < pos.count; i++) {
+    const lx = pos.getX(i);
+    const t = clamp(pos.getY(i), 0, 1);
+    const lz = pos.getZ(i);
+    const wx = centerX + lx;
+    const topY = sampleSandTopY(spec, wx, lz);
+    const wy = sandBaseY + t * Math.max(0.004, topY - sandBaseY);
+    pos.setY(i, wy);
+
+    // World-space triplanar UVs for uniform crisp grain across top and front glass cross-section
+    const nx = Math.abs(norm.getX(i));
+    const ny = Math.abs(norm.getY(i));
+    if (ny > 0.5) {
+      uv.setXY(i, wx * 7.5, lz * 7.5);
+    } else if (nx > 0.5) {
+      uv.setXY(i, lz * 7.5, wy * 7.5);
+    } else {
+      uv.setXY(i, wx * 7.5, wy * 7.5);
+    }
+
+    // Subtle damp-sand shading near top water interface and subtle vertical banding along glass
+    const topDiff = topY - spec.sandTopY;
+    const dampShade = 0.89 + 0.11 * (1 - t) + clamp(topDiff * 10.0, -0.04, 0.05);
+    const grainTint = 0.96 + 0.04 * Math.sin(wx * 48.0 + wy * 64.0 + lz * 32.0);
+    const s = dampShade * grainTint;
+    colors[i * 3] = s;
+    colors[i * 3 + 1] = s * 0.985;
+    colors[i * 3 + 2] = s * 0.95;
+  }
+
+  pos.needsUpdate = true;
+  uv.needsUpdate = true;
+  geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  geom.computeVertexNormals();
+
+  const mesh = new THREE.Mesh(geom, sandMat);
+  mesh.position.set(centerX, 0, 0);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.name = `SandBed_${spec.id}`;
+  return mesh;
 }
 
 /**
@@ -442,7 +743,7 @@ function createFlumeTank() {
     }
   }
 
-  // Stacked White Styrofoam / Filter Foam Beds inside Steps 1, 2, 3
+  // Stacked White Styrofoam + Compacted Sand Bed + Layered River Rocks inside Steps 1, 2, 3
   const foamMat = new THREE.MeshStandardMaterial({
     map: foamTex,
     color: 0xf4f6f9,
@@ -454,16 +755,89 @@ function createFlumeTank() {
     roughness: 0.9,
   });
 
+  const sandTextures = createSandTextures();
+  const sandMat = new THREE.MeshStandardMaterial({
+    map: sandTextures.map,
+    bumpMap: sandTextures.bumpMap,
+    bumpScale: 0.0018,
+    vertexColors: true,
+    roughness: 0.9,
+    metalness: 0.02,
+  });
+
+  const rockTextures = createRockTextures();
+  const rockMat = new THREE.MeshStandardMaterial({
+    map: rockTextures.map,
+    bumpMap: rockTextures.bumpMap,
+    bumpScale: 0.0024,
+    color: 0xffffff,
+    roughness: 0.84,
+    metalness: 0.03,
+  });
+
   const stepFoamSpecs = [
-    { xMin: -0.268, xMax: -0.082, foamTopY: 0.290, layers: 3 },
-    { xMin: -0.078, xMax: 0.108, foamTopY: 0.225, layers: 3 },
-    { xMin: 0.112, xMax: 0.298, foamTopY: 0.160, layers: 2 },
+    {
+      id: 'step1',
+      xMin: -0.268,
+      xMax: -0.082,
+      foamSlabTopY: 0.214,
+      sandTopY: 0.244,
+      bedTopY: 0.290,
+      weirY: 0.320,
+      layers: 3,
+      phase: 0.4,
+      sandWaveAmp: 0.0042,
+      rockScale: 1.0,
+      tier1Count: 9,
+      tier2Count: 24,
+      tier3Count: 48,
+    },
+    {
+      id: 'step2',
+      xMin: -0.078,
+      xMax: 0.108,
+      foamSlabTopY: 0.170,
+      sandTopY: 0.190,
+      bedTopY: 0.225,
+      weirY: 0.255,
+      layers: 3,
+      phase: 1.7,
+      sandWaveAmp: 0.0036,
+      rockScale: 0.88,
+      tier1Count: 8,
+      tier2Count: 22,
+      tier3Count: 44,
+    },
+    {
+      id: 'step3',
+      xMin: 0.112,
+      xMax: 0.298,
+      foamSlabTopY: 0.126,
+      sandTopY: 0.144,
+      bedTopY: 0.160,
+      weirY: 0.190,
+      layers: 2,
+      phase: 2.9,
+      sandWaveAmp: 0.0030,
+      rockScale: 0.76,
+      tier1Count: 7,
+      tier2Count: 20,
+      tier3Count: 40,
+    },
   ];
+
+  const sandBeds = [];
+  const rockGeoms = [0, 1, 2, 3, 4].map((v) => createOrganicRockGeometry(v));
+  const rockInstancesByVariant = rockGeoms.map(() => []);
+  const rockRng = createSeededRng(8421);
+
+  const featureRockPalette = ['#9c7d5a', '#b59b78', '#876846', '#c5b294', '#867c68', '#a38764'];
+  const cobblePalette = ['#dfd6c5', '#c7b69b', '#928e86', '#57534d', '#b3b0a8', '#a88462', '#7a756b'];
 
   for (const spec of stepFoamSpecs) {
     const widthX = spec.xMax - spec.xMin - 0.004;
     const centerX = 0.5 * (spec.xMin + spec.xMax);
-    const totalH = spec.foamTopY - 0.085;
+    const totalH = spec.foamSlabTopY - 0.085;
     const layerH = totalH / spec.layers;
     const depthZ = 0.342;
 
@@ -481,6 +855,187 @@ function createFlumeTank() {
         glassTankGroup.add(seam);
       }
     }
+
+    // Compacted river sand bed directly above the white styrofoam
+    const sandBed = buildStepSandBed(spec, sandMat);
+    glassTankGroup.add(sandBed);
+    sandBeds.push(sandBed);
+
+    // Pack multi-tier river rocks, cobbles & pebbles on top of the sand bed
+    const placedRocks = [];
+    const s = spec.rockScale;
+    const wallPad = 0.004;
+    const maxRockTopY = spec.weirY - 0.008;
+    const dummy = new THREE.Object3D();
+
+    const tryPlaceRock = (tier, cellU = null, cellV = null, preferElevated = false) => {
+      const isTier1 = tier === 1;
+      const isTier2 = tier === 2;
+      const variant = isTier1
+        ? rockRng() < 0.76
+          ? Math.floor(rockRng() * 2)
+          : 2
+        : 2 + Math.floor(rockRng() * 3);
+
+      const rx = isTier1
+        ? (0.022 + rockRng() * 0.015) * s
+        : isTier2
+          ? (0.012 + rockRng() * 0.009) * s
+          : (0.0055 + rockRng() * 0.0055) * s;
+      const ry = isTier1
+        ? (0.016 + rockRng() * 0.011) * s
+        : isTier2
+          ? (0.0085 + rockRng() * 0.0065) * s
+          : (0.0040 + rockRng() * 0.0038) * s;
+      const rz = isTier1
+        ? (0.020 + rockRng() * 0.013) * s
+        : isTier2
+          ? (0.011 + rockRng() * 0.0085) * s
+          : (0.0052 + rockRng() * 0.0050) * s;
+
+      const maxExt = rockGeoms[variant].userData.maxExtent || 1.18;
+      const horizBound = Math.max(rx, rz) * maxExt;
+      const vertBound = Math.max(ry, Math.max(rx, rz) * 0.28) * maxExt;
+
+      const xLo = spec.xMin + wallPad + horizBound;
+      const xHi = spec.xMax - wallPad - horizBound;
+      const zLo = -0.170 + horizBound;
+      const zHi = 0.170 - horizBound;
+      if (xLo >= xHi || zLo >= zHi) return;
+
+      let bestCandidate = null;
+      const maxAttempts = isTier1 ? 22 : 24;
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        let u = rockRng();
+        let v = rockRng();
+        if (cellU !== null && cellV !== null && attempt < 12) {
+          u = clamp(cellU + (rockRng() - 0.5) * 0.28, 0, 1);
+          v = clamp(cellV + (rockRng() - 0.5) * 0.28, 0, 1);
+        } else if (!isTier1 && rockRng() < 0.38) {
+          // Bias some medium cobbles & small pebbles along the front glass pocket
+          v = 0.72 + rockRng() * 0.28;
+        }
+
+        const candX = xLo + u * (xHi - xLo);
+        const candZ = zLo + v * (zHi - zLo);
+
+        // Leave small clearance around back-wall WaveMaker_1 in Step 1
+        if (spec.id === 'step1' && Math.hypot(candX + 0.23, candZ + 0.14) < 0.044) {
+          continue;
+        }
+
+        const sandY = sampleSandTopY(spec, candX, candZ);
+        let supportY = sandY;
+        let severeOverlap = false;
+
+        for (let j = 0; j < placedRocks.length; j++) {
+          const r = placedRocks[j];
+          const dx = candX - r.x;
+          const dz = candZ - r.z;
+          const d = Math.hypot(dx, dz);
+          const sumR = (rx + rz) * 0.5 + (r.rx + r.rz) * 0.5;
+          if (d < sumR * 0.44 && Math.abs(sandY - r.y) < r.ry * 0.9) {
+            severeOverlap = true;
+            break;
+          }
+          if (d < sumR * 0.95) {
+            const normD = clamp(d / Math.max(1e-4, sumR * 0.95), 0, 1);
+            const domeY = r.y + Math.sqrt(Math.max(0, 1 - normD * normD)) * r.ry * 0.74;
+            if (domeY > supportY) supportY = domeY;
+          }
+        }
+
+        if (severeOverlap) continue;
+
+        const embedFrac = supportY <= sandY + 0.001 ? 0.48 : 0.46;
+        const candY = supportY + ry * embedFrac;
+        if (candY + vertBound > maxRockTopY) continue;
+
+        const score = preferElevated
+          ? -candY + (rockRng() - 0.5) * 0.004
+          : candY + (v > 0.75 ? -0.004 : 0) + (rockRng() - 0.5) * 0.003;
+        if (!bestCandidate || score < bestCandidate.score) {
+          bestCandidate = { x: candX, y: candY, z: candZ, score };
+        }
+        if (!preferElevated && supportY <= sandY + 0.002) break;
+      }
+
+      if (!bestCandidate) return;
+
+      placedRocks.push({
+        x: bestCandidate.x,
+        y: bestCandidate.y,
+        z: bestCandidate.z,
+        rx,
+        ry,
+        rz,
+      });
+
+      dummy.position.set(bestCandidate.x, bestCandidate.y, bestCandidate.z);
+      dummy.rotation.set(
+        (rockRng() - 0.5) * 0.42,
+        rockRng() * Math.PI * 2,
+        (rockRng() - 0.5) * 0.42
+      );
+      dummy.scale.set(rx, ry, rz);
+      dummy.updateMatrix();
+
+      const palette = isTier1 ? featureRockPalette : cobblePalette;
+      const color = new THREE.Color(palette[Math.floor(rockRng() * palette.length)]);
+      const shade = 0.88 + rockRng() * 0.20;
+      color.multiplyScalar(shade);
+
+      rockInstancesByVariant[variant].push({
+        matrix: dummy.matrix.clone(),
+        color,
+      });
+    };
+
+    // Tier 1 (Base): Stratified grid-assisted placement for large feature rocks on the sand
+    const colsX = 3;
+    const rowsZ = Math.max(2, Math.ceil(spec.tier1Count / colsX));
+    let placedTier1 = 0;
+    for (let r = 0; r < rowsZ && placedTier1 < spec.tier1Count; r++) {
+      for (let c = 0; c < colsX && placedTier1 < spec.tier1Count; c++) {
+        tryPlaceRock(1, (c + 0.5) / colsX, (r + 0.5) / rowsZ, false);
+        placedTier1++;
+      }
+    }
+
+    // Tier 1 (Upper Crest): Stacked large stones forming natural mounded ridges up near weir height
+    const upperCount = Math.max(3, Math.round(spec.tier1Count * 0.55));
+    for (let i = 0; i < upperCount; i++) {
+      tryPlaceRock(1, null, null, true);
+    }
+
+    // Tier 2: Medium river cobbles (mix of sand-seated and shoulder-nestled)
+    for (let i = 0; i < spec.tier2Count; i++) {
+      tryPlaceRock(2, null, null, i % 3 === 0);
+    }
+
+    // Tier 3: Small pebbles & foreground gravel
+    for (let i = 0; i < spec.tier3Count; i++) {
+      tryPlaceRock(3, null, null, false);
+    }
+  }
+
+  const rockMeshes = [];
+  for (let v = 0; v < rockGeoms.length; v++) {
+    const items = rockInstancesByVariant[v];
+    if (!items.length) continue;
+    const inst = new THREE.InstancedMesh(rockGeoms[v], rockMat, items.length);
+    inst.name = `StepRocksVariant_${v}`;
+    inst.castShadow = true;
+    inst.receiveShadow = true;
+    for (let i = 0; i < items.length; i++) {
+      inst.setMatrixAt(i, items[i].matrix);
+      inst.setColorAt(i, items[i].color);
+    }
+    inst.instanceMatrix.needsUpdate = true;
+    if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
+    glassTankGroup.add(inst);
+    rockMeshes.push(inst);
   }
 
   group.add(glassTankGroup);
@@ -830,44 +1385,21 @@ function createFlumeTank() {
 
   /* -------------------- 6. Exported Geometry Bounds & Update Loop -------------------- */
 
-  const stepBounds = [
-    {
-      id: 'step1',
-      xMin: -0.268,
-      xMax: -0.082,
-      zMin: -0.175,
-      zMax: 0.175,
-      shelfY: 0.085,
-      foamY: 0.29,
-      foamTopY: 0.29,
-      weirY: 0.32,
-      weirTopY: 0.32,
-    },
-    {
-      id: 'step2',
-      xMin: -0.078,
-      xMax: 0.108,
-      zMin: -0.175,
-      zMax: 0.175,
-      shelfY: 0.085,
-      foamY: 0.225,
-      foamTopY: 0.225,
-      weirY: 0.255,
-      weirTopY: 0.255,
-    },
-    {
-      id: 'step3',
-      xMin: 0.112,
-      xMax: 0.298,
-      zMin: -0.175,
-      zMax: 0.175,
-      shelfY: 0.085,
-      foamY: 0.16,
-      foamTopY: 0.16,
-      weirY: 0.19,
-      weirTopY: 0.19,
-    },
-  ];
+  const stepBounds = stepFoamSpecs.map((spec) => ({
+    id: spec.id,
+    xMin: spec.xMin,
+    xMax: spec.xMax,
+    zMin: -0.175,
+    zMax: 0.175,
+    shelfY: 0.085,
+    foamSlabTopY: spec.foamSlabTopY,
+    sandTopY: spec.sandTopY,
+    bedTopY: spec.bedTopY,
+    foamY: spec.bedTopY,
+    foamTopY: spec.bedTopY,
+    weirY: spec.weirY,
+    weirTopY: spec.weirY,
+  }));
 
   const basinBounds = {
     xMin: 0.302,
@@ -936,6 +1468,8 @@ function createFlumeTank() {
       valveHandle,
       waveMakers,
       riserWaterColumn,
+      sandBeds,
+      rockMeshes,
       stepBounds,
       basinBounds,
     },
