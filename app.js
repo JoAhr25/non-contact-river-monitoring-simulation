@@ -6488,6 +6488,48 @@ function createLabHydraulics() {
   const particles = [];
   const PARTICLE_TYPES = ['foam', 'foam', 'foam', 'tracer', 'debris_plastic', 'leaf'];
 
+  const CASCADE_STEPS = [
+    {
+      zone: 'step1',
+      fallZone: 'fall1',
+      geom: LAB_GEOMETRY.step1,
+      speedScale: 1.0,
+      rotSign: 1,
+    },
+    {
+      zone: 'step2',
+      fallZone: 'fall2',
+      geom: LAB_GEOMETRY.step2,
+      speedScale: 1.05,
+      rotSign: -1,
+    },
+    {
+      zone: 'step3',
+      fallZone: 'fall3',
+      geom: LAB_GEOMETRY.step3,
+      speedScale: 1.1,
+      rotSign: 1,
+    },
+  ];
+
+  function assignInflowSpawn(p) {
+    const x = LAB_GEOMETRY.nozzlePos.x + (rng() - 0.5) * 0.035;
+    const z = clamp(LAB_GEOMETRY.nozzlePos.z + (rng() - 0.5) * 0.20, -0.145, 0.145);
+    p.x = x;
+    p.z = z;
+    p.y = sampleSurface(x, z) + p.size * 0.15;
+    p.vx = qInflow > 1e-5 ? 0.16 + rng() * 0.06 : 0;
+    p.vy = 0;
+    p.vz = (rng() - 0.5) * 0.03;
+    p.rotZ = 0;
+    p.age = 0;
+    p.zone = 'step1';
+    p.fallS = 0;
+    p.fallYOffset = 0;
+    p.inFov = p.x >= -0.265 && p.x <= 0.305 && p.y >= 0.15;
+    return p;
+  }
+
   function spawnParticle(initialStage = 'inflow') {
     const id = nextParticleId++;
     const type = PARTICLE_TYPES[Math.floor(rng() * PARTICLE_TYPES.length)];
@@ -6498,40 +6540,13 @@ function createLabHydraulics() {
           ? 0.008 + rng() * 0.004
           : 0.011 + rng() * 0.007;
 
-    let x = LAB_GEOMETRY.nozzlePos.x + (rng() - 0.5) * 0.035;
-    let z = clamp(LAB_GEOMETRY.nozzlePos.z + (rng() - 0.5) * 0.20, -0.145, 0.145);
-    let y = yW1;
-    let zone = 'step1';
-
-    if (initialStage === 'distributed') {
-      const pick = rng();
-      if (pick < 0.34) {
-        x = -0.25 + rng() * 0.15;
-        y = yW1;
-        zone = 'step1';
-      } else if (pick < 0.64) {
-        x = -0.06 + rng() * 0.15;
-        y = yW2;
-        zone = 'step2';
-      } else if (pick < 0.88) {
-        x = 0.13 + rng() * 0.15;
-        y = yW3;
-        zone = 'step3';
-      } else {
-        x = 0.33 + rng() * 0.11;
-        y = yBasin;
-        zone = 'basin';
-      }
-      z = (rng() - 0.5) * 0.26;
-    }
-
-    return {
+    const p = {
       id,
       type,
       size,
-      x,
-      y,
-      z,
+      x: 0,
+      y: yW1,
+      z: 0,
       vx: 0.16 + rng() * 0.06,
       vy: 0,
       vz: (rng() - 0.5) * 0.03,
@@ -6539,10 +6554,35 @@ function createLabHydraulics() {
       rotZ: (rng() - 0.5) * 0.25,
       phase: rng() * Math.PI * 2,
       age: 0,
-      zone, // 'step1' | 'fall1' | 'step2' | 'fall2' | 'step3' | 'fall3' | 'basin' | 'return'
-      basinTime: 0,
+      zone: 'step1', // 'step1' | 'fall1' | 'step2' | 'fall2' | 'step3' | 'fall3'
+      fallS: 0,
+      fallYOffset: 0,
       inFov: true,
     };
+
+    if (initialStage === 'distributed') {
+      const pick = rng();
+      let x;
+      let zone;
+      if (pick < 0.34) {
+        x = -0.23 + rng() * 0.13;
+        zone = 'step1';
+      } else if (pick < 0.68) {
+        x = -0.055 + rng() * 0.145;
+        zone = 'step2';
+      } else {
+        x = 0.135 + rng() * 0.145;
+        zone = 'step3';
+      }
+      const z = (rng() - 0.5) * 0.26;
+      p.x = x;
+      p.z = z;
+      p.y = sampleSurface(x, z) + size * 0.15;
+      p.zone = zone;
+      return p;
+    }
+
+    return assignInflowSpawn(p);
   }
 
   // Seed initial tracers across the cascade
@@ -6631,13 +6671,22 @@ function createLabHydraulics() {
     return sum * 0.0024 * waveP;
   }
 
+  function getWaterfallParams(stepGeom, upperY, lowerY) {
+    const head = Math.max(0.001, upperY - stepGeom.weirY);
+    const drop = Math.max(0.015, upperY - lowerY + 0.004);
+    const throwDist = 0.022 + clamp(head / 0.02, 0, 1.4) * 0.024;
+    const crestY = stepGeom.weirY + head * 0.65;
+    // Matches wf.weirX - 0.004 (= step.xMax - 0.002) in waterShader.js
+    const sheetStartX = stepGeom.xMax - 0.002;
+    return { drop, throwDist, crestY, sheetStartX };
+  }
+
   function updateParticles(dt, pumpActive, targetCount) {
     // Adjust particle count toward target
     const desired = Math.round(clamp(targetCount, 0, 15));
     while (particles.length < desired) {
-      // Stagger spawns near inflow if pump active, otherwise distribute
+      // Stagger spawns near inflow if pump active, otherwise distribute across Steps 1..3
       const p = spawnParticle(particles.length < 2 && pumpActive ? 'inflow' : 'distributed');
-      p.x += (rng() - 0.5) * 0.025;
       particles.push(p);
     }
     if (particles.length > desired) {
@@ -6646,7 +6695,11 @@ function createLabHydraulics() {
 
     const flowScale = clamp(qInflow / 0.00118, 0, 1.65);
     const waveDrift = wavePowerSmooth * 0.08;
-    const baseCascadeSpeed = (0.175 + 0.095 * flowScale + waveDrift) * (qInflow > 1e-5 ? 1 : 0.08);
+    const activeCascadeSpeed = 0.175 + 0.095 * flowScale + waveDrift;
+    const stepLevels = [yW1, yW2, yW3, yBasin];
+    const stepDischarges = [qWeir1, qWeir2, qWeir3];
+    const zMin = LAB_GEOMETRY.tankZMin + 0.018;
+    const zMax = LAB_GEOMETRY.tankZMax - 0.018;
 
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
@@ -6656,137 +6709,112 @@ function createLabHydraulics() {
       const swirlZ =
         Math.sin(simTime * 2.3 + p.phase + p.x * 11.0) * (0.025 + 0.055 * wavePowerSmooth) * flowScale;
 
-      if (p.zone === 'step1') {
-        const surfSpeed = baseCascadeSpeed * (0.95 + 0.25 * Math.exp(-Math.abs(p.x - LAB_GEOMETRY.nozzlePos.x) * 14));
-        p.vx += (surfSpeed - p.vx) * Math.min(1, dt * 6);
-        p.vz += (swirlZ - p.vz) * Math.min(1, dt * 4);
-        p.x += p.vx * dt;
-        p.z = clamp(p.z + p.vz * dt, LAB_GEOMETRY.tankZMin + 0.015, LAB_GEOMETRY.tankZMax - 0.015);
-        p.y = sampleSurface(p.x, p.z) + p.size * 0.15;
-        p.vy = 0;
-        p.rotY += (p.vx * 1.4 + p.vz * 2.5) * dt;
+      let handled = false;
+      for (let idx = 0; idx < CASCADE_STEPS.length; idx++) {
+        const cfg = CASCADE_STEPS[idx];
+        const upperY = stepLevels[idx];
+        const lowerY = stepLevels[idx + 1];
+        const qWeir = stepDischarges[idx];
 
-        if (p.x >= LAB_GEOMETRY.step1.xMax && qWeir1 > 1e-5) {
-          p.zone = 'fall1';
-          p.vx = Math.max(0.18, p.vx * 1.15);
-          p.vy = -0.05;
-        } else if (p.x >= LAB_GEOMETRY.step1.xMax - 0.01) {
-          p.x = LAB_GEOMETRY.step1.xMax - 0.01;
-          p.vx *= -0.2;
-        }
-      } else if (p.zone === 'fall1') {
-        p.vy -= G * dt;
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.z = clamp(p.z + p.vz * 0.5 * dt, LAB_GEOMETRY.tankZMin + 0.015, LAB_GEOMETRY.tankZMax - 0.015);
-        p.rotZ -= 2.2 * dt;
-        if (p.y <= yW2) {
-          p.y = yW2;
+        if (p.zone === cfg.zone) {
+          const canOverflow = qWeir > 1e-5 && upperY > cfg.geom.weirY + 0.0005;
+          const stepFlowSpeed =
+            qInflow > 1e-5
+              ? activeCascadeSpeed
+              : canOverflow
+                ? 0.08 * clamp((upperY - cfg.geom.weirY) / 0.01, 0.25, 1.0) + wavePowerSmooth * 0.05
+                : wavePowerSmooth * 0.05;
+          const jetBoost =
+            idx === 0
+              ? 0.95 + 0.25 * Math.exp(-Math.abs(p.x - LAB_GEOMETRY.nozzlePos.x) * 14)
+              : cfg.speedScale;
+          const distToWeir = Math.max(0, cfg.geom.xMax - p.x);
+          const crestBoost = canOverflow ? 1.0 + 0.25 * Math.exp(-distToWeir * 45.0) : 1.0;
+          const surfSpeed = stepFlowSpeed * jetBoost * crestBoost;
+
+          p.vx += (surfSpeed - p.vx) * Math.min(1, dt * 6);
+          p.vz += (swirlZ - p.vz) * Math.min(1, dt * 4);
+          p.x = Math.max(cfg.geom.xMin + 0.01, p.x + p.vx * dt);
+          p.z += p.vz * dt;
+          if (p.z < zMin) {
+            p.z = zMin;
+            if (p.vz < 0) p.vz *= -0.3;
+          } else if (p.z > zMax) {
+            p.z = zMax;
+            if (p.vz > 0) p.vz *= -0.3;
+          }
           p.vy = 0;
-          p.rotZ = 0;
-          p.zone = 'step2';
-        }
-      } else if (p.zone === 'step2') {
-        const surfSpeed = baseCascadeSpeed * 1.05;
-        p.vx += (surfSpeed - p.vx) * Math.min(1, dt * 6);
-        p.vz += (swirlZ - p.vz) * Math.min(1, dt * 4);
-        p.x += p.vx * dt;
-        p.z = clamp(p.z + p.vz * dt, LAB_GEOMETRY.tankZMin + 0.015, LAB_GEOMETRY.tankZMax - 0.015);
-        p.y = sampleSurface(p.x, p.z) + p.size * 0.15;
-        p.vy = 0;
-        p.rotY += (p.vx * 1.5 - p.vz * 2.0) * dt;
+          p.rotY += (p.vx * (1.4 + idx * 0.1) + cfg.rotSign * p.vz * 2.2) * dt;
 
-        if (p.x >= LAB_GEOMETRY.step2.xMax && qWeir2 > 1e-5) {
-          p.zone = 'fall2';
-          p.vx = Math.max(0.19, p.vx * 1.15);
-          p.vy = -0.05;
-        } else if (p.x >= LAB_GEOMETRY.step2.xMax - 0.01) {
-          p.x = LAB_GEOMETRY.step2.xMax - 0.01;
-          p.vx *= -0.2;
+          if (canOverflow && p.x >= cfg.geom.xMax) {
+            const prevSurfaceY = sampleSurface(cfg.geom.xMax, p.z) + p.size * 0.15;
+            const wf = getWaterfallParams(cfg.geom, upperY, lowerY);
+            const sInit = Math.pow(
+              clamp((p.x - wf.sheetStartX) / wf.throwDist, 0.01, 0.65),
+              1 / 0.72
+            );
+            const sheetYInit = wf.crestY - wf.drop * Math.pow(sInit, 1.58);
+            p.zone = cfg.fallZone;
+            p.fallS = sInit;
+            p.fallYOffset = prevSurfaceY - (sheetYInit + p.size * 0.10);
+            p.y = prevSurfaceY;
+            p.vx = Math.max(0.18 + idx * 0.01, p.vx * 1.12);
+            p.vy = -0.05;
+          } else {
+            if (!canOverflow && p.x >= cfg.geom.xMax - 0.01) {
+              p.x = cfg.geom.xMax - 0.01;
+              p.vx *= -0.2;
+            }
+            p.y = sampleSurface(Math.min(p.x, cfg.geom.xMax), p.z) + p.size * 0.15;
+          }
+          handled = true;
+          break;
         }
-      } else if (p.zone === 'fall2') {
-        p.vy -= G * dt;
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.z = clamp(p.z + p.vz * 0.5 * dt, LAB_GEOMETRY.tankZMin + 0.015, LAB_GEOMETRY.tankZMax - 0.015);
-        p.rotZ -= 2.4 * dt;
-        if (p.y <= yW3) {
-          p.y = yW3;
-          p.vy = 0;
-          p.rotZ = 0;
-          p.zone = 'step3';
-        }
-      } else if (p.zone === 'step3') {
-        const surfSpeed = baseCascadeSpeed * 1.1;
-        p.vx += (surfSpeed - p.vx) * Math.min(1, dt * 6);
-        p.vz += (swirlZ - p.vz) * Math.min(1, dt * 4);
-        p.x += p.vx * dt;
-        p.z = clamp(p.z + p.vz * dt, LAB_GEOMETRY.tankZMin + 0.015, LAB_GEOMETRY.tankZMax - 0.015);
-        p.y = sampleSurface(p.x, p.z) + p.size * 0.15;
-        p.vy = 0;
-        p.rotY += (p.vx * 1.6 + p.vz * 2.2) * dt;
 
-        if (p.x >= LAB_GEOMETRY.step3.xMax && qWeir3 > 1e-5) {
-          p.zone = 'fall3';
-          p.vx = Math.max(0.20, p.vx * 1.15);
-          p.vy = -0.05;
-        } else if (p.x >= LAB_GEOMETRY.step3.xMax - 0.01) {
-          p.x = LAB_GEOMETRY.step3.xMax - 0.01;
-          p.vx *= -0.2;
-        }
-      } else if (p.zone === 'fall3') {
-        p.vy -= G * dt;
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.z = clamp(p.z + p.vz * 0.5 * dt, LAB_GEOMETRY.tankZMin + 0.015, LAB_GEOMETRY.tankZMax - 0.015);
-        p.rotZ -= 2.5 * dt;
-        if (p.y <= yBasin) {
-          p.y = yBasin;
-          p.vy = 0;
-          p.rotZ = 0;
-          p.zone = 'basin';
-          p.basinTime = 0;
-        }
-      } else if (p.zone === 'basin') {
-        p.basinTime += dt;
-        // Swirl gently in right basin, then dive into under-shelf return channel when pump active
-        const targetZ = Math.sin(p.basinTime * 2.2 + p.phase) * 0.11;
-        const targetX = 0.385 + Math.cos(p.basinTime * 1.7 + p.phase) * 0.055;
-        p.vx = (targetX - p.x) * 2.2;
-        p.vz = (targetZ - p.z) * 2.2;
-        p.x = clamp(p.x + p.vx * dt, LAB_GEOMETRY.basin.xMin + 0.012, LAB_GEOMETRY.basin.xMax - 0.015);
-        p.z = clamp(p.z + p.vz * dt, LAB_GEOMETRY.tankZMin + 0.015, LAB_GEOMETRY.tankZMax - 0.015);
-        p.y = sampleSurface(p.x, p.z) + p.size * 0.12;
-        p.rotY += 1.4 * dt;
+        if (p.zone === cfg.fallZone) {
+          const wf = getWaterfallParams(cfg.geom, upperY, lowerY);
+          const fallRate = (4.2 + 5.6 * p.fallS) * Math.sqrt(0.065 / wf.drop);
+          p.fallS = Math.min(1.0, p.fallS + fallRate * dt);
 
-        if (pumpActive && qReturn > 1e-4 && p.basinTime > 1.4) {
-          p.zone = 'return';
-          p.x = 0.305;
-          p.y = 0.052;
-          p.vx = -Math.max(0.14, returnVelocity * 3.0);
-        }
-      } else if (p.zone === 'return') {
-        // Travel leftward (-X) inside the under-shelf return channel (y in [0.02, 0.075])
-        const targetRetSpeed = pumpActive ? -Math.max(0.16, returnVelocity * 3.4) : -0.01;
-        p.vx += (targetRetSpeed - p.vx) * Math.min(1, dt * 5);
-        p.x += p.vx * dt;
-        p.y += (0.048 - p.y) * Math.min(1, dt * 5);
-        p.vz = Math.sin(simTime * 3.0 + p.phase) * 0.015;
-        p.z = clamp(p.z + p.vz * dt, LAB_GEOMETRY.tankZMin + 0.02, LAB_GEOMETRY.tankZMax - 0.02);
+          const s = p.fallS;
+          const sheetX = wf.sheetStartX + wf.throwDist * Math.pow(s, 0.72);
+          const sheetY = wf.crestY - wf.drop * Math.pow(s, 1.58);
+          const entryBlend = Math.max(0, 1.0 - s / 0.35);
 
-        // Sucked into submersible pump at x ~ -0.38 -> recirculated out nozzle into Step 1!
-        if (p.x <= -0.37 && pumpActive && riserFill >= 0.85) {
-          p.zone = 'step1';
-          p.x = LAB_GEOMETRY.nozzlePos.x + (rng() - 0.5) * 0.025;
-          p.z = clamp(LAB_GEOMETRY.nozzlePos.z + (rng() - 0.5) * 0.16, -0.14, 0.14);
-          p.y = yW1 + 0.005;
-          p.vx = 0.16 + rng() * 0.05;
-          p.vy = 0;
-          p.rotZ = 0;
-        } else if (p.x < -0.45) {
-          p.x = -0.45;
-          p.vx = 0;
+          p.x = sheetX + 0.0015 * Math.sin(s * Math.PI);
+          p.y = sheetY + p.size * 0.10 + (p.fallYOffset || 0) * entryBlend;
+          p.z = clamp(p.z + p.vz * 0.5 * dt, zMin, zMax);
+
+          const dxDs = 0.72 * wf.throwDist * Math.pow(Math.max(0.05, s), -0.28);
+          const dyDs = -1.58 * wf.drop * Math.pow(Math.max(0.05, s), 0.58);
+          p.vx = dxDs * fallRate;
+          p.vy = dyDs * fallRate;
+          p.rotZ = Math.atan2(dyDs, Math.max(0.005, dxDs)) * 0.75;
+
+          if (sheetY <= lowerY || p.fallS >= 1.0) {
+            if (idx === CASCADE_STEPS.length - 1) {
+              // Finished plunging down Weir 3 into bottom basin:
+              // disappear instead of lingering/returning and immediately respawn at Step 1 inflow (nozzlePos)
+              assignInflowSpawn(p);
+            } else {
+              const nextCfg = CASCADE_STEPS[idx + 1];
+              p.zone = nextCfg.zone;
+              p.x = Math.max(nextCfg.geom.xMin + 0.01, sheetX);
+              p.y = sampleSurface(p.x, p.z) + p.size * 0.15;
+              p.vx = Math.max(0.18, activeCascadeSpeed * nextCfg.speedScale);
+              p.vy = 0;
+              p.rotZ = 0;
+              p.fallS = 0;
+              p.fallYOffset = 0;
+            }
+          }
+          handled = true;
+          break;
         }
+      }
+
+      if (!handled) {
+        assignInflowSpawn(p);
       }
 
       // Check approximate visibility within camera FOV over Steps 1..3
