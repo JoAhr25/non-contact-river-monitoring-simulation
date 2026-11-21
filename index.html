@@ -36,5 +36,15 @@
     </main>
   </div>
   <script type="module" src="app.js"></script>
+  <script data-cdn-fallback>
+    setTimeout(function () {
+      if (window.__RIVER_SIM_READY__) return;
+      var statusEl = document.getElementById('loading-status');
+      if (statusEl) {
+        statusEl.textContent = 'CDN unreachable or offline — open standalone.html for zero-internet playback.';
+        statusEl.style.color = '#fcd34d';
+      }
+    }, 6000);
+  </script>
 </body>
 </html>

@@ -4,6 +4,69 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const RiverSimModules = {};
 
+/* === MODULE: src/shared/bomData.js === */
+RiverSimModules.bomData = (function () {
+const THESIS_BOM = [
+  { item: 'Raspberry Pi 3 Model B (1 GB)', qty: '1', cost: '₱4,849', costPhp: 4849, spec: 'BCM2837, 40-pin GPIO, CSI, Wi-Fi' },
+  { item: 'Pi Camera Module 3 NoIR', qty: '1', cost: '₱2,191', costPhp: 2191, spec: 'Sony IMX708 11.9MP, No IR-Cut, CSI-2' },
+  { item: '850 nm IR Illuminator (4-LED)', qty: '1', cost: '₱517', costPhp: 517, spec: '12V DC, 10–40 m Night Vision' },
+  { item: 'Benewake TF-Luna ToF LiDAR', qty: '1', cost: '₱1,650', costPhp: 1650, spec: '0.2–8 m Range, UART, 850 nm ToF (1 cm res)' },
+  { item: 'Custom Aquarium w/ Pump', qty: '1', cost: '₱6,500', costPhp: 6500, spec: 'Stepped-Weir Flume + Submersible Pump' },
+  { item: 'Aquarium Wave Makers', qty: '2', cost: '₱420', costPhp: 420, spec: 'Controlled Surface Turbulence' },
+  { item: '32 GB microSD Card (Class 10)', qty: '1', cost: '₱399', costPhp: 399, spec: 'Raspberry Pi OS & Local Logs' },
+  { item: 'DS3231 Precision RTC Module', qty: '1', cost: '₱180', costPhp: 180, spec: 'I2C TCXO + CR2032 Backup' },
+  { item: 'External 2.5" SATA SSD', qty: '1', cost: '₱2,003', costPhp: 2003, spec: 'USB 2.0 Video & SQLite Archive' },
+  { item: 'LM2596 DC-DC Buck Converter', qty: '1', cost: '₱125', costPhp: 125, spec: 'Regulated 5.1 V DC Rail' },
+  { item: '12V Regulated DC-DC Converter', qty: '1', cost: '₱155', costPhp: 155, spec: 'Buck-Boost for 850nm IR Array' },
+  { item: '3S2P Li-ion (4S LiFePO4 Alt.)', qty: '1', cost: '₱547', costPhp: 547, spec: '11.1V 3S2P w/ 3S BMS (~6 Ah)' },
+  { item: '5 A Inline Fuse Holder', qty: '1', cost: '₱50', costPhp: 50, spec: 'Battery Positive Overcurrent Guard' },
+  { item: 'PVC/Al Mounting Bracket', qty: '1', cost: '₱539', costPhp: 539, spec: 'Upper Bound (₱229–₱539); Height/Angle Gantry' },
+  { item: 'IP65 Weatherproof Enclosures', qty: '2', cost: 'Custom', costPhp: 0, spec: 'Dust & Water-Jet Protected CAD' },
+  { item: 'JST GH 1.25mm & Harnesses', qty: '2', cost: '₱153', costPhp: 153, spec: 'Color-Coded Power & Sensor Bus' },
+];
+
+const THESIS_BOM_TOTAL_PHP = THESIS_BOM.reduce((sum, r) => sum + (r.costPhp || 0), 0);
+
+const EDGE_LORA_BOM = [
+  { item: 'Raspberry Pi 3 Model B (1 GB)', qty: '1', usd: '$42.00', php: '₱2,425', spec: 'BCM2837 Quad-Core 1.2GHz, 1GB RAM' },
+  { item: 'Pi Camera Module 3 NoIR', qty: '1', usd: '$28.00', php: '₱1,617', spec: 'Sony IMX708 11.9MP, CSI-2' },
+  { item: 'Benewake TF-Luna ToF LiDAR', qty: '1', usd: '$24.50', php: '₱1,415', spec: '0.2–8m 850nm ToF UART 115200' },
+  { item: '850 nm IR Illuminator (4-LED)', qty: '1', usd: '$9.00', php: '₱520', spec: '12V DC 10–40m Range IP65' },
+  { item: 'ESP32 DevKit V1 (30-pin)', qty: '1', usd: '$6.50', php: '₱375', spec: 'Dual-Core LX6 UART Bridge' },
+  { item: 'Ai-Thinker Ra-02 (SX1278) LoRa', qty: '1', usd: '$6.00', php: '₱346', spec: '433 MHz SPI LoRa + Spring Antenna' },
+  { item: 'Custom Stepped-Weir Flume & Pump', qty: '1', usd: '$38.00', php: '₱2,195', spec: 'Acrylic/Glass Flume + Recirc. Pump' },
+  { item: 'Aquarium Wave Makers', qty: '2', usd: '$7.50', php: '₱433', spec: 'Surface Turbulence Generators' },
+  { item: '32 GB microSD Card (Class 10)', qty: '1', usd: '$6.50', php: '₱375', spec: 'Raspberry Pi OS & Edge Runtime' },
+  { item: 'External 2.5" SATA SSD + USB', qty: '1', usd: '$22.00', php: '₱1,270', spec: 'USB 2.0 Video & SQLite Archive' },
+  { item: 'DS3231 Precision RTC Module', qty: '1', usd: '$3.00', php: '₱173', spec: 'I2C TCXO + CR2032 Backup' },
+  { item: 'LM2596 DC-DC Buck (5.1V)', qty: '1', usd: '$2.00', php: '₱115', spec: 'Regulated 5.1V Pi & LiDAR Rail' },
+  { item: '12V Buck-Boost Converter', qty: '1', usd: '$2.50', php: '₱144', spec: 'Stable 12V Rail for 850nm IR' },
+  { item: '3S2P 12V Battery Pack w/ BMS', qty: '1', usd: '$11.00', php: '₱635', spec: '12V Pack w/ 3S BMS (~6 Ah)' },
+  { item: '5A Inline Fuse Holder & Blade', qty: '1', usd: '$1.00', php: '₱58', spec: 'Overcurrent Guard' },
+  { item: 'PVC / Al Mounting Gantry', qty: '1', usd: '$6.50', php: '₱375', spec: 'Adjustable Sensor Mount' },
+  { item: 'IP65 Weatherproof Enclosures', qty: '2', usd: '$4.00', php: '₱231', spec: 'Custom Sealed Housings' },
+  { item: 'JST GH 1.25mm & Harnesses', qty: '2', usd: '$2.00', php: '₱115', spec: 'Color-Coded Power & Data Bus' },
+];
+
+const BUDGET_ALTERNATIVES = [
+  { sub: 'Compute', base: 'Raspberry Pi 3B ($42.00)', alt: 'Raspberry Pi Zero 2 W (512 MB)', cost: '$18.00', save: '-$24.00', note: '512 MB RAM requires smaller YOLO input or swap' },
+  { sub: 'Camera', base: 'Pi Cam 3 NoIR ($28.00)', alt: 'OV5647 5MP NoIR Module', cost: '$8.50', save: '-$19.50', note: 'Lower night dynamic range; sufficient for 320x240 LSPIV' },
+  { sub: 'WL Sensor', base: 'TF-Luna LiDAR ($24.50)', alt: 'JSN-SR04T Waterproof Ultrasonic', cost: '$4.50', save: '-$20.00', note: 'Wider 75° cone & temp drift vs narrow 2° laser' },
+  { sub: 'IR Light', base: '4-LED IR Flood ($9.00)', alt: 'DIY 850nm 12-LED Ring Board', cost: '$4.00', save: '-$5.00', note: 'Shorter range (~10 m vs 25–40 m)' },
+  { sub: 'Radio', base: 'ESP32 + Ra-02 ($12.50)', alt: 'Arduino Pro Mini + Ra-02', cost: '$8.50', save: '-$4.00', note: 'No Wi-Fi/BLE fallback; needs 3.3V level shifter' },
+  { sub: 'Archive', base: '2.5" SATA SSD ($22.00)', alt: '64 GB High-Endurance microSD', cost: '$10.00', save: '-$12.00', note: 'Lower write endurance over multi-month logging' },
+  { sub: 'Battery', base: '3S2P Pack + BMS ($11.00)', alt: '12V 7Ah Sealed Lead Acid (SLA)', cost: '$8.00', save: '-$3.00', note: 'Heavier weight and shorter cycle life' },
+  { sub: 'Housing', base: '2x Custom IP65 ($4.00)', alt: 'Upcycled IP65 Junction Box', cost: '$2.50', save: '-$1.50', note: 'Manual drilling & silicone cable glands' },
+];
+
+  return {
+    THESIS_BOM,
+    THESIS_BOM_TOTAL_PHP,
+    EDGE_LORA_BOM,
+    BUDGET_ALTERNATIVES,
+  };
+})();
+
 /* === MODULE: src/scene/flumeTank.js === */
 RiverSimModules.flumeTank = (function (THREE) {
 function clamp(v, lo, hi) {
@@ -429,6 +492,10 @@ function buildGlassPanel(w, h, d, glassMat, edgeMat, edges = { top: true, left: 
   g.add(pane);
 
   const rim = 0.0024;
+  const topPad = edges.top ? rim * 0.5 : 0;
+  const botPad = edges.bottom ? rim * 0.5 : 0;
+  const sideH = Math.max(0.002, h - topPad - botPad);
+  const sideCenterY = (botPad - topPad) * 0.5;
   if (edges.top) {
     const strip = new THREE.Mesh(new THREE.BoxGeometry(w + 0.0004, rim, d + 0.0004), edgeMat);
     strip.position.y = h * 0.5;
@@ -442,14 +509,14 @@ function buildGlassPanel(w, h, d, glassMat, edgeMat, edges = { top: true, left: 
     g.add(strip);
   }
   if (edges.left) {
-    const strip = new THREE.Mesh(new THREE.BoxGeometry(rim, h, d + 0.0004), edgeMat);
-    strip.position.x = -w * 0.5;
+    const strip = new THREE.Mesh(new THREE.BoxGeometry(rim, sideH, d + 0.0004), edgeMat);
+    strip.position.set(-w * 0.5, sideCenterY, 0);
     strip.renderOrder = 9;
     g.add(strip);
   }
   if (edges.right) {
-    const strip = new THREE.Mesh(new THREE.BoxGeometry(rim, h, d + 0.0004), edgeMat);
-    strip.position.x = w * 0.5;
+    const strip = new THREE.Mesh(new THREE.BoxGeometry(rim, sideH, d + 0.0004), edgeMat);
+    strip.position.set(w * 0.5, sideCenterY, 0);
     strip.renderOrder = 9;
     g.add(strip);
   }
@@ -598,14 +665,16 @@ function createFlumeTank() {
   const glassMat = new THREE.MeshPhysicalMaterial({
     color: 0xdff5ee,
     transparent: true,
-    opacity: 0.16,
-    roughness: 0.05,
+    opacity: 0.14,
+    roughness: 0.04,
     metalness: 0.02,
+    ior: 1.49,
     reflectivity: 0.95,
+    envMapIntensity: 1.35,
     clearcoat: 1.0,
     clearcoatRoughness: 0.04,
     depthWrite: false,
-    side: THREE.DoubleSide,
+    side: THREE.FrontSide,
   });
 
   const glassEdgeMat = new THREE.MeshPhysicalMaterial({
@@ -644,24 +713,64 @@ function createFlumeTank() {
   for (const zSign of [-1, 1]) {
     const zPos = zSign * 0.1775;
 
-    const headSide = buildGlassPanel(0.21, 0.51, T, glassMat, glassEdgeMat, {
+    const headSide = buildGlassPanel(0.21, 0.508, T, glassMat, glassEdgeMat, {
       top: true,
       left: true,
       right: true,
       bottom: true,
     });
-    headSide.position.set(-0.375, 0.265, zPos);
+    headSide.position.set(-0.375, 0.266, zPos);
     glassTankGroup.add(headSide);
 
-    const mainSide = buildGlassPanel(0.75, 0.41, T, glassMat, glassEdgeMat, {
+    const mainSide = buildGlassPanel(0.75, 0.408, T, glassMat, glassEdgeMat, {
       top: true,
       left: false,
       right: true,
       bottom: true,
     });
-    mainSide.position.set(0.105, 0.215, zPos);
+    mainSide.position.set(0.105, 0.216, zPos);
     glassTankGroup.add(mainSide);
   }
+
+  // Objective 3A Front-Glass Metric Scale Ruler (0..40 cm above datum y = 0.012 m)
+  const glassRulerTex = createCanvasTexture(128, 512, (ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(248, 250, 252, 0.86)';
+    ctx.fillRect(0, 0, w * 0.48, h);
+    ctx.strokeStyle = '#0f172a';
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 20px monospace';
+    ctx.textBaseline = 'middle';
+    for (let cm = 0; cm <= 40; cm++) {
+      const y = h - (cm / 40) * h;
+      const isMajor = cm % 5 === 0;
+      const tickW = isMajor ? w * 0.34 : w * 0.18;
+      ctx.lineWidth = isMajor ? 2.5 : 1.3;
+      ctx.beginPath();
+      ctx.moveTo(w * 0.48 - tickW, y);
+      ctx.lineTo(w * 0.48, y);
+      ctx.stroke();
+      if (isMajor && cm > 0 && cm < 40) {
+        ctx.fillText(String(cm), w * 0.54, y);
+      }
+    }
+    // Nominal 33.5 cm marker line
+    const yNom = h - (33.5 / 40) * h;
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, yNom);
+    ctx.lineTo(w * 0.48, yNom);
+    ctx.stroke();
+  });
+  const glassRuler = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.024, 0.40),
+    new THREE.MeshBasicMaterial({ map: glassRulerTex, transparent: true, depthWrite: false })
+  );
+  glassRuler.name = 'Objective3AMetricRuler';
+  glassRuler.position.set(-0.252, 0.212, 0.1806);
+  glassRuler.renderOrder = 10;
+  glassTankGroup.add(glassRuler);
 
   // Left End Glass Wall (x = -0.4775, y = 0.012 .. 0.52)
   const leftWall = buildGlassPanel(T, 0.508, 0.35, glassMat, glassEdgeMat, {
@@ -683,11 +792,16 @@ function createFlumeTank() {
   // Open bottom gap y = 0.012 .. 0.080 (return flow inlet into headbox)
   // Solid panel y = 0.080 .. 0.450 + top rectangular overflow notch y = 0.450 .. 0.520 (notch z in [-0.09, +0.09])
   const dividerMain = buildGlassPanel(T, 0.370, 0.35, glassMat, glassEdgeMat, {
-    top: true,
+    top: false,
     bottom: true,
   });
   dividerMain.position.set(-0.270, 0.265, 0);
   glassTankGroup.add(dividerMain);
+
+  const notchSill = new THREE.Mesh(new THREE.BoxGeometry(T + 0.0004, 0.0024, 0.18), glassEdgeMat);
+  notchSill.position.set(-0.270, 0.450, 0);
+  notchSill.renderOrder = 9;
+  glassTankGroup.add(notchSill);
 
   for (const zSign of [-1, 1]) {
     const wing = buildGlassPanel(T, 0.070, 0.085, glassMat, glassEdgeMat, {
@@ -698,8 +812,8 @@ function createFlumeTank() {
     glassTankGroup.add(wing);
   }
 
-  // Raised Horizontal Glass Return Shelf: x in [-0.270, +0.300] at y = 0.080 .. 0.085 (top y = 0.085)
-  const returnShelf = buildGlassPanel(0.570, T, 0.35, glassMat, glassEdgeMat, {
+  // Raised Horizontal Glass Return Shelf: x in [-0.2675, +0.2975] at y = 0.080 .. 0.085 (top y = 0.085)
+  const returnShelf = buildGlassPanel(0.565, T, 0.35, glassMat, glassEdgeMat, {
     top: false,
     bottom: false,
     left: true,
@@ -709,7 +823,7 @@ function createFlumeTank() {
   glassTankGroup.add(returnShelf);
 
   // Subtle vertical glass support ribs along front/back inner faces under the shelf (y = 0.012 .. 0.080)
-  for (const rx of [-0.08, 0.11, 0.298]) {
+  for (const rx of [-0.08, 0.11, 0.293]) {
     for (const rz of [-0.165, 0.165]) {
       const supportFoot = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.068, 0.012), glassEdgeMat);
       supportFoot.position.set(rx, 0.046, rz);
@@ -761,8 +875,8 @@ function createFlumeTank() {
     bumpMap: sandTextures.bumpMap,
     bumpScale: 0.0018,
     vertexColors: true,
-    roughness: 0.9,
-    metalness: 0.02,
+    roughness: 0.52,
+    metalness: 0.04,
   });
 
   const rockTextures = createRockTextures();
@@ -771,8 +885,8 @@ function createFlumeTank() {
     bumpMap: rockTextures.bumpMap,
     bumpScale: 0.0024,
     color: 0xffffff,
-    roughness: 0.84,
-    metalness: 0.03,
+    roughness: 0.44,
+    metalness: 0.05,
   });
 
   const stepFoamSpecs = [
@@ -920,8 +1034,11 @@ function createFlumeTank() {
         const candX = xLo + u * (xHi - xLo);
         const candZ = zLo + v * (zHi - zLo);
 
-        // Leave small clearance around back-wall WaveMaker_1 in Step 1
-        if (spec.id === 'step1' && Math.hypot(candX + 0.23, candZ + 0.14) < 0.044) {
+        // Leave small clearance around back-wall WaveMakers in Step 1 and Step 3
+        if (spec.id === 'step1' && Math.hypot(candX + 0.23, candZ + 0.141) < 0.044) {
+          continue;
+        }
+        if (spec.id === 'step3' && Math.hypot(candX - 0.22, candZ + 0.141) < 0.042) {
           continue;
         }
 
@@ -1145,7 +1262,8 @@ function createFlumeTank() {
     roughness: 0.28,
     metalness: 0.06,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0.72,
+    depthWrite: false,
   });
   const greyPvcMat = new THREE.MeshStandardMaterial({
     color: 0x767f89,
@@ -1166,11 +1284,13 @@ function createFlumeTank() {
   const riserPipe = new THREE.Mesh(new THREE.CylinderGeometry(PIPE_R, PIPE_R, riserLen, 18), bluePvcMat);
   riserPipe.position.set(-0.38, 0.10 + riserLen * 0.5, -0.02);
   riserPipe.castShadow = true;
+  riserPipe.renderOrder = 4;
   pvcGroup.add(riserPipe);
 
   // Blue mid-riser coupling collar (visible in Photo 2)
   const riserCoupler = new THREE.Mesh(new THREE.CylinderGeometry(0.0165, 0.0165, 0.032, 18), bluePvcMat);
   riserCoupler.position.set(-0.38, 0.29, -0.02);
+  riserCoupler.renderOrder = 4;
   pvcGroup.add(riserCoupler);
 
   // Luminous Inner Water Column for Stage 1 Priming Animation
@@ -1187,6 +1307,7 @@ function createFlumeTank() {
   const riserWaterColumn = new THREE.Mesh(riserWaterGeom, riserWaterMat);
   riserWaterColumn.position.set(-0.38, 0.10, -0.02);
   riserWaterColumn.scale.y = 0.48;
+  riserWaterColumn.renderOrder = 3;
   pvcGroup.add(riserWaterColumn);
 
   // Helper to build a clean 90-degree grey PVC elbow fitting
@@ -1274,6 +1395,7 @@ function createFlumeTank() {
   const dropPipe = new THREE.Mesh(new THREE.CylinderGeometry(PIPE_R, PIPE_R, dropLen, 18), bluePvcMat);
   dropPipe.position.set(-0.21, 0.43 + dropLen * 0.5, -0.02);
   dropPipe.castShadow = true;
+  dropPipe.renderOrder = 4;
   pvcGroup.add(dropPipe);
 
   // Subtle dark inner bore ring at nozzle exit
@@ -1283,6 +1405,7 @@ function createFlumeTank() {
   );
   nozzleLip.rotation.x = Math.PI / 2;
   nozzleLip.position.set(-0.21, 0.43, -0.02);
+  nozzleLip.renderOrder = 4;
   pvcGroup.add(nozzleLip);
 
   group.add(pvcGroup);
@@ -1295,14 +1418,21 @@ function createFlumeTank() {
     roughness: 0.46,
     metalness: 0.14,
   });
+  const wmShroudMat = new THREE.MeshStandardMaterial({
+    color: 0x1d2228,
+    roughness: 0.46,
+    metalness: 0.14,
+    side: THREE.DoubleSide,
+  });
   const wmAccentMat = new THREE.MeshStandardMaterial({
     color: 0x2692b8,
     roughness: 0.35,
   });
 
+  // Submerged cleanly above Step 1 & Step 3 rock beds and below nominal water surfaces
   const wmPositions = [
-    { x: -0.23, y: 0.24, z: -0.14 },
-    { x: 0.26, y: 0.24, z: -0.14 },
+    { x: -0.23, y: 0.310, z: -0.141 },
+    { x: 0.22, y: 0.181, z: -0.141 },
   ];
 
   for (let idx = 0; idx < wmPositions.length; idx++) {
@@ -1311,10 +1441,10 @@ function createFlumeTank() {
     wmGroup.name = `WaveMaker_${idx + 1}`;
     wmGroup.position.set(pos.x, pos.y, pos.z);
 
-    // Magnetic suction base attached to back glass wall (z = -0.172)
+    // Magnetic suction base flush with back inner glass wall (z = -0.175)
     const suctionPad = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.019, 0.010, 16), rubberMat);
     suctionPad.rotation.x = Math.PI / 2;
-    suctionPad.position.z = -0.028;
+    suctionPad.position.z = -0.029;
     wmGroup.add(suctionPad);
 
     const swivelArm = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.020, 10), wmDarkMat);
@@ -1333,7 +1463,7 @@ function createFlumeTank() {
 
     const shroud = new THREE.Mesh(
       new THREE.CylinderGeometry(0.019, 0.017, 0.026, 16, 1, true),
-      wmDarkMat
+      wmShroudMat
     );
     shroud.rotation.x = Math.PI / 2;
     shroud.position.z = 0.010;
@@ -1412,7 +1542,7 @@ function createFlumeTank() {
   let smoothValve = 0.75;
   let smoothRiserFill = 1.0;
 
-  function update(dt, state = {}) {
+  function update(dt, state = {}, riserFillOverride = undefined) {
     const clampedDt = clamp(dt || 0.016, 0.001, 0.05);
     const pumpActive = state.pumpActive !== undefined ? Boolean(state.pumpActive) : true;
     const targetValve = clamp(
@@ -1436,9 +1566,10 @@ function createFlumeTank() {
     }
 
     // Animate internal riser water column fill
+    const rawRiser = riserFillOverride !== undefined ? riserFillOverride : state.riserFill;
     const targetFill =
-      state.riserFill !== undefined
-        ? clamp(Number(state.riserFill), 0, 1)
+      rawRiser !== undefined
+        ? clamp(Number(rawRiser), 0, 1)
         : pumpActive && smoothValve > 0.02
           ? 1.0
           : 0.08;
@@ -1477,7 +1608,9 @@ function createFlumeTank() {
   };
 }
 
-  return { createFlumeTank };
+  return {
+    createFlumeTank,
+  };
 })(THREE);
 
 /* === MODULE: src/scene/gantryFrame.js === */
@@ -1578,6 +1711,7 @@ function createPvcTee(pos, mainAxis, branchDir, radius, mat, scale = 1.0) {
   if (mainAxis === 'x') sleeve.rotation.z = Math.PI / 2;
   if (mainAxis === 'z') sleeve.rotation.x = Math.PI / 2;
   sleeve.castShadow = true;
+  sleeve.receiveShadow = true;
   tee.add(sleeve);
 
   const bDir = branchDir.clone().normalize();
@@ -1588,6 +1722,7 @@ function createPvcTee(pos, mainAxis, branchDir, radius, mat, scale = 1.0) {
   branch.position.copy(bDir).multiplyScalar(0.024 * scale);
   branch.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), bDir);
   branch.castShadow = true;
+  branch.receiveShadow = true;
   tee.add(branch);
 
   return tee;
@@ -1602,6 +1737,7 @@ function createPvcElbow(pos, dirA, dirB, radius, mat, scale = 1.0) {
 
   const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.03, 16, 14), mat);
   sphere.castShadow = true;
+  sphere.receiveShadow = true;
   elbow.add(sphere);
 
   for (const d of [dirA, dirB]) {
@@ -1613,6 +1749,7 @@ function createPvcElbow(pos, dirA, dirB, radius, mat, scale = 1.0) {
     leg.position.copy(dir).multiplyScalar(0.022 * scale);
     leg.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
     leg.castShadow = true;
+    leg.receiveShadow = true;
     elbow.add(leg);
   }
 
@@ -1656,6 +1793,12 @@ function createGantryFrame(options = {}) {
 
   const aluminumMat = new THREE.MeshStandardMaterial({
     map: railScaleTex,
+    color: 0xcfd6e0,
+    roughness: 0.34,
+    metalness: 0.68,
+  });
+
+  const plainAluminumMat = new THREE.MeshStandardMaterial({
     color: 0xcfd6e0,
     roughness: 0.34,
     metalness: 0.68,
@@ -1760,14 +1903,16 @@ function createGantryFrame(options = {}) {
       }
     }
 
-    // Bench rear clamp bracket tying gantry post at lower brace elevation
-    const benchClamp = new THREE.Mesh(
-      new THREE.BoxGeometry(0.054 * S, 0.036 * S, 0.058 * S),
-      darkClampMat
-    );
-    benchClamp.position.set(px, FLOOR_Y + 0.50 * S, POST_Z + 0.025 * S);
-    benchClamp.castShadow = true;
-    group.add(benchClamp);
+    // Bench rear clamp bracket tying gantry post to bamboo apron rail (Lab mode only)
+    if (!isRiverLabPole) {
+      const benchClamp = new THREE.Mesh(
+        new THREE.BoxGeometry(0.054 * S, 0.036 * S, 0.058 * S),
+        darkClampMat
+      );
+      benchClamp.position.set(px, -0.08, POST_Z + 0.025 * S);
+      benchClamp.castShadow = true;
+      group.add(benchClamp);
+    }
 
     // Drilled bolt-hole decals along front (+Z) face of vertical posts
     for (const holeOffset of [0.89, 1.35, 1.79]) {
@@ -1876,7 +2021,7 @@ function createGantryFrame(options = {}) {
   // Optional side PVC router bracket for river field deployment
   const routerAnchor = new THREE.Vector3(
     CENTER_X - POST_HALF_W - 0.22 * S,
-    FLOOR_Y + 1.02 * S,
+    isRiverLabPole ? FLOOR_Y + (1.0195 + 0.018) * S : FLOOR_Y + 1.02 * S,
     POST_Z
   );
   if (isRiverLabPole) {
@@ -2055,7 +2200,7 @@ function createGantryFrame(options = {}) {
   // Horizontal aluminum extruded sensor carrier bar
   const carrierBar = new THREE.Mesh(
     new THREE.BoxGeometry(0.34 * ES, 0.020 * S, 0.020 * S),
-    aluminumMat
+    plainAluminumMat
   );
   carrierBar.position.set(CENTER_X - 0.045 * ES, CARRIER_Y, railMastZ);
   carrierBar.castShadow = true;
@@ -2139,20 +2284,33 @@ function createGantryFrame(options = {}) {
 
     slidingRailGroup.position.y = deltaY;
 
+    // Keep telescoping inner aluminum bar cleanly inside the upper PVC rail
+    const topCapWorld = TOP_Y - 0.018 * S;
+    const curCarrierWorld = CARRIER_Y + deltaY;
+    const barH = Math.max(0.06 * S, Math.min(innerBarLen, topCapWorld - curCarrierWorld));
+    innerBar.scale.y = barH / innerBarLen;
+    innerBar.position.y = CARRIER_Y + barH * 0.5;
+
     sensorMountPos.lidar.y = DEFAULT_LIDAR_Y + deltaY;
     sensorMountPos.camera.y = DEFAULT_CAMERA_Y + deltaY;
     sensorMountPos.ir.y = DEFAULT_IR_Y + deltaY;
   }
 
+  // Initialize innerBar scale immediately at default height
+  update({});
+
   return {
     group,
+    topY: TOP_Y,
     sensorMountPos,
     enclosureScale: ES,
     update,
   };
 }
 
-  return { createGantryFrame };
+  return {
+    createGantryFrame,
+  };
 })(THREE);
 
 /* === MODULE: src/scene/riverField.js === */
@@ -2313,8 +2471,7 @@ function createStaffGaugeTexture(yBottom, yTop) {
     const pyTop = 1024 - (elevM + 0.02 - yBottom) * pxPerMeter;
     const h = Math.max(1, pyBottom - pyTop);
 
-    const dm = Math.floor(cm / 10);
-    const isMeterBlock = Math.floor(elevM + 1e-4) !== Math.floor(elevM - 0.02 + 1e-4);
+    const isMeterExact = Math.round(elevM * 100) % 100 === 0;
     const col = cm % 100 < 50 ? '#11161d' : '#184b8c';
 
     if ((cm / 2) % 2 === 0) {
@@ -2323,15 +2480,12 @@ function createStaffGaugeTexture(yBottom, yTop) {
     }
 
     if (cm % 10 === 0) {
-      ctx.fillStyle = col;
-      ctx.fillRect(16, pyBottom - 3, 98, 4);
-      const valLabel = (yBottom + cm * 0.01).toFixed(1);
+      ctx.fillStyle = isMeterExact ? '#b81f1f' : col;
+      ctx.fillRect(16, pyBottom - 3, isMeterExact ? 112 : 98, isMeterExact ? 5 : 4);
+      const valLabel = elevM.toFixed(1);
       ctx.font = cm % 50 === 0 ? 'bold 34px monospace' : 'bold 24px monospace';
-      ctx.fillStyle = cm % 100 === 0 ? '#b81f1f' : '#11161d';
+      ctx.fillStyle = isMeterExact ? '#b81f1f' : '#11161d';
       ctx.fillText(valLabel, 122, pyBottom - 6);
-    } else if (isMeterBlock) {
-      ctx.fillStyle = '#b81f1f';
-      ctx.fillRect(16, pyBottom - 2, 110, 4);
     }
   }
 
@@ -2510,9 +2664,30 @@ function createRiverField() {
   const terrainGeom = new THREE.BufferGeometry();
   terrainGeom.setAttribute('position', new THREE.BufferAttribute(chanPos, 3));
   terrainGeom.setAttribute('uv', new THREE.BufferAttribute(chanUv, 2));
-  terrainGeom.setAttribute('color', new THREE.BufferAttribute(chanColors, 3));
+  const chanDryColors = new Float32Array(chanColors);
+  const chanColorAttr = new THREE.BufferAttribute(chanColors, 3);
+  terrainGeom.setAttribute('color', chanColorAttr);
   terrainGeom.setIndex(chanIndices);
   terrainGeom.computeVertexNormals();
+
+  let lastWetWL = -99;
+  function updateShorelineWetness(wl) {
+    if (Math.abs(wl - lastWetWL) < 0.04) return;
+    lastWetWL = wl;
+    for (let r = 0; r < rowsZ; r++) {
+      const baseY = guimbalBedHeightAtZ(zChanList[r]);
+      const wetT = 1.0 - smoothstep(wl - 0.08, wl + 0.14, baseY);
+      const shade = 1.0 - 0.44 * wetT;
+      const rowOff = r * colsX * 3;
+      for (let c = 0; c < colsX; c++) {
+        const i3 = rowOff + c * 3;
+        chanColors[i3] = chanDryColors[i3] * shade;
+        chanColors[i3 + 1] = chanDryColors[i3 + 1] * shade * (1.0 - 0.04 * wetT);
+        chanColors[i3 + 2] = chanDryColors[i3 + 2] * shade * (1.0 - 0.08 * wetT);
+      }
+    }
+    chanColorAttr.needsUpdate = true;
+  }
 
   const terrainMat = new THREE.MeshStandardMaterial({
     map: terrainTex,
@@ -2593,10 +2768,15 @@ function createRiverField() {
     dummy.rotation.set(((i * 7) % 10) * 0.15, (i * 1.1) % (Math.PI * 2), 0);
     dummy.scale.set(sx, sy, sz);
     dummy.updateMatrix();
-    boulders.setMatrixAt(bIdx++, dummy.matrix);
+    boulders.setMatrixAt(bIdx, dummy.matrix);
+    const bTone = 0.78 + ((i * 31) % 10) * 0.042;
+    tmpColor.setRGB(bTone * 0.98, bTone * 0.94, bTone * 0.88);
+    boulders.setColorAt(bIdx, tmpColor);
+    bIdx++;
   }
   boulders.count = bIdx;
   boulders.instanceMatrix.needsUpdate = true;
+  if (boulders.instanceColor) boulders.instanceColor.needsUpdate = true;
   group.add(boulders);
 
   // Low-poly grass blade tufts along the flat riverbank edges & across the grassy field
@@ -2638,10 +2818,15 @@ function createRiverField() {
     );
     dummy.scale.set(scaleW, scaleH, scaleW);
     dummy.updateMatrix();
-    grassTufts.setMatrixAt(tIdx++, dummy.matrix);
+    grassTufts.setMatrixAt(tIdx, dummy.matrix);
+    const gShift = 0.78 + ((i * 29) % 12) * 0.036;
+    tmpColor.setRGB(0.84 * gShift, gShift, 0.72 * gShift);
+    grassTufts.setColorAt(tIdx, tmpColor);
+    tIdx++;
   }
   grassTufts.count = tIdx;
   grassTufts.instanceMatrix.needsUpdate = true;
+  if (grassTufts.instanceColor) grassTufts.instanceColor.needsUpdate = true;
   group.add(grassTufts);
 
   // Tropical riverbank shrubs / tall grass clumps seated cleanly on the flat grassy ground (|z| > 7.5)
@@ -2671,11 +2856,61 @@ function createRiverField() {
     dummy.rotation.set(0, (i * 0.9) % (Math.PI * 2), 0);
     dummy.scale.set(r * 1.25, r * 0.85, r * 1.1);
     dummy.updateMatrix();
-    bushes.setMatrixAt(vIdx++, dummy.matrix);
+    bushes.setMatrixAt(vIdx, dummy.matrix);
+    const vShift = 0.76 + ((i * 19) % 10) * 0.044;
+    tmpColor.setRGB(0.85 * vShift, vShift, 0.78 * vShift);
+    bushes.setColorAt(vIdx, tmpColor);
+    vIdx++;
   }
   bushes.count = vIdx;
   bushes.instanceMatrix.needsUpdate = true;
+  if (bushes.instanceColor) bushes.instanceColor.needsUpdate = true;
   group.add(bushes);
+
+  // Tropical riparian trees along outer grassy banks (clear of bridge & side-pole sightlines)
+  const treeSpots = [
+    [-10.8, -11.8, 1.15], [-6.4, -12.6, 1.32], [-4.2, -9.8, 0.96],
+    [6.6, -12.2, 1.25], [10.9, -11.4, 1.05], [12.2, -8.8, 0.92],
+    [-11.4, 11.2, 1.18], [-7.2, 12.8, 1.35], [-3.8, 10.6, 1.02],
+    [4.4, 10.8, 1.08], [8.5, 12.4, 1.28], [11.8, 10.2, 1.12],
+  ];
+  const trunkGeom = new THREE.CylinderGeometry(0.11, 0.17, 2.2, 8);
+  trunkGeom.translate(0, 1.1, 0);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c4632, roughness: 0.92 });
+  const canopyGeom = new THREE.IcosahedronGeometry(1.15, 1);
+  const canopyMat = new THREE.MeshStandardMaterial({ color: 0x3b722f, roughness: 0.88 });
+  const treeTrunks = new THREE.InstancedMesh(trunkGeom, trunkMat, treeSpots.length);
+  const treeCanopies = new THREE.InstancedMesh(canopyGeom, canopyMat, treeSpots.length * 2);
+  treeTrunks.castShadow = true;
+  treeCanopies.castShadow = true;
+  treeCanopies.receiveShadow = true;
+  treeSpots.forEach(([tx, tz, ts], i) => {
+    dummy.position.set(tx, BANK_TOP_Y - 0.04, tz);
+    dummy.rotation.set(0.03 * ((i % 3) - 1), i * 1.1, 0.02 * ((i % 2) - 0.5));
+    dummy.scale.set(ts, ts, ts);
+    dummy.updateMatrix();
+    treeTrunks.setMatrixAt(i, dummy.matrix);
+
+    dummy.position.set(tx, BANK_TOP_Y + 2.35 * ts, tz);
+    dummy.scale.set(1.15 * ts, 0.88 * ts, 1.12 * ts);
+    dummy.updateMatrix();
+    treeCanopies.setMatrixAt(i * 2, dummy.matrix);
+
+    dummy.position.set(tx + 0.35 * ts, BANK_TOP_Y + 2.95 * ts, tz - 0.25 * ts);
+    dummy.scale.set(0.82 * ts, 0.72 * ts, 0.82 * ts);
+    dummy.updateMatrix();
+    treeCanopies.setMatrixAt(i * 2 + 1, dummy.matrix);
+
+    const cMul = 0.84 + (i % 5) * 0.07;
+    tmpColor.setRGB(0.86 * cMul, cMul, 0.76 * cMul);
+    treeCanopies.setColorAt(i * 2, tmpColor);
+    tmpColor.setRGB(0.92 * cMul, 1.04 * cMul, 0.80 * cMul);
+    treeCanopies.setColorAt(i * 2 + 1, tmpColor);
+  });
+  treeTrunks.instanceMatrix.needsUpdate = true;
+  treeCanopies.instanceMatrix.needsUpdate = true;
+  if (treeCanopies.instanceColor) treeCanopies.instanceColor.needsUpdate = true;
+  group.add(treeTrunks, treeCanopies);
 
   /* -------------------- 3. Concrete Bridge Pier, Girder Deck & Adjustable Sensor Pole -------------------- */
 
@@ -2731,7 +2966,7 @@ function createRiverField() {
 
   // Darkened waterline silt/moss band on pier (y = 0.8 .. 2.3 m)
   const stainBand = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.428, 0.435, 1.45, 20),
+    new THREE.CylinderGeometry(0.445, 0.456, 1.45, 20),
     darkConcreteMat
   );
   stainBand.scale.set(1.35, 1.0, 1.0);
@@ -2799,6 +3034,35 @@ function createRiverField() {
     }
   }
 
+  // Tapered concrete & asphalt approach embankments at bridge ends (z = +-11.3 .. +-14.0 -> BANK_TOP_Y = 3.20)
+  const rampRun = 2.75;
+  const rampRise = 5.20 - BANK_TOP_Y;
+  const rampLen = Math.hypot(rampRun, rampRise);
+  const rampTilt = Math.atan2(rampRise, rampRun);
+  for (const zSign of [-1, 1]) {
+    const rampMidZ = zSign * (11.25 + rampRun * 0.5);
+    const rampMidY = BANK_TOP_Y + rampRise * 0.5 - 0.08;
+
+    const rampSlab = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.22, rampLen), concreteMat);
+    rampSlab.position.set(0, rampMidY, rampMidZ);
+    rampSlab.rotation.x = zSign * rampTilt;
+    rampSlab.castShadow = true;
+    rampSlab.receiveShadow = true;
+    bridgeGroup.add(rampSlab);
+
+    const rampAsphalt = new THREE.Mesh(new THREE.BoxGeometry(1.82, 0.04, rampLen), asphaltMat);
+    rampAsphalt.position.set(0, rampMidY + 0.12, rampMidZ);
+    rampAsphalt.rotation.x = zSign * rampTilt;
+    rampAsphalt.receiveShadow = true;
+    bridgeGroup.add(rampAsphalt);
+
+    const earthPier = new THREE.Mesh(new THREE.BoxGeometry(2.05, rampRise * 0.85, rampRun * 0.65), darkConcreteMat);
+    earthPier.position.set(0, BANK_TOP_Y + rampRise * 0.425, zSign * 11.75);
+    earthPier.castShadow = true;
+    earthPier.receiveShadow = true;
+    bridgeGroup.add(earthPier);
+  }
+
   // Adjustable Galvanized Bridge-Side Sensor Pole & Clamp Assembly (Overhead Bridge Mount)
   const DEFAULT_RIVER_MOUNT_Y = 4.50;
   const DEFAULT_RIVER_CAM_Y = 4.40;
@@ -2810,21 +3074,21 @@ function createRiverField() {
   const bridgeSensorMountGroup = new THREE.Group();
   bridgeSensorMountGroup.name = 'BridgeCenteredSensorMount';
 
-  // Fixed fascia clamp bolted to downstream bridge deck edge (x = +1.05, z in [-0.40, +0.05])
+  // Fixed fascia clamp bolted outside downstream bridge deck edge (x = +1.08, clear of deck slab x <= 1.075)
   for (const cz of [-0.35, 0.0]) {
     const fasciaPlate = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.34, 0.18), darkSteelMat);
-    fasciaPlate.position.set(1.06, 5.08, cz);
+    fasciaPlate.position.set(1.08, 5.08, cz);
     fasciaPlate.castShadow = true;
     bridgeSensorMountGroup.add(fasciaPlate);
 
-    const outriggerArm = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.06, 0.06), steelMat);
-    outriggerArm.position.set(0.92, 5.06, cz);
+    const outriggerArm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.06, 0.06), steelMat);
+    outriggerArm.position.set(1.13, 5.06, cz);
     outriggerArm.castShadow = true;
     bridgeSensorMountGroup.add(outriggerArm);
   }
 
   // Shared helper to build the sensor head boom brackets (reused on both Bridge Pole & Riverbank Side-Pole)
-  function addSensorHeadBrackets(targetGroup, baseX, lidarY, lidarZ, camY, camZ, camArmSpan, armLinkLen) {
+  function addSensorHeadBrackets(targetGroup, baseX, lidarY, lidarZ, camY, camZ, camArmSpan, boomTopY = null) {
     const lidarPad = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.02, 0.11), darkSteelMat);
     lidarPad.position.set(baseX, lidarY + 0.05, lidarZ);
     targetGroup.add(lidarPad);
@@ -2834,20 +3098,40 @@ function createRiverField() {
     camArm.castShadow = true;
     targetGroup.add(camArm);
 
+    const fullLinkLen = Math.abs(lidarZ - camZ) + 0.05;
     const linkMidZ = 0.5 * (lidarZ + camZ);
-    const camSideLink = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, armLinkLen), steelMat);
+    const camSideLink = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, fullLinkLen), steelMat);
     camSideLink.position.set(baseX, camY + 0.05, linkMidZ);
     targetGroup.add(camSideLink);
+
+    if (Math.abs(lidarY - camY) > 0.01) {
+      const dropH = Math.abs(lidarY - camY) + 0.05;
+      const vertStep = new THREE.Mesh(new THREE.BoxGeometry(0.05, dropH, 0.05), steelMat);
+      vertStep.position.set(baseX, 0.5 * (lidarY + camY) + 0.05, lidarZ);
+      targetGroup.add(vertStep);
+    }
+
+    if (boomTopY !== null && boomTopY > camY + 0.05) {
+      const stemH = boomTopY - (camY + 0.05);
+      const boomStem = new THREE.Mesh(new THREE.BoxGeometry(0.05, stemH, 0.05), steelMat);
+      boomStem.position.set(baseX, camY + 0.05 + stemH * 0.5, camZ);
+      targetGroup.add(boomStem);
+    }
   }
 
-  // Sliding/Adjustable vertical pole + sensor mounting boom
+  // Sliding/Adjustable vertical pole + under-deck sensor mounting boom (clear of deckSlab & asphalt)
   const poleHeadGroup = new THREE.Group();
   poleHeadGroup.name = 'BridgeAdjustableSensorPole';
 
-  const mastVert = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 1.35, 16), steelMat);
-  mastVert.position.set(0.80, 5.15, -0.18);
+  const mastVert = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 1.18, 16), steelMat);
+  mastVert.position.set(1.16, 5.00, -0.18);
   mastVert.castShadow = true;
   poleHeadGroup.add(mastVert);
+
+  const underDeckArm = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.055, 0.055), steelMat);
+  underDeckArm.position.set(0.98, 4.54, -0.18);
+  underDeckArm.castShadow = true;
+  poleHeadGroup.add(underDeckArm);
 
   // LiDAR cantilever arm out to (0.80, 4.50, 0)
   const lidarArm = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.055, 0.24), steelMat);
@@ -2855,11 +3139,11 @@ function createRiverField() {
   lidarArm.castShadow = true;
   poleHeadGroup.add(lidarArm);
 
-  addSensorHeadBrackets(poleHeadGroup, 0.80, 4.50, 0.0, 4.40, -0.35, 0.46, 0.22);
+  addSensorHeadBrackets(poleHeadGroup, 0.80, 4.50, 0.0, 4.40, -0.35, 0.46);
 
-  // Pole clamp for control enclosure near (0.80, 4.92, -0.35)
-  const boxClamp = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.04), darkSteelMat);
-  boxClamp.position.set(0.80, 4.92, -0.36);
+  // Pole clamp for control enclosure mounted to mastVert below deck underside (y = 5.00)
+  const boxClamp = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.20, 0.05), darkSteelMat);
+  boxClamp.position.set(1.16, 4.76, -0.24);
   poleHeadGroup.add(boxClamp);
 
   bridgeSensorMountGroup.add(poleHeadGroup);
@@ -2895,7 +3179,7 @@ function createRiverField() {
   sideFlange.castShadow = true;
   sidePoleGroup.add(sideFlange);
 
-  const lowerMastTopY = 5.85;
+  const lowerMastTopY = 4.28;
   const lowerMastBaseY = sideGroundY + 0.28;
   const lowerMastH = lowerMastTopY - lowerMastBaseY;
   const sideLowerMast = new THREE.Mesh(
@@ -2911,10 +3195,11 @@ function createRiverField() {
   sidePoleHeadGroup.name = 'SidePoleUpperBoomGroup';
 
   const sideUpperMast = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.034, 0.036, 2.55, 16),
+    new THREE.CylinderGeometry(0.034, 0.036, 1.0, 16),
     steelMat
   );
-  sideUpperMast.position.set(SIDE_POLE_X, 5.425, SIDE_POLE_Z);
+  sideUpperMast.scale.y = 2.23;
+  sideUpperMast.position.set(SIDE_POLE_X, 3.85 + 2.23 * 0.5, SIDE_POLE_Z);
   sideUpperMast.castShadow = true;
   sidePoleHeadGroup.add(sideUpperMast);
 
@@ -2952,7 +3237,7 @@ function createRiverField() {
     DEFAULT_SIDE_POLE_MOUNT_Y - 0.08,
     SIDE_BOOM_TIP_Z - 0.03,
     0.54,
-    0.16
+    6.055
   );
 
   // Enclosure pole clamp & side router shelf
@@ -3054,7 +3339,7 @@ function createRiverField() {
   /* -------------------- 4. Graduated Riverbank Staff Gauge at (1.5, -5.4) -------------------- */
 
   const gaugeBedY = guimbalBedHeightAtZ(-5.4);
-  const gaugeYBottom = 0.80;
+  const gaugeYBottom = Number((Math.ceil((gaugeBedY + 0.21) * 10) / 10).toFixed(1));
   const gaugeYTop = 3.80;
   const gaugeHeight = gaugeYTop - gaugeYBottom;
   const staffTex = createStaffGaugeTexture(gaugeYBottom, gaugeYTop);
@@ -3403,6 +3688,9 @@ function createRiverField() {
     return coords.map((c) => ({ ...c }));
   }
 
+  let lastMountMode = null;
+  let lastSliceWL = -99;
+
   function update(dt, state = {}, riverMetrics = null) {
     const clampedDt = clamp(dt || 0.016, 0.001, 0.05);
     const mountMode =
@@ -3419,6 +3707,11 @@ function createRiverField() {
     sidePoleGroup.visible = mountMode === 'side_pole';
     labPoleGroup.visible = mountMode === 'lab_pole';
 
+    // Proposal profile excludes solar panel & LoRa antenna (FINAL PAPER_RIVER.pdf p. 13)
+    const isEdgeLora = state.architectureProfile === 'edge_lora';
+    solarMountGroup.visible = isEdgeLora;
+    loraGroup.visible = isEdgeLora;
+
     // Resolve live water level WL for GCP elevation, ortho grid & bathymetry cutaway
     const liveWL = clamp(
       Number(
@@ -3432,7 +3725,12 @@ function createRiverField() {
       3.5
     );
 
-    applyGcpLayout(mountMode, liveWL);
+    const wlMoved = Math.abs(liveWL - lastSliceWL) > 0.002;
+    const modeChanged = mountMode !== lastMountMode;
+    if (modeChanged || wlMoved) {
+      applyGcpLayout(mountMode, liveWL);
+      updateShorelineWetness(liveWL);
+    }
 
     // Adjustable bridge sensor mast elevation H (default 4.5 m)
     const rawH =
@@ -3455,6 +3753,10 @@ function createRiverField() {
     const clampedSideH = clamp(Number.isFinite(rawSideH) ? rawSideH : DEFAULT_SIDE_POLE_MOUNT_Y, 4.5, 7.5);
     const sideDeltaH = clampedSideH - DEFAULT_SIDE_POLE_MOUNT_Y;
     sidePoleHeadGroup.position.y = sideDeltaH;
+    const upperBotLocal = 3.85 - sideDeltaH;
+    const upperH = Math.max(0.4, 6.08 - upperBotLocal);
+    sideUpperMast.scale.y = upperH;
+    sideUpperMast.position.set(SIDE_POLE_X, upperBotLocal + upperH * 0.5, SIDE_POLE_Z);
     sideMountAnchor.y = DEFAULT_SIDE_POLE_MOUNT_Y + sideDeltaH;
     sideCameraAnchor.y = DEFAULT_SIDE_POLE_MOUNT_Y - 0.08 + sideDeltaH;
     sideIrAnchor.y = DEFAULT_SIDE_POLE_MOUNT_Y - 0.08 + sideDeltaH;
@@ -3479,7 +3781,7 @@ function createRiverField() {
       gcpGridGroup.position.y = liveWL + 0.025;
     }
 
-    // Toggle 3D Cross-Section Bathymetry Cutaway Slice
+    // Toggle 3D Cross-Section Bathymetry Cutaway Slice (cached by WL change)
     const showSlice =
       state.showBathymetrySlice !== undefined
         ? Boolean(state.showBathymetrySlice)
@@ -3487,11 +3789,15 @@ function createRiverField() {
           ? Boolean(state.bathymetrySlice)
           : true;
     sliceGroup.visible = showSlice;
-    if (showSlice) {
+    if (showSlice && (modeChanged || wlMoved)) {
       updateBathymetrySlice(liveWL);
     }
+    if (modeChanged || wlMoved) {
+      lastMountMode = mountMode;
+      lastSliceWL = liveWL;
+    }
 
-    // Toggle & animate rain particle streaks
+    // Toggle & animate rain particle streaks (respawn upon hitting bridge deck, bank, or water surface)
     const rainAmt = clamp(Number(state.rainIntensity ?? 0), 0, 1);
     rainStreaks.visible = rainAmt > 0.02;
     if (rainStreaks.visible) {
@@ -3504,8 +3810,10 @@ function createRiverField() {
         const d = rainDrops[i];
         d.y -= d.speed * clampedDt;
         d.x += 1.5 * clampedDt;
-        if (d.y < 0.0) {
-          d.y += 8.5;
+        const onBridge = mountMode === 'bridge' && Math.abs(d.x) < 1.15 && Math.abs(d.z) < 11.4;
+        const hitY = onBridge ? 5.24 : Math.max(liveWL, guimbalBedHeightAtZ(d.z));
+        if (d.y < hitY) {
+          d.y = hitY + 5.2 + ((i * 53) % 100) * 0.035;
           d.x = (((i * 193 + 7) % 1000) / 1000) * 24 - 11;
         }
         const streakLen = 0.28 + 0.22 * rainAmt;
@@ -3538,6 +3846,7 @@ function createRiverField() {
     labPoleControlBoxAnchor,
     labPoleRouterAnchor,
     labPoleEnclosureScale: LAB_POLE_SCALE,
+    labPoleTopRailY: labPoleGantry.topY,
     gcpWorldPoints,
     getActiveGcpCorners,
     update,
@@ -3545,7 +3854,10 @@ function createRiverField() {
   };
 }
 
-  return { guimbalBedHeightAtZ, createRiverField };
+  return {
+    guimbalBedHeightAtZ,
+    createRiverField,
+  };
 })(THREE, RiverSimModules.gantryFrame);
 
 /* === MODULE: src/scene/enclosures.js === */
@@ -3889,6 +4201,12 @@ function createEnclosures() {
       roughness: 0.46,
       metalness: 0.35
     }),
+    darkBodyDouble: new THREE.MeshStandardMaterial({
+      color: 0x242932,
+      roughness: 0.46,
+      metalness: 0.35,
+      side: THREE.DoubleSide
+    }),
     anodizedBlack: new THREE.MeshStandardMaterial({
       color: 0x181b20,
       roughness: 0.36,
@@ -3913,6 +4231,12 @@ function createEnclosures() {
       color: 0xcfd6de,
       roughness: 0.24,
       metalness: 0.88
+    }),
+    stainlessDouble: new THREE.MeshStandardMaterial({
+      color: 0xcfd6de,
+      roughness: 0.24,
+      metalness: 0.88,
+      side: THREE.DoubleSide
     }),
     brassInsert: new THREE.MeshStandardMaterial({
       color: 0xd4a44a,
@@ -3998,7 +4322,7 @@ function createEnclosures() {
 
     const collar = new THREE.Mesh(
       new THREE.CylinderGeometry(0.0096, 0.0096, 0.0022, 24, 1, true),
-      mat.darkBody
+      mat.darkBodyDouble
     );
     collar.position.set(ax, -0.001, 0);
     lidarPodGroup.add(collar);
@@ -4186,7 +4510,7 @@ function createEnclosures() {
 
   const camBezelWall = new THREE.Mesh(
     new THREE.CylinderGeometry(0.0154, 0.0154, 0.0032, 28, 1, true),
-    mat.darkBody
+    mat.darkBodyDouble
   );
   camBezelWall.position.set(0, -0.0014, 0);
   cameraPodGroup.add(camBezelWall);
@@ -4390,7 +4714,7 @@ function createEnclosures() {
   // Reflective chrome cup ring around LEDs
   const irReflector = new THREE.Mesh(
     new THREE.CylinderGeometry(0.0215, 0.0185, 0.004, 24, 1, true),
-    mat.stainlessSteel
+    mat.stainlessDouble
   );
   irReflector.position.y = 0.0055;
   irArrayGroup.add(irReflector);
@@ -4403,10 +4727,10 @@ function createEnclosures() {
   cdsSensor.position.y = 0.006;
   irArrayGroup.add(cdsSensor);
 
-  // 4 high-power 850nm IR LED domes
+  // 4 high-power 850nm IR LED domes (unified deep crimson-rose NIR palette)
   const irLedMat = new THREE.MeshStandardMaterial({
     color: 0x26050c,
-    emissive: new THREE.Color(0xff1026),
+    emissive: new THREE.Color(0xe11d48),
     emissiveIntensity: 0,
     roughness: 0.14,
     metalness: 0.1
@@ -4432,9 +4756,18 @@ function createEnclosures() {
     irArrayGroup.add(ledDome);
   });
 
-  // Additive crimson-IR halo disc under face when nightMode is true
+  // Soft radial-gradient 850nm NIR halo disc under face when nightMode is true
+  const irHaloTex = createBadgeTexture(128, 128, (ctx, w, h) => {
+    const g = ctx.createRadialGradient(w * 0.5, h * 0.5, 2, w * 0.5, h * 0.5, w * 0.5);
+    g.addColorStop(0.0, 'rgba(255, 80, 130, 1.0)');
+    g.addColorStop(0.45, 'rgba(225, 29, 72, 0.55)');
+    g.addColorStop(1.0, 'rgba(190, 24, 93, 0.0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  });
   const irGlowHaloMat = new THREE.MeshBasicMaterial({
-    color: 0xff1630,
+    map: irHaloTex,
+    color: 0xffffff,
     transparent: true,
     opacity: 0,
     blending: THREE.AdditiveBlending,
@@ -4442,7 +4775,7 @@ function createEnclosures() {
     side: THREE.DoubleSide
   });
   const irGlowHalo = new THREE.Mesh(
-    new THREE.CircleGeometry(0.028, 28),
+    new THREE.CircleGeometry(0.036, 28),
     irGlowHaloMat
   );
   irGlowHalo.rotation.x = Math.PI * 0.5;
@@ -4680,7 +5013,7 @@ function createEnclosures() {
   });
   const lidBadge = new THREE.Mesh(
     new THREE.PlaneGeometry(0.056, 0.014),
-    new THREE.MeshBasicMaterial({ map: lidLabelTex })
+    new THREE.MeshStandardMaterial({ map: lidLabelTex, roughness: 0.45, metalness: 0.05 })
   );
   lidBadge.position.set(0.082, 0.097, 0.0195);
   mainLidGroup.add(lidBadge);
@@ -4758,7 +5091,10 @@ function createEnclosures() {
   };
 }
 
-  return { tagComponentInfo, createEnclosures };
+  return {
+    tagComponentInfo,
+    createEnclosures,
+  };
 })(THREE);
 
 /* === MODULE: src/scene/hardwareRig.js === */
@@ -4805,6 +5141,7 @@ function createFlatRibbonMesh(points, width, thickness, mat) {
   const indices = [];
 
   const upHint = new THREE.Vector3(1, 0, 0);
+  const altHint = new THREE.Vector3(0, 0, 1);
   const tangent = new THREE.Vector3();
   const side = new THREE.Vector3();
   const normal = new THREE.Vector3();
@@ -4814,12 +5151,22 @@ function createFlatRibbonMesh(points, width, thickness, mat) {
     const p = curve.getPointAt(t);
     curve.getTangentAt(t, tangent).normalize();
 
-    if (Math.abs(tangent.dot(upHint)) > 0.92) {
-      side.crossVectors(tangent, new THREE.Vector3(0, 0, 1)).normalize();
+    if (i === 0) {
+      const ref = Math.abs(tangent.dot(upHint)) > 0.90 ? altHint : upHint;
+      side.crossVectors(tangent, ref).normalize();
+      normal.crossVectors(side, tangent).normalize();
     } else {
-      side.crossVectors(tangent, upHint).normalize();
+      // Smooth parallel-transport frame avoids discontinuous twist flips
+      normal.addScaledVector(tangent, -normal.dot(tangent));
+      if (normal.lengthSq() < 1e-6) {
+        const ref = Math.abs(tangent.dot(upHint)) > 0.90 ? altHint : upHint;
+        side.crossVectors(tangent, ref).normalize();
+        normal.crossVectors(side, tangent).normalize();
+      } else {
+        normal.normalize();
+        side.crossVectors(tangent, normal).normalize();
+      }
     }
-    normal.crossVectors(side, tangent).normalize();
 
     const hw = width * 0.5;
     const ht = thickness * 0.5;
@@ -4918,7 +5265,7 @@ function createHardwareRig(enclosures) {
       title: 'DS3231 Precision RTC Module',
       role: 'Offline-Resilient Timestamping (±2 ppm) During Wi-Fi Outages',
       specs: 'Maxim DS3231 TCXO I2C RTC + CR2032 3V Lithium Coin Backup Cell, Integrated Temp Compensation',
-      pinout: 'VCC (Yellow)->Pi Pin 1 (3.3V) | SDA (Cyan)->GPIO2 | SCL (Purple)->GPIO3 | GND (Black)->GND | SQW->GPIO0',
+      pinout: 'VCC (Yellow)->Pi Pin 1 (3.3V) | SDA (Cyan)->GPIO2 | SCL (Purple)->GPIO3 | GND (Black)->GND',
       power: '+3.3 V DC + CR2032 Coin Battery Backup',
       bus: 'I2C Bus (0x68)',
       group: 'Edge Compute'
@@ -4926,12 +5273,12 @@ function createHardwareRig(enclosures) {
     BT1: {
       id: 'BT1',
       designator: 'BT1',
-      title: '12V LiFePO4 3S2P Battery Pack w/ BMS',
+      title: '3S2P 18650 Li-ion Battery Pack w/ 3S BMS (4S LiFePO4 Alt.)',
       role: 'Primary Off-Grid Field Energy Storage',
-      specs: '12.8 V Nominal (14.6 V Max Charge), 3S2P Cylindrical LiFePO4 Cell Array + 3S BMS Protection PCB',
+      specs: '3S2P 18650 Li-ion 11.1 V nom / 12.6 V max (~6 Ah w/ 3S BMS); paper also references 4S LiFePO4 12.8 V alt.',
       pinout: 'P+ (Red)->F1 5A Inline Fuse (V_FUSED) | P- (Black)->Main GND Bus',
-      power: '12.8 V DC Nominal Battery Source',
-      bus: 'Unregulated 12V Primary DC Bus',
+      power: '11.1 V nom Li-ion (3S2P) / 12.8 V (4S LiFePO4)',
+      bus: 'Unregulated Primary DC Bus',
       group: 'Power & Protection'
     },
     F1: {
@@ -5067,7 +5414,7 @@ function createHardwareRig(enclosures) {
   // Top label sticker
   const tfTopPlate = new THREE.Mesh(
     new THREE.PlaneGeometry(0.031, 0.016),
-    new THREE.MeshBasicMaterial({ map: tfLabelTex })
+    new THREE.MeshStandardMaterial({ map: tfLabelTex, roughness: 0.45, metalness: 0.05 })
   );
   tfTopPlate.rotation.x = -Math.PI * 0.5;
   tfTopPlate.position.y = 0.0122;
@@ -5265,11 +5612,11 @@ function createHardwareRig(enclosures) {
     ctx.fillStyle = '#1b5fa8';
     ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px sans-serif';
-    ctx.fillText('12.8V LiFePO4', 22, 52);
+    ctx.font = 'bold 23px sans-serif';
+    ctx.fillText('11.1V 3S2P Li-ion', 18, 50);
     ctx.fillStyle = '#a8dcff';
-    ctx.font = '18px monospace';
-    ctx.fillText('3S2P Pack w/ BMS', 22, 86);
+    ctx.font = '16px monospace';
+    ctx.fillText('3S BMS / 4S LFP Alt.', 18, 86);
   });
   const btBand = new THREE.Mesh(
     new THREE.BoxGeometry(0.055, 0.024, 0.037),
@@ -6105,7 +6452,7 @@ function createHardwareRig(enclosures) {
     }
   });
 
-  // Expose unified packetPaths array
+  // Expose unified packetPaths array + O(1) lookup map
   const packetPaths = [
     ...internalPulseDefs,
     ...externalLinks.map((l) => ({
@@ -6118,6 +6465,15 @@ function createHardwareRig(enclosures) {
       active: true
     }))
   ];
+  const packetPathById = new Map(packetPaths.map((p) => [p.id, p]));
+
+  // Cache interior shadow casters so closed enclosures don't burn shadow map draws
+  const boxInteriorShadowMeshes = [];
+  internalsGroup.traverse((obj) => {
+    if (obj.isMesh && obj.castShadow) {
+      boxInteriorShadowMeshes.push(obj);
+    }
+  });
 
   let lastSignature = '';
   const tmpA = new THREE.Vector3();
@@ -6125,6 +6481,12 @@ function createHardwareRig(enclosures) {
   const tmpPi = new THREE.Vector3();
   const tmpRouter = new THREE.Vector3();
   const tmpCloud = new THREE.Vector3();
+  const scratchCLidar = new THREE.Vector3();
+  const scratchPLidar = new THREE.Vector3();
+  const scratchCCam = new THREE.Vector3();
+  const scratchPCam = new THREE.Vector3();
+  const scratchCIr = new THREE.Vector3();
+  const scratchPIr = new THREE.Vector3();
 
   function getLocalFromAnchor(anchorObj, outVec) {
     anchorObj.getWorldPosition(outVec);
@@ -6132,33 +6494,36 @@ function createHardwareRig(enclosures) {
     return outVec;
   }
 
-  function rebuildExternalGeometry(modeScale, mountMode = 'bridge', boomTopY = 6.00) {
+  function rebuildExternalGeometry(modeScale, mountMode = 'bridge', boomTopY = 6.00, labTopRailY = 7.86) {
     const gA = controlBoxGroup.userData.glandAnchors;
     if (!gA) return;
 
-    const cLidar = getLocalFromAnchor(gA.lidar, new THREE.Vector3());
-    const pLidar = getLocalFromAnchor(lidarPodGroup.userData.glandAnchor, new THREE.Vector3());
+    const cLidar = getLocalFromAnchor(gA.lidar, scratchCLidar);
+    const pLidar = getLocalFromAnchor(lidarPodGroup.userData.glandAnchor, scratchPLidar);
 
-    const cCam = getLocalFromAnchor(gA.camera, new THREE.Vector3());
-    const pCam = getLocalFromAnchor(cameraPodGroup.userData.glandAnchor, new THREE.Vector3());
+    const cCam = getLocalFromAnchor(gA.camera, scratchCCam);
+    const pCam = getLocalFromAnchor(cameraPodGroup.userData.glandAnchor, scratchPCam);
 
-    const cIr = getLocalFromAnchor(gA.ir, new THREE.Vector3());
-    const pIr = getLocalFromAnchor(irIlluminatorGroup.userData.glandAnchor, new THREE.Vector3());
+    const cIr = getLocalFromAnchor(gA.ir, scratchCIr);
+    const pIr = getLocalFromAnchor(irIlluminatorGroup.userData.glandAnchor, scratchPIr);
 
     getLocalFromAnchor(piGroup, tmpPi);
     getLocalFromAnchor(wifiAnchor, tmpRouter);
-    tmpCloud.copy(tmpRouter).add(new THREE.Vector3(0, 0.38 * modeScale, 0));
+    tmpCloud.copy(tmpRouter);
+    tmpCloud.y += 0.38 * modeScale;
     cloudBeacon.position.copy(tmpCloud);
     cloudBeacon.scale.setScalar(modeScale);
 
     const modeTag = mountMode === 'lab_pole' ? 'LP' : mountMode === 'side_pole' ? 'SP' : 'BR';
 
-    // Check if positions changed enough to warrant geometry rebuild
+    // Check if positions changed enough to warrant geometry rebuild (includes Z coords!)
     const sig = [
-      cLidar.x.toFixed(3), cLidar.y.toFixed(3), pLidar.x.toFixed(3), pLidar.y.toFixed(3),
-      pCam.x.toFixed(3), pCam.y.toFixed(3), pIr.x.toFixed(3), pIr.y.toFixed(3),
+      cLidar.x.toFixed(3), cLidar.y.toFixed(3), cLidar.z.toFixed(3),
+      pLidar.x.toFixed(3), pLidar.y.toFixed(3), pLidar.z.toFixed(3),
+      pCam.x.toFixed(3), pCam.y.toFixed(3), pCam.z.toFixed(3),
+      pIr.x.toFixed(3), pIr.y.toFixed(3), pIr.z.toFixed(3),
       tmpRouter.x.toFixed(3), tmpRouter.y.toFixed(3), tmpRouter.z.toFixed(3),
-      modeScale.toFixed(2), modeTag, boomTopY.toFixed(2)
+      modeScale.toFixed(2), modeTag, boomTopY.toFixed(2), labTopRailY.toFixed(2)
     ].join('|');
 
     if (sig === lastSignature) return;
@@ -6184,11 +6549,12 @@ function createHardwareRig(enclosures) {
     };
 
     const makeLabPoleBoomCurve = (start, end, offsetX) => {
+      const railElev = labTopRailY - 0.06;
       const drip = new THREE.Vector3(start.x, start.y - 0.14, start.z - 0.05);
-      const mastTop = new THREE.Vector3(2.05 + offsetX, 7.80, -6.72);
-      const boomMid = new THREE.Vector3(2.05 + offsetX, 7.82, -5.95);
-      const railTop = new THREE.Vector3(end.x, 7.78, -5.38);
-      const railDrop = new THREE.Vector3(end.x, 0.5 * (7.78 + end.y), -5.36);
+      const mastTop = new THREE.Vector3(2.05 + offsetX, railElev, -6.72);
+      const boomMid = new THREE.Vector3(2.05 + offsetX, railElev + 0.02, -5.95);
+      const railTop = new THREE.Vector3(end.x, railElev - 0.02, -5.38);
+      const railDrop = new THREE.Vector3(end.x, 0.5 * (railElev - 0.02 + end.y), -5.36);
       return new THREE.CatmullRomCurve3([start.clone(), drip, mastTop, boomMid, railTop, railDrop, end.clone()]);
     };
 
@@ -6219,7 +6585,7 @@ function createHardwareRig(enclosures) {
       if (!newCurve) return;
       link.curve = newCurve;
 
-      const exportedPath = packetPaths.find((p) => p.id === link.id);
+      const exportedPath = packetPathById.get(link.id);
       if (exportedPath) exportedPath.curve = newCurve;
 
       if (link.buildTube) {
@@ -6255,15 +6621,22 @@ function createHardwareRig(enclosures) {
       lastAutoRouterPos.copy(targetAuto);
     }
 
-    // Subtle CAD exploded spacing for internal pods
+    // Subtle CAD exploded spacing & closed-enclosure culling for miniature interiors
     const lidarE = lidarPodGroup.userData.explodeFactor || 0;
+    tfLunaGroup.visible = lidarE > 0.01;
     tfLunaGroup.position.y = 0.011 + 0.012 * lidarE;
 
     const camE = cameraPodGroup.userData.explodeFactor || 0;
+    camModuleGroup.visible = camE > 0.01;
     camModuleGroup.position.y = 0.0145 + 0.014 * camE;
 
     const boxE = controlBoxGroup.userData.explodeFactor || 0;
+    const boxOpen = boxE > 0.01;
+    internalsGroup.visible = boxOpen || !isRiver;
     internalsGroup.position.z = 0.018 * boxE;
+    for (let i = 0; i < boxInteriorShadowMeshes.length; i++) {
+      boxInteriorShadowMeshes[i].castShadow = boxOpen;
+    }
 
     // Refresh world matrices & rebuild umbilical/wireless routes if endpoints moved
     group.updateMatrixWorld(true);
@@ -6281,7 +6654,13 @@ function createHardwareRig(enclosures) {
           ? 'side_pole'
           : 'bridge';
     const boomTopY = Number(state.sidePoleHeightM ?? 6.00);
-    rebuildExternalGeometry(modeScale, mountMode, Number.isFinite(boomTopY) ? boomTopY : 6.00);
+    const labTopRailY = Number(state._labPoleTopRailY ?? 7.86);
+    rebuildExternalGeometry(
+      modeScale,
+      mountMode,
+      Number.isFinite(boomTopY) ? boomTopY : 6.00,
+      Number.isFinite(labTopRailY) ? labTopRailY : 7.86
+    );
 
     const pipelineOn = state.pipelineActive !== false;
     const wifiOn = state.wifiOnline !== false;
@@ -6345,7 +6724,7 @@ function createHardwareRig(enclosures) {
         p.curve.getPointAt(p.phase, tmpA);
         p.mesh.position.copy(tmpA);
       }
-      const exported = packetPaths.find((item) => item.id === p.id);
+      const exported = packetPathById.get(p.id);
       if (exported) exported.active = active;
     });
 
@@ -6358,7 +6737,7 @@ function createHardwareRig(enclosures) {
         active = powerOn && pipelineOn && wifiOn;
       }
 
-      const exported = packetPaths.find((item) => item.id === link.id);
+      const exported = packetPathById.get(link.id);
       if (exported) exported.active = active;
 
       const pulseScale = link.kind === 'wifi' || link.kind === 'cloud'
@@ -6390,7 +6769,9 @@ function createHardwareRig(enclosures) {
   };
 }
 
-  return { createHardwareRig };
+  return {
+    createHardwareRig,
+  };
 })(THREE, RiverSimModules.enclosures);
 
 /* === MODULE: src/sim/hydraulics.js === */
@@ -6478,10 +6859,14 @@ function createLabHydraulics() {
   let qReturn = 0.00118;
   let returnVelocity = 0.048;
   let rippleAmp = 0.0032;
-  let surfaceVelocity = 0.24;
+  let surfaceVelocity = 0.09;
   let turbidityMode = 'clear';
   let wavePowerSmooth = 0.25;
   let valveSmooth = 0.75;
+
+  function computeAreaAtWaterLevel(wl) {
+    return LAB_GEOMETRY.channelWidth * Math.max(0.005, (Number(wl) || 0) - LAB_GEOMETRY.step1.foamY);
+  }
 
   // Particle pool for floating foam tracers & debris
   let nextParticleId = 1;
@@ -6518,7 +6903,7 @@ function createLabHydraulics() {
     p.x = x;
     p.z = z;
     p.y = sampleSurface(x, z) + p.size * 0.15;
-    p.vx = qInflow > 1e-5 ? 0.16 + rng() * 0.06 : 0;
+    p.vx = qInflow > 1e-5 ? Math.max(0.04, surfaceVelocity * (0.88 + rng() * 0.24)) : 0;
     p.vy = 0;
     p.vz = (rng() - 0.5) * 0.03;
     p.rotZ = 0;
@@ -6613,8 +6998,7 @@ function createLabHydraulics() {
     let localRippleScale = 0.6;
 
     if (x < LAB_GEOMETRY.headbox.xMax) {
-      baseY = yHeadbox;
-      localRippleScale = 0.45 * flowNorm;
+      return yHeadbox + Math.sin(x * 30.0 - t * 4.5) * 0.0008 * flowNorm;
     } else if (x <= LAB_GEOMETRY.step1.xMax) {
       baseY = yW1;
       // Radial jet impact ripples from drop pipe at (-0.21, -0.02)
@@ -6693,9 +7077,8 @@ function createLabHydraulics() {
       particles.length = desired;
     }
 
-    const flowScale = clamp(qInflow / 0.00118, 0, 1.65);
-    const waveDrift = wavePowerSmooth * 0.08;
-    const activeCascadeSpeed = 0.175 + 0.095 * flowScale + waveDrift;
+    const waveDrift = wavePowerSmooth * 0.025;
+    const activeCascadeSpeed = qInflow > 1e-5 ? Math.max(0.045, surfaceVelocity) : waveDrift;
     const stepLevels = [yW1, yW2, yW3, yBasin];
     const stepDischarges = [qWeir1, qWeir2, qWeir3];
     const zMin = LAB_GEOMETRY.tankZMin + 0.018;
@@ -6706,8 +7089,9 @@ function createLabHydraulics() {
       p.age += dt;
 
       // Subtle lateral wave-maker circulation & turbulence
+      const swirlFlow = clamp(qInflow / 0.00118, 0.08, 1.65);
       const swirlZ =
-        Math.sin(simTime * 2.3 + p.phase + p.x * 11.0) * (0.025 + 0.055 * wavePowerSmooth) * flowScale;
+        Math.sin(simTime * 2.3 + p.phase + p.x * 11.0) * (0.015 + 0.035 * wavePowerSmooth) * swirlFlow;
 
       let handled = false;
       for (let idx = 0; idx < CASCADE_STEPS.length; idx++) {
@@ -6801,7 +7185,7 @@ function createLabHydraulics() {
               p.zone = nextCfg.zone;
               p.x = Math.max(nextCfg.geom.xMin + 0.01, sheetX);
               p.y = sampleSurface(p.x, p.z) + p.size * 0.15;
-              p.vx = Math.max(0.18, activeCascadeSpeed * nextCfg.speedScale);
+              p.vx = Math.max(0.06, activeCascadeSpeed * nextCfg.speedScale);
               p.vy = 0;
               p.rotZ = 0;
               p.fallS = 0;
@@ -6885,13 +7269,13 @@ function createLabHydraulics() {
       yW2 = clamp(yW2 + ((qWeir1 - qWeir2) / A_STEP2) * hDt, LAB_GEOMETRY.step2.foamY + 0.005, 0.36);
       yW3 = clamp(yW3 + ((qWeir2 - qWeir3) / A_STEP3) * hDt, LAB_GEOMETRY.step3.foamY + 0.005, 0.30);
 
-      const qPumpDraw = pumpActive && hasHeadboxWater ? qInflow * 0.92 + qPumpTarget * 0.08 : 0;
+      const qPumpDraw = pumpActive && hasHeadboxWater ? qInflow : 0;
       yBasin = clamp(yBasin + ((qWeir3 - qReturn) / A_BASIN) * hDt, 0.04, 0.28);
       yHeadbox = clamp(yHeadbox + ((qReturn - qPumpDraw) / A_HEADBOX) * hDt, 0.035, 0.48);
 
-      // Headbox top overflow notch into Step 1 if headbox ever exceeds y=0.45
+      // Headbox top overflow notch (0.18 m wide) into Step 1 if headbox ever exceeds y=0.45
       if (yHeadbox > 0.45) {
-        const qNotch = weirDischarge(yHeadbox, 0.45) * 0.4;
+        const qNotch = weirDischarge(yHeadbox, 0.45) * (0.18 / LAB_GEOMETRY.channelWidth);
         yHeadbox -= (qNotch / A_HEADBOX) * hDt;
         yW1 += (qNotch / A_STEP1) * hDt;
       }
@@ -6903,9 +7287,12 @@ function createLabHydraulics() {
 
     const step1Depth = Math.max(0.015, yW1 - LAB_GEOMETRY.step1.foamY);
     const step1BulkV = qInflow / (LAB_GEOMETRY.channelWidth * step1Depth);
-    // Surface flow speed reflects inlet jet + surface boundary acceleration + wave makers
+    // Surface continuity Vs = Vbulk / k_true (0.85) with bounded wave-maker surface agitation
+    const waveSurfaceFactor = 1.0 + 0.08 * wavePowerSmooth;
     surfaceVelocity =
-      (qInflow > 1e-5 ? 0.12 + step1BulkV * 1.45 + wavePowerSmooth * 0.08 : wavePowerSmooth * 0.05);
+      qInflow > 1e-5
+        ? (step1BulkV / 0.85) * waveSurfaceFactor
+        : wavePowerSmooth * 0.03;
 
     updateParticles(clampedDt, pumpActive, debrisTarget);
   }
@@ -6968,11 +7355,15 @@ function createLabHydraulics() {
     getMetrics,
     getParticles,
     sampleSurface,
+    computeAreaAtWaterLevel,
     reset,
   };
 }
 
-  return { LAB_GEOMETRY, createLabHydraulics };
+  return {
+    LAB_GEOMETRY,
+    createLabHydraulics,
+  };
 })();
 
 /* === MODULE: src/sim/realRiverHydraulics.js === */
@@ -7027,22 +7418,24 @@ function defaultGuimbalBedHeight(z) {
 function evaluateHydrograph(tSec) {
   const phase = ((tSec % HYDROGRAPH_PERIOD_S) + HYDROGRAPH_PERIOD_S) % HYDROGRAPH_PERIOD_S;
   const u = phase / HYDROGRAPH_PERIOD_S; // 0..1
-  // Skewed Pearson-like pulse peaking around u = 0.34
+  // Continuous skewed storm hydrograph pulse (pulse(0) == pulse(1) == 0, peak at u = 0.34)
   let pulse = 0;
   let dPulse = 0;
   if (u < 0.06) {
-    pulse = 0.02 * (u / 0.06);
-    dPulse = 0.05;
+    const s = u / 0.06;
+    pulse = 0.03 * (s * s * (3 - 2 * s));
+    dPulse = 0.12 * s;
   } else if (u < 0.34) {
     const s = (u - 0.06) / 0.28;
-    // Smooth steep rising limb
-    pulse = 0.02 + 0.98 * (s * s * (3 - 2 * s));
+    pulse = 0.03 + 0.97 * (s * s * (3 - 2 * s));
     dPulse = 6 * s * (1 - s);
   } else {
     const s = (u - 0.34) / 0.66;
-    // Exponential recession limb
-    pulse = Math.exp(-3.4 * s) * (1 - 0.18 * s);
-    dPulse = -0.6 * pulse;
+    const decay = Math.exp(-3.4 * s);
+    const tail = Math.exp(-3.4);
+    const taper = (decay - tail) / (1 - tail);
+    pulse = Math.max(0, taper * (1 - 0.08 * s * s));
+    dPulse = -0.85 * Math.sin(Math.PI * clamp(s, 0, 1)) * (0.35 + 0.65 * (1 - s));
   }
   const stageM = 0.62 + 2.13 * clamp(pulse, 0, 1);
   return { stageM, dhDtNorm: clamp(dPulse, -1, 1), hydroPhase: u };
@@ -7072,10 +7465,11 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
   let lastPreset = 'normal';
   let lastSliderStage = 1.15;
 
+  const TRUE_RIVER_K = 0.85;
+  const CHANNEL_HALF_W = 6.0;
   let currentWL = 1.15;
   let manningN = 0.035;
   let channelSlope = 0.0022;
-  let velocityCoeffK = 0.85;
   let rainIntensity = 0.0;
   let windChop = 0.15;
   let turbidityMode = 'silty';
@@ -7151,15 +7545,21 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
     };
   }
 
-  function integrateCrossSection(wl) {
-    let area = 0;
-    let perimeter = 0;
+  function integrateZones(wl, includePier = bridgeActive) {
+    let areaLeft = 0;
+    let perimLeft = 0;
+    let areaMain = 0;
+    let perimMain = 0;
+    let areaRight = 0;
+    let perimRight = 0;
     let width = 0;
     let minSubZ = Z_MAX;
     let maxSubZ = Z_MIN;
     let deepMax = 0;
 
-    // First pass: wetted area, wetted perimeter, top width with sub-cell shoreline interpolation
+    const pierMinZ = PIER_POS.z - PIER_POS.halfWidth;
+    const pierMaxZ = PIER_POS.z + PIER_POS.halfWidth;
+
     for (let i = 0; i < NUM_SLICES; i++) {
       const z0 = zGrid[i];
       const z1 = zGrid[i + 1];
@@ -7173,55 +7573,111 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
       if (d0 > deepMax) deepMax = d0;
       if (d1 > deepMax) deepMax = d1;
 
+      let subArea = 0;
+      let subPerim = 0;
+      let subWidth = 0;
+      let zLo = z0;
+      let zHi = z1;
+
       if (d0 >= 0 && d1 >= 0) {
-        area += 0.5 * (d0 + d1) * DZ;
-        perimeter += Math.hypot(DZ, b1 - b0);
-        width += DZ;
-        if (z0 < minSubZ) minSubZ = z0;
-        if (z1 > maxSubZ) maxSubZ = z1;
+        subArea = 0.5 * (d0 + d1) * DZ;
+        subPerim = Math.hypot(DZ, b1 - b0);
+        subWidth = DZ;
       } else if (d0 > 0 && d1 <= 0) {
-        // Shoreline exits between z0 and z1
         const frac = d0 / (d0 - d1);
         const subDz = DZ * frac;
-        const zCross = z0 + subDz;
-        area += 0.5 * d0 * subDz;
-        perimeter += Math.hypot(subDz, wl - b0);
-        width += subDz;
-        if (z0 < minSubZ) minSubZ = z0;
-        if (zCross > maxSubZ) maxSubZ = zCross;
+        subArea = 0.5 * d0 * subDz;
+        subPerim = Math.hypot(subDz, wl - b0);
+        subWidth = subDz;
+        zHi = z0 + subDz;
       } else {
-        // Shoreline enters between z0 and z1
         const frac = d1 / (d1 - d0);
         const subDz = DZ * frac;
-        const zCross = z1 - subDz;
-        area += 0.5 * d1 * subDz;
-        perimeter += Math.hypot(subDz, b1 - wl);
-        width += subDz;
-        if (zCross < minSubZ) minSubZ = zCross;
-        if (z1 > maxSubZ) maxSubZ = z1;
+        subArea = 0.5 * d1 * subDz;
+        subPerim = Math.hypot(subDz, b1 - wl);
+        subWidth = subDz;
+        zLo = z1 - subDz;
+      }
+
+      if (zLo < minSubZ) minSubZ = zLo;
+      if (zHi > maxSubZ) maxSubZ = zHi;
+      width += subWidth;
+
+      const zMid = 0.5 * (z0 + z1);
+      if (zMid < -CHANNEL_HALF_W) {
+        areaLeft += subArea;
+        perimLeft += subPerim;
+      } else if (zMid > CHANNEL_HALF_W) {
+        areaRight += subArea;
+        perimRight += subPerim;
+      } else {
+        let keepFrac = 1.0;
+        if (includePier) {
+          const ov = Math.max(0, Math.min(zHi, pierMaxZ) - Math.max(zLo, pierMinZ));
+          keepFrac = clamp(1.0 - ov / Math.max(1e-6, subWidth), 0, 1);
+        }
+        areaMain += subArea * keepFrac;
+        perimMain += subPerim * keepFrac;
+        if (includePier && keepFrac < 0.01) {
+          width = Math.max(0.2, width - (subWidth - subWidth * keepFrac));
+        }
       }
     }
 
-    wettedArea = Math.max(0.05, area);
-    wettedPerimeter = Math.max(0.2, perimeter);
+    if (includePier) {
+      const pierSubDepth = Math.max(0, wl - bedFn(PIER_POS.z));
+      if (pierSubDepth > 0) {
+        perimMain += 2.0 * pierSubDepth;
+      }
+    }
+
+    const area = Math.max(0.05, areaLeft + areaMain + areaRight);
+    const perimeter = Math.max(0.2, perimLeft + perimMain + perimRight);
+    return {
+      areaLeft,
+      perimLeft,
+      areaMain,
+      perimMain,
+      areaRight,
+      perimRight,
+      area,
+      perimeter,
+      width: Math.max(0.2, width),
+      minSubZ,
+      maxSubZ,
+      deepMax: Math.max(0.05, deepMax),
+    };
+  }
+
+  function computeAreaAtWaterLevel(wl) {
+    return integrateZones(Number(wl) || 0, bridgeActive).area;
+  }
+
+  function integrateCrossSection(wl) {
+    const zRes = integrateZones(wl, bridgeActive);
+    wettedArea = zRes.area;
+    wettedPerimeter = zRes.perimeter;
     hydraulicRadius = wettedArea / wettedPerimeter;
-    topWidth = Math.max(0.2, width);
-    leftEdgeZ = minSubZ < maxSubZ ? minSubZ : -0.5;
-    rightEdgeZ = minSubZ < maxSubZ ? maxSubZ : 0.5;
-    maxDepth = Math.max(0.05, deepMax);
+    topWidth = zRes.width;
+    leftEdgeZ = zRes.minSubZ < zRes.maxSubZ ? zRes.minSubZ : -0.5;
+    rightEdgeZ = zRes.minSubZ < zRes.maxSubZ ? zRes.maxSubZ : 0.5;
+    maxDepth = zRes.deepMax;
 
-    // Manning's open-channel equation: V = (1/n) * R_h^(2/3) * S_0^(1/2)
-    const rainBoost = 1.0 + 0.04 * rainIntensity;
-    meanVelocityV =
-      (1.0 / manningN) *
-      Math.pow(hydraulicRadius, 2 / 3) *
-      Math.pow(channelSlope, 0.5) *
-      hydroRisingBoost *
-      rainBoost;
-    surfaceVelocityVs = meanVelocityV / velocityCoeffK;
-    dischargeQ = wettedArea * meanVelocityV;
+    // 3-zone divided-channel Manning conveyance: K = K_main + K_left + K_right
+    const nMain = manningN;
+    const nOverbank = manningN * 1.45;
+    const zoneConveyance = (a, p, n) => (a > 1e-5 && p > 1e-4 ? (1.0 / n) * a * Math.pow(a / p, 2 / 3) : 0);
+    const kTotal =
+      zoneConveyance(zRes.areaMain, zRes.perimMain, nMain) +
+      zoneConveyance(zRes.areaLeft, zRes.perimLeft, nOverbank) +
+      zoneConveyance(zRes.areaRight, zRes.perimRight, nOverbank);
 
-    // Compute normalization constant so depth-averaged surface profile matches Vs
+    dischargeQ = kTotal * Math.sqrt(channelSlope) * hydroRisingBoost;
+    meanVelocityV = dischargeQ / wettedArea;
+    // Physical surface-to-mean factor fixed at TRUE_RIVER_K so slider k_est drives honest calibration sensitivity
+    surfaceVelocityVs = meanVelocityV / TRUE_RIVER_K;
+
+    // Normalize surface velocity profile at undisturbed upstream transect x = -2.0
     let sumWeight = 0;
     let sumRawWeighted = 0;
     let maxRaw = 0;
@@ -7229,7 +7685,7 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
       const z = zGrid[i];
       const d = Math.max(0, wl - bedGrid[i]);
       if (d <= 0) continue;
-      const raw = rawLateralShape(z, d, 0.8);
+      const raw = rawLateralShape(z, d, -2.0);
       sumWeight += d;
       sumRawWeighted += d * raw;
       if (raw > maxRaw) maxRaw = raw;
@@ -7263,11 +7719,14 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
   }
 
   function sampleSurface(x, z) {
-    const chop = 0.008 + 0.032 * windChop + 0.015 * rainIntensity;
-    const wave =
-      Math.sin(x * 0.9 - simTime * 2.6 + z * 0.4) * 0.55 +
-      Math.cos(z * 1.4 + simTime * 2.1 - x * 0.35) * 0.45;
-    return currentWL + wave * chop;
+    const depth = Math.max(0, currentWL - bedFn(z));
+    const tDamp = clamp(depth / 0.45, 0, 1);
+    const shallowDamp = tDamp * tDamp * (3 - 2 * tDamp);
+    const chopAmp = (0.010 + 0.036 * windChop + 0.015 * rainIntensity) * shallowDamp;
+    const w1 = Math.sin(x * 1.15 - simTime * 2.8 + z * 0.45);
+    const w2 = Math.cos(z * 1.65 + simTime * 2.2 - x * 0.35);
+    const w3 = Math.sin((x + z) * 2.4 - simTime * 3.9);
+    return currentWL + (w1 * 0.5 + w2 * 0.32 + w3 * 0.18) * chopAmp;
   }
 
   function updateParticles(dt, targetCount, mountMode = 'bridge') {
@@ -7296,15 +7755,25 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
         lateralForce += Math.sign(centerZ - p.z) * 0.35;
       }
 
-      // Streamline deflection around bridge pier at (x = 0, z = -4.2) when bridge is present
+      // Hard streamline deflection + solid exclusion around bridge pier (x = 0, z = -4.2)
       if (mountMode === 'bridge') {
         const dxPier = p.x - PIER_POS.x;
         const dzPier = p.z - PIER_POS.z;
-        if (Math.abs(dxPier) < 1.3 && Math.abs(dzPier) < 1.1) {
+        const rMin = 0.48 + (p.size || 0.25) * 0.45;
+        if (Math.abs(dxPier) < 1.35 && Math.abs(dzPier) < 1.15) {
           const dist = Math.hypot(dxPier, dzPier);
-          if (dist < 1.05 && dist > 1e-4) {
+          if (dist < 1.08 && dist > 1e-4) {
             const pushZ = dzPier >= 0 ? 1 : -1;
-            lateralForce += pushZ * (1.05 - dist) * 1.4;
+            lateralForce += pushZ * (1.08 - dist) * 1.4;
+          }
+          if (dist < rMin && dist > 1e-4) {
+            const nx = dxPier / dist;
+            const nz = dzPier / dist;
+            p.x = PIER_POS.x + nx * rMin;
+            p.z = PIER_POS.z + nz * rMin;
+            if (p.vx * nx + p.vz * nz < 0) {
+              p.vz += Math.sign(nz || 1) * 0.45;
+            }
           }
         }
       }
@@ -7313,6 +7782,8 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
       p.x += p.vx * dt;
       p.z = clamp(p.z + p.vz * dt, leftEdgeZ + safeMargin, rightEdgeZ - safeMargin);
       p.y = sampleSurface(p.x, p.z) + 0.015;
+      const slopeY = (sampleSurface(p.x + 0.12, p.z) - sampleSurface(p.x - 0.12, p.z)) / 0.24;
+      p.rotZ = Math.atan(slopeY) * 0.65;
       p.rotY += (0.25 * Math.sin(simTime * 1.3 + p.phase) + p.vz * 0.8) * dt;
 
       // Recycle downstream debris back upstream
@@ -7350,11 +7821,6 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
       0.0002,
       0.02
     );
-    velocityCoeffK = clamp(
-      state.velocityCoeffK !== undefined ? Number(state.velocityCoeffK) : 0.85,
-      0.6,
-      1.0
-    );
     rainIntensity = clamp(state.rainIntensity !== undefined ? Number(state.rainIntensity) : 0, 0, 1);
     windChop = clamp(state.windChop !== undefined ? Number(state.windChop) : 0.15, 0, 1);
     turbidityMode = state.turbidityMode || 'silty';
@@ -7388,17 +7854,13 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
         state.riverStageM !== undefined ? clamp(Number(state.riverStageM), 0.25, 3.3) : null;
       if (preset !== lastPreset && PRESET_STAGE_M[preset] !== undefined) {
         targetStageM = PRESET_STAGE_M[preset];
-        // When preset switches, follow preset until slider moves again
-        if (sliderStage !== null) lastSliderStage = sliderStage;
+        state.riverStageM = targetStageM;
+        lastSliderStage = targetStageM;
       } else if (sliderStage !== null && Math.abs(sliderStage - lastSliderStage) > 1e-4) {
         targetStageM = sliderStage;
         lastSliderStage = sliderStage;
-      } else if (sliderStage !== null && lastPreset === preset) {
-        // Keep aligned with state.riverStageM if state initialized directly to a stage
-        targetStageM =
-          PRESET_STAGE_M[preset] !== undefined && Math.abs(sliderStage - 1.15) < 1e-4 && preset !== 'normal'
-            ? PRESET_STAGE_M[preset]
-            : sliderStage;
+      } else if (sliderStage !== null) {
+        targetStageM = sliderStage;
       } else if (PRESET_STAGE_M[preset] !== undefined) {
         targetStageM = PRESET_STAGE_M[preset];
       }
@@ -7470,7 +7932,7 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
       maxDepthM: maxDepth,
       manningN,
       channelSlope,
-      velocityCoeffK,
+      velocityCoeffK: TRUE_RIVER_K,
       meanVelocityV,
       thalwegSurfaceVel,
       trueSurfaceVelocity: surfaceVelocityVs,
@@ -7506,12 +7968,16 @@ function createRealRiverHydraulics(getBedHeightAtZ) {
     getParticles,
     getCrossSectionProfile,
     getVelocityAtZ,
+    computeAreaAtWaterLevel,
     sampleSurface,
     getBedY: bedFn,
   };
 }
 
-  return { defaultGuimbalBedHeight, createRealRiverHydraulics };
+  return {
+    defaultGuimbalBedHeight,
+    createRealRiverHydraulics,
+  };
 })();
 
 /* === MODULE: src/sim/waterShader.js === */
@@ -7524,6 +7990,14 @@ const TURBIDITY_PALETTES = {
     riverShallow: new THREE.Color('#349ca6'),
     riverDeep: new THREE.Color('#12576b'),
     riverOpacity: 0.68,
+  },
+  turbid_white: {
+    labColor: new THREE.Color('#d4e0e6'),
+    labDeep: new THREE.Color('#95aab6'),
+    labOpacity: 0.84,
+    riverShallow: new THREE.Color('#c7d3d9'),
+    riverDeep: new THREE.Color('#86969f'),
+    riverOpacity: 0.90,
   },
   silty: {
     labColor: new THREE.Color('#7c8762'),
@@ -7540,6 +8014,14 @@ const TURBIDITY_PALETTES = {
     riverShallow: new THREE.Color('#966f44'),
     riverDeep: new THREE.Color('#664726'),
     riverOpacity: 0.96,
+  },
+  algal_green: {
+    labColor: new THREE.Color('#3f7d4a'),
+    labDeep: new THREE.Color('#24542e'),
+    labOpacity: 0.82,
+    riverShallow: new THREE.Color('#4d8047'),
+    riverDeep: new THREE.Color('#274f29'),
+    riverOpacity: 0.90,
   },
   dark: {
     labColor: new THREE.Color('#303638'),
@@ -7615,8 +8097,9 @@ const WATERFALL_FRAGMENT = /* glsl */ `
     float edgeFade = smoothstep(0.0, 0.06, vUv.x) * smoothstep(1.0, 0.94, vUv.x);
 
     float foamAmt = clamp(streaks * 0.62 + crestFoam + plungeFoam, 0.0, 1.0);
-    vec3 nightTint = mix(vec3(1.0), vec3(0.45, 0.55, 0.7), uNightMode);
-    vec3 col = mix(uWaterColor, uFoamColor, foamAmt) * nightTint;
+    vec3 nightTint = mix(vec3(1.0), vec3(0.32, 0.40, 0.54), uNightMode);
+    float rim = pow(1.0 - clamp(abs(normalize(vNormalW).z), 0.0, 1.0), 1.8);
+    vec3 col = mix(uWaterColor, uFoamColor, foamAmt) * nightTint + uFoamColor * rim * 0.22 * nightTint;
 
     float alpha = clamp((uOpacity * 0.72 + foamAmt * 0.42) * clamp(uFlow, 0.0, 1.0), 0.0, 0.95);
     alpha *= mix(0.65, 1.0, edgeFade);
@@ -7626,11 +8109,12 @@ const WATERFALL_FRAGMENT = /* glsl */ `
 
 const RIVER_VERTEX = /* glsl */ `
   attribute float aBedY;
-  attribute float aFlowScroll;
+  attribute float aRowIdx;
   uniform float uTime;
   uniform float uWaterLevel;
   uniform float uWindChop;
   uniform float uRainIntensity;
+  uniform float uRowFlow[97];
 
   varying vec3 vWorldPos;
   varying float vBedY;
@@ -7650,9 +8134,10 @@ const RIVER_VERTEX = /* glsl */ `
 
     wp.y = uWaterLevel + disp;
 
+    int rowIdx = int(clamp(aRowIdx + 0.5, 0.0, 96.0));
     vWorldPos = wp.xyz;
     vBedY = aBedY;
-    vFlowScroll = aFlowScroll;
+    vFlowScroll = uRowFlow[rowIdx];
     vWaveH = disp;
 
     gl_Position = projectionMatrix * viewMatrix * wp;
@@ -7667,11 +8152,18 @@ const RIVER_FRAGMENT = /* glsl */ `
   uniform float uOpacity;
   uniform float uSunGlare;
   uniform vec3 uSunDir;
+  uniform vec3 uSkyColor;
+  uniform vec3 uFogColor;
+  uniform float uFogDensity;
   uniform float uNightMode;
   uniform float uRainIntensity;
   uniform float uWindChop;
   uniform vec2 uPierXZ;
   uniform float uBridgeActive;
+  uniform vec3 uIrSpotPos;
+  uniform vec3 uIrSpotDir;
+  uniform float uIrSpotIntensity;
+  uniform float uIrSpotCosCone;
 
   varying vec3 vWorldPos;
   varying float vBedY;
@@ -7742,34 +8234,55 @@ const RIVER_FRAGMENT = /* glsl */ `
     // Rain ripples perturb normal and surface highlights
     vec3 rain = rainRipples(vec2(vWorldPos.x - vFlowScroll * 0.3, vWorldPos.z), uTime, uRainIntensity);
 
-    // Analytic capillary/chop normal perturbation
+    // Time-varying capillary/chop normal perturbation (keeps calm margins alive)
     float eps = 0.12;
-    float nxA = fbm((flowUv + vec2(eps, 0.0)) * 1.2) - fbm((flowUv - vec2(eps, 0.0)) * 1.2);
-    float nzA = fbm((flowUv + vec2(0.0, eps)) * 1.2) - fbm((flowUv - vec2(0.0, eps)) * 1.2);
+    vec2 normUv = flowUv * 1.2 + vec2(uTime * 0.14, -uTime * 0.10);
+    float nxA = fbm(normUv + vec2(eps, 0.0)) - fbm(normUv - vec2(eps, 0.0));
+    float nzA = fbm(normUv + vec2(0.0, eps)) - fbm(normUv - vec2(0.0, eps));
     float normalStrength = 1.6 + 2.4 * uWindChop + 1.4 * uRainIntensity;
     vec3 N = normalize(vec3(-nxA * normalStrength - rain.x * 0.55, 1.0, -nzA * normalStrength - rain.y * 0.55));
 
-    vec3 V = normalize(cameraPosition - vWorldPos);
+    vec3 toCam = cameraPosition - vWorldPos;
+    float viewDist = length(toCam);
+    vec3 V = toCam / max(0.001, viewDist);
     vec3 L = normalize(uSunDir);
     vec3 H = normalize(L + V);
+
+    // Analytic bridge deck shadow projected along sun direction onto water surface
+    float shadowShiftX = -(5.10 - uWaterLevel) * (L.x / max(0.25, L.y));
+    float shadowShiftZ = -(5.10 - uWaterLevel) * (L.z / max(0.25, L.y));
+    float underDeckX = 1.0 - smoothstep(0.95, 1.45, abs(vWorldPos.x - shadowShiftX));
+    float underDeckZ = 1.0 - smoothstep(10.8, 11.6, abs(vWorldPos.z - shadowShiftZ));
+    float sunVis = 1.0 - 0.74 * uBridgeActive * underDeckX * underDeckZ;
 
     // Depth-based turbidity color blending
     float depthMix = smoothstep(0.05, 1.35, depth);
     vec3 baseCol = mix(uShallowColor, uDeepColor, depthMix);
     baseCol *= (0.86 + 0.26 * n1);
 
-    // Fresnel sky reflection
+    // Fresnel sky reflection synced to active sky palette
     float fresnel = pow(1.0 - max(dot(N, V), 0.0), 3.4);
-    vec3 skyCol = mix(vec3(0.58, 0.76, 0.90), vec3(0.10, 0.14, 0.22), uNightMode);
-    vec3 nightAmbient = mix(vec3(1.0), vec3(0.32, 0.38, 0.52), uNightMode);
-    vec3 col = mix(baseCol * nightAmbient, skyCol, clamp(fresnel * 0.55, 0.05, 0.65));
+    vec3 nightAmbient = mix(vec3(1.0), vec3(0.26, 0.32, 0.44), uNightMode);
+    vec3 diffuseLit = baseCol * nightAmbient * mix(0.62, 1.0, sunVis);
+    vec3 col = mix(diffuseLit, uSkyColor, clamp(fresnel * 0.56, 0.05, 0.65));
 
-    // Specular sun glare highlight (creates authentic optical glare vs turbidity/sunGlare)
+    // Specular sun glare highlight (blocked cleanly under bridge deck shadow)
     float specPow = mix(95.0, 38.0, clamp(uWindChop * 0.7 + uRainIntensity * 0.4, 0.0, 1.0));
-    float spec = pow(max(dot(N, H), 0.0), specPow);
-    float glareFactor = mix(0.25, 2.8, clamp(uSunGlare, 0.0, 1.0)) * mix(1.0, 0.22, uNightMode);
+    float spec = pow(max(dot(N, H), 0.0), specPow) * sunVis;
+    float glareFactor = mix(0.25, 2.8, clamp(uSunGlare, 0.0, 1.0)) * mix(1.0, 0.20, uNightMode);
     vec3 glareCol = mix(vec3(1.0, 0.97, 0.88), vec3(0.7, 0.78, 1.0), uNightMode);
     col += glareCol * spec * glareFactor;
+
+    // Active 850 nm IR spotlight pool on water surface (Night Mode)
+    if (uIrSpotIntensity > 0.01) {
+      vec3 toFrag = vWorldPos - uIrSpotPos;
+      float irDist = length(toFrag);
+      vec3 irRay = toFrag / max(0.01, irDist);
+      float cosAng = dot(irRay, normalize(uIrSpotDir));
+      float coneFall = smoothstep(uIrSpotCosCone, mix(uIrSpotCosCone, 1.0, 0.45), cosAng);
+      float atten = 1.0 / (1.0 + 0.045 * irDist * irDist);
+      col += vec3(0.86, 0.24, 0.56) * (coneFall * atten * uIrSpotIntensity * (0.28 + 0.35 * spec));
+    }
 
     // Shoreline foam & bridge pier bow/wake foam
     float shoreFoam = smoothstep(0.16, 0.01, depth) * (0.45 + 0.55 * n2);
@@ -7781,8 +8294,12 @@ const RIVER_FRAGMENT = /* glsl */ `
     float rainFoam = clamp(rain.z * 0.38, 0.0, 0.55);
 
     float totalFoam = clamp(shoreFoam * 0.55 + pierBowFoam * 0.8 + wakeFoam + chopFoam + rainFoam, 0.0, 0.9);
-    vec3 foamColor = mix(vec3(0.92, 0.95, 0.97), vec3(0.52, 0.58, 0.66), uNightMode);
+    vec3 foamColor = mix(vec3(0.92, 0.95, 0.97), vec3(0.42, 0.48, 0.58), uNightMode) * mix(0.75, 1.0, sunVis);
     col = mix(col, foamColor, totalFoam);
+
+    // Match exponential horizon fog of river scene
+    float fogFactor = clamp(1.0 - exp(-uFogDensity * uFogDensity * viewDist * viewDist), 0.0, 1.0);
+    col = mix(col, uFogColor, fogFactor);
 
     float shoreAlpha = smoothstep(0.004, 0.10, depth);
     float alpha = clamp(mix(uOpacity * 0.65, uOpacity, depthMix) * shoreAlpha + totalFoam * 0.35 + spec * 0.25 * uSunGlare, 0.0, 0.98);
@@ -7936,6 +8453,33 @@ function createWaterSystem(sceneRefs = {}) {
 
   /* -------------------- PHASE 1: LAB TANK WATER SYSTEM -------------------- */
 
+  // Tileable subtle ripple bump texture for lab surface reflections
+  const labRippleCanvas = document.createElement('canvas');
+  labRippleCanvas.width = 128;
+  labRippleCanvas.height = 128;
+  const lrCtx = labRippleCanvas.getContext('2d');
+  lrCtx.fillStyle = '#808080';
+  lrCtx.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 420; i++) {
+    const rx = (i * 73) % 128;
+    const ry = (i * 119) % 128;
+    const rr = 5 + (i % 9);
+    const v = 104 + (i % 52);
+    lrCtx.strokeStyle = `rgba(${v},${v},${v},0.35)`;
+    lrCtx.lineWidth = 1.5;
+    for (const ox of [-128, 0, 128]) {
+      for (const oy of [-128, 0, 128]) {
+        lrCtx.beginPath();
+        lrCtx.arc(rx + ox, ry + oy, rr, 0, Math.PI * 2);
+        lrCtx.stroke();
+      }
+    }
+  }
+  const labRippleTex = new THREE.CanvasTexture(labRippleCanvas);
+  labRippleTex.wrapS = THREE.RepeatWrapping;
+  labRippleTex.wrapT = THREE.RepeatWrapping;
+  labRippleTex.repeat.set(3, 2);
+
   const labVolumeMat = new THREE.MeshPhysicalMaterial({
     color: new THREE.Color('#2794b8'),
     roughness: 0.12,
@@ -7949,10 +8493,12 @@ function createWaterSystem(sceneRefs = {}) {
 
   const labSurfaceMat = new THREE.MeshPhysicalMaterial({
     color: new THREE.Color('#5dc4e2'),
-    roughness: 0.05,
+    bumpMap: labRippleTex,
+    bumpScale: 0.0022,
+    roughness: 0.06,
     metalness: 0.04,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.04,
+    clearcoatRoughness: 0.05,
     reflectivity: 0.92,
     transparent: true,
     opacity: 0.62,
@@ -7979,9 +8525,11 @@ function createWaterSystem(sceneRefs = {}) {
   );
   volReturn.scale.y = LAB_GEOMETRY.returnTopY - LAB_GEOMETRY.floorY;
 
-  const volStep1 = createVolumeBox(G.step1.xMin, G.step1.xMax, G.width, LAB_GEOMETRY.shelfY + 0.003);
-  const volStep2 = createVolumeBox(G.step2.xMin, G.step2.xMax, G.width, LAB_GEOMETRY.shelfY + 0.003);
-  const volStep3 = createVolumeBox(G.step3.xMin, G.step3.xMax, G.width, LAB_GEOMETRY.shelfY + 0.003);
+  // Keep step water volume inside styrofoam/sand footprint so dry white foam isn't wrapped in blue water
+  const stepVolWidthZ = G.width - 0.006;
+  const volStep1 = createVolumeBox(G.step1.xMin, G.step1.xMax, stepVolWidthZ, G.step1.sandTopY);
+  const volStep2 = createVolumeBox(G.step2.xMin, G.step2.xMax, stepVolWidthZ, G.step2.sandTopY);
+  const volStep3 = createVolumeBox(G.step3.xMin, G.step3.xMax, stepVolWidthZ, G.step3.sandTopY);
   const volBasin = createVolumeBox(G.basin.xMin, G.basin.xMax, G.width, LAB_GEOMETRY.floorY);
 
   labWaterGroup.add(volHeadbox, volReturn, volStep1, volStep2, volStep3, volBasin);
@@ -8045,7 +8593,7 @@ function createWaterSystem(sceneRefs = {}) {
   }
 
   // 3 Parabolic Cascading Waterfall Sheets (Step 1->2, Step 2->3, Step 3->Basin)
-  const waterfallUniforms = {
+  const waterfallBaseUniforms = {
     uTime: { value: 0 },
     uFlow: { value: 1.0 },
     uWaterColor: { value: new THREE.Color('#53c2e0') },
@@ -8056,7 +8604,7 @@ function createWaterSystem(sceneRefs = {}) {
   const waterfallMat = new THREE.ShaderMaterial({
     vertexShader: WATERFALL_VERTEX,
     fragmentShader: WATERFALL_FRAGMENT,
-    uniforms: waterfallUniforms,
+    uniforms: waterfallBaseUniforms,
     transparent: true,
     depthWrite: false,
     side: THREE.DoubleSide,
@@ -8066,10 +8614,25 @@ function createWaterSystem(sceneRefs = {}) {
     const segZ = 14;
     const segV = 16;
     const geom = new THREE.PlaneGeometry(1, 1, segZ, segV);
-    const mesh = new THREE.Mesh(geom, waterfallMat);
+    const mat = new THREE.ShaderMaterial({
+      vertexShader: WATERFALL_VERTEX,
+      fragmentShader: WATERFALL_FRAGMENT,
+      uniforms: {
+        uTime: waterfallBaseUniforms.uTime,
+        uFlow: { value: 1.0 },
+        uWaterColor: waterfallBaseUniforms.uWaterColor,
+        uFoamColor: waterfallBaseUniforms.uFoamColor,
+        uOpacity: waterfallBaseUniforms.uOpacity,
+        uNightMode: waterfallBaseUniforms.uNightMode,
+      },
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geom, mat);
     mesh.renderOrder = 4;
     labWaterGroup.add(mesh);
-    return { mesh, geom, weirX, weirY, segZ, segV };
+    return { mesh, mat, geom, weirX, weirY, segZ, segV };
   }
 
   const wf1 = createWaterfallSheet(G.step1.xMax + 0.002, G.step1.weirY);
@@ -8082,6 +8645,7 @@ function createWaterSystem(sceneRefs = {}) {
     wf.mesh.visible = active;
     if (!active) return;
 
+    wf.mat.uniforms.uFlow.value = clamp(qFlow / 0.00118, 0.05, 1.5);
     const pos = wf.geom.attributes.position;
     const cols = wf.segZ + 1;
     const rows = wf.segV + 1;
@@ -8100,7 +8664,7 @@ function createWaterSystem(sceneRefs = {}) {
         const uZ = c / wf.segZ - 0.5;
         const z = uZ * (G.width - 0.012);
         // Subtle undulating sheet ripple across width
-        const rippleX = Math.sin(uZ * 18.0 + s * 8.0 - waterfallMat.uniforms.uTime.value * 7.0) * 0.0012 * s;
+        const rippleX = Math.sin(uZ * 18.0 + s * 8.0 - waterfallBaseUniforms.uTime.value * 7.0) * 0.0012 * s;
         pos.setXYZ(idx, x + rippleX, y, z);
       }
     }
@@ -8110,12 +8674,12 @@ function createWaterSystem(sceneRefs = {}) {
 
   // Inlet Jet Stream from blue PVC drop nozzle (-0.21, 0.43, -0.02)
   const inletJetUniforms = {
-    uTime: waterfallUniforms.uTime,
+    uTime: waterfallBaseUniforms.uTime,
     uFlow: { value: 1.0 },
-    uWaterColor: waterfallUniforms.uWaterColor,
-    uFoamColor: waterfallUniforms.uFoamColor,
+    uWaterColor: waterfallBaseUniforms.uWaterColor,
+    uFoamColor: waterfallBaseUniforms.uFoamColor,
     uOpacity: { value: 0.85 },
-    uNightMode: waterfallUniforms.uNightMode,
+    uNightMode: waterfallBaseUniforms.uNightMode,
   };
   const inletJetMat = new THREE.ShaderMaterial({
     vertexShader: WATERFALL_VERTEX,
@@ -8135,14 +8699,28 @@ function createWaterSystem(sceneRefs = {}) {
   );
   inletJetMesh.renderOrder = 4;
 
-  // Splash foam ring at jet entry on Step 1 surface
+  // Soft radial foam splash sprite at jet entry on Step 1 surface
+  const splashCanvas = document.createElement('canvas');
+  splashCanvas.width = 128;
+  splashCanvas.height = 128;
+  const spCtx = splashCanvas.getContext('2d');
+  const spGrad = spCtx.createRadialGradient(64, 64, 10, 64, 64, 62);
+  spGrad.addColorStop(0.0, 'rgba(238, 248, 255, 0.10)');
+  spGrad.addColorStop(0.45, 'rgba(238, 248, 255, 0.88)');
+  spGrad.addColorStop(0.75, 'rgba(210, 238, 255, 0.42)');
+  spGrad.addColorStop(1.0, 'rgba(200, 235, 255, 0.0)');
+  spCtx.fillStyle = spGrad;
+  spCtx.fillRect(0, 0, 128, 128);
+  const splashTex = new THREE.CanvasTexture(splashCanvas);
   const splashRingMat = new THREE.MeshBasicMaterial({
+    map: splashTex,
     color: '#eef8ff',
     transparent: true,
-    opacity: 0.65,
+    opacity: 0.72,
     depthWrite: false,
+    side: THREE.DoubleSide,
   });
-  const splashRing = new THREE.Mesh(new THREE.RingGeometry(0.011, 0.026, 20), splashRingMat);
+  const splashRing = new THREE.Mesh(new THREE.PlaneGeometry(0.064, 0.064), splashRingMat);
   splashRing.rotation.x = -Math.PI / 2;
   splashRing.position.set(LAB_GEOMETRY.nozzlePos.x, 0.336, LAB_GEOMETRY.nozzlePos.z);
   splashRing.renderOrder = 4;
@@ -8227,29 +8805,45 @@ function createWaterSystem(sceneRefs = {}) {
     bubbleInstanced.instanceMatrix.needsUpdate = true;
   }
 
-  // Lab floating debris mesh pool (max 15)
+  // Lab floating debris mesh pool (reuses GPU geometries/materials across despawns)
   const labDebrisGroup = new THREE.Group();
   labWaterGroup.add(labDebrisGroup);
   const labDebrisPool = new Map();
+  const labDebrisFreeByKey = new Map();
+  const labActiveIdSet = new Set();
 
   function syncLabDebrisMeshes(particles) {
-    const activeIds = new Set();
+    labActiveIdSet.clear();
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
-      activeIds.add(p.id);
+      labActiveIdSet.add(p.id);
       let mesh = labDebrisPool.get(p.id);
       if (!mesh) {
-        mesh = buildLabDebrisMesh(p.type, p.size);
+        const key = `${p.type}:${(p.size || 0.01).toFixed(3)}`;
+        const freeList = labDebrisFreeByKey.get(key);
+        if (freeList && freeList.length > 0) {
+          mesh = freeList.pop();
+        } else {
+          mesh = buildLabDebrisMesh(p.type, p.size);
+          mesh.userData._poolKey = key;
+          labDebrisGroup.add(mesh);
+        }
         labDebrisPool.set(p.id, mesh);
-        labDebrisGroup.add(mesh);
       }
       mesh.visible = true;
       mesh.position.set(p.x, p.y, p.z);
       mesh.rotation.set(0, p.rotY || 0, p.rotZ || 0);
     }
     for (const [id, mesh] of labDebrisPool.entries()) {
-      if (!activeIds.has(id)) {
-        labDebrisGroup.remove(mesh);
+      if (!labActiveIdSet.has(id)) {
+        mesh.visible = false;
+        const key = mesh.userData._poolKey || 'default';
+        let list = labDebrisFreeByKey.get(key);
+        if (!list) {
+          list = [];
+          labDebrisFreeByKey.set(key, list);
+        }
+        list.push(mesh);
         labDebrisPool.delete(id);
       }
     }
@@ -8258,9 +8852,9 @@ function createWaterSystem(sceneRefs = {}) {
   /* -------------------- PHASE 2: GUIMBAL RIVER SYSTEM --------------------- */
 
   const RIVER_LEN_X = 28.0; // x in [-14, +14]
-  const RIVER_WID_Z = 13.0; // z in [-6.5, +6.5] covering 12.0 m channel & walls cleanly
+  const RIVER_WID_Z = 19.0; // z in [-9.5, +9.5] covering 12 m channel & overbank floods
   const SEG_X = 96;
-  const SEG_Z = 88;
+  const SEG_Z = 96;
 
   const riverGeom = new THREE.PlaneGeometry(RIVER_LEN_X, RIVER_WID_Z, SEG_X, SEG_Z);
   riverGeom.rotateX(-Math.PI / 2);
@@ -8268,7 +8862,7 @@ function createWaterSystem(sceneRefs = {}) {
   const riverPosAttr = riverGeom.attributes.position;
   const vCount = riverPosAttr.count;
   const bedYArray = new Float32Array(vCount);
-  const flowScrollArray = new Float32Array(vCount);
+  const rowIdxArray = new Float32Array(vCount);
 
   // Extract unique Z-row coordinates and precompute surveyed bed elevations
   const colsX = SEG_X + 1;
@@ -8281,13 +8875,14 @@ function createWaterSystem(sceneRefs = {}) {
     rowZCoords[r] = sampleZ;
     const bY = bedHeightFn(sampleZ);
     for (let c = 0; c < colsX; c++) {
-      bedYArray[r * colsX + c] = bY;
+      const idx = r * colsX + c;
+      bedYArray[idx] = bY;
+      rowIdxArray[idx] = r;
     }
   }
 
   riverGeom.setAttribute('aBedY', new THREE.BufferAttribute(bedYArray, 1));
-  const flowScrollAttr = new THREE.BufferAttribute(flowScrollArray, 1);
-  riverGeom.setAttribute('aFlowScroll', flowScrollAttr);
+  riverGeom.setAttribute('aRowIdx', new THREE.BufferAttribute(rowIdxArray, 1));
 
   const riverUniforms = {
     uTime: { value: 0 },
@@ -8296,12 +8891,20 @@ function createWaterSystem(sceneRefs = {}) {
     uDeepColor: { value: new THREE.Color('#5c593c') },
     uOpacity: { value: 0.86 },
     uSunGlare: { value: 0.25 },
-    uSunDir: { value: new THREE.Vector3(0.45, 0.72, -0.35).normalize() },
+    uSunDir: { value: new THREE.Vector3(8.5, 13.5, 7.5).normalize() },
+    uSkyColor: { value: new THREE.Color('#89bddc') },
+    uFogColor: { value: new THREE.Color('#89bddc') },
+    uFogDensity: { value: 0.013 },
     uNightMode: { value: 0.0 },
     uRainIntensity: { value: 0.0 },
     uWindChop: { value: 0.15 },
     uPierXZ: { value: new THREE.Vector2(0.0, -4.2) },
     uBridgeActive: { value: 1.0 },
+    uRowFlow: { value: rowFlowAccum },
+    uIrSpotPos: { value: new THREE.Vector3(0.95, 4.4, -0.35) },
+    uIrSpotDir: { value: new THREE.Vector3(0, -1, 0) },
+    uIrSpotIntensity: { value: 0.0 },
+    uIrSpotCosCone: { value: Math.cos(Math.PI * 0.34) },
   };
 
   const riverMat = new THREE.ShaderMaterial({
@@ -8317,29 +8920,45 @@ function createWaterSystem(sceneRefs = {}) {
   riverSurfaceMesh.renderOrder = 2;
   riverWaterGroup.add(riverSurfaceMesh);
 
-  // River floating debris pool (up to 25)
+  // River floating debris pool (reuses GPU geometries/materials across despawns)
   const riverDebrisGroup = new THREE.Group();
   riverWaterGroup.add(riverDebrisGroup);
   const riverDebrisPool = new Map();
+  const riverDebrisFreeByKey = new Map();
+  const riverActiveIdSet = new Set();
 
   function syncRiverDebrisMeshes(particles) {
-    const activeIds = new Set();
+    riverActiveIdSet.clear();
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
-      activeIds.add(p.id);
+      riverActiveIdSet.add(p.id);
       let mesh = riverDebrisPool.get(p.id);
       if (!mesh) {
-        mesh = buildRiverDebrisMesh(p.type, p.size);
+        const key = `${p.type}:${(p.size || 0.25).toFixed(2)}`;
+        const freeList = riverDebrisFreeByKey.get(key);
+        if (freeList && freeList.length > 0) {
+          mesh = freeList.pop();
+        } else {
+          mesh = buildRiverDebrisMesh(p.type, p.size);
+          mesh.userData._poolKey = key;
+          riverDebrisGroup.add(mesh);
+        }
         riverDebrisPool.set(p.id, mesh);
-        riverDebrisGroup.add(mesh);
       }
       mesh.visible = true;
       mesh.position.set(p.x, p.y, p.z);
       mesh.rotation.set(0, p.rotY || 0, p.rotZ || 0);
     }
     for (const [id, mesh] of riverDebrisPool.entries()) {
-      if (!activeIds.has(id)) {
-        riverDebrisGroup.remove(mesh);
+      if (!riverActiveIdSet.has(id)) {
+        mesh.visible = false;
+        const key = mesh.userData._poolKey || 'default';
+        let list = riverDebrisFreeByKey.get(key);
+        if (!list) {
+          list = [];
+          riverDebrisFreeByKey.set(key, list);
+        }
+        list.push(mesh);
         riverDebrisPool.delete(id);
       }
     }
@@ -8349,7 +8968,7 @@ function createWaterSystem(sceneRefs = {}) {
 
   let elapsed = 0;
 
-  function update(dt, state = {}, labHydraulics = null, riverHydraulics = null) {
+  function update(dt, state = {}, labHydraulics = null, riverHydraulics = null, env = null) {
     const clampedDt = clamp(dt || 0.016, 0.001, 0.05);
     elapsed += clampedDt;
 
@@ -8364,22 +8983,30 @@ function createWaterSystem(sceneRefs = {}) {
 
     const turb = getPalette(state.turbidityMode || (isRiver ? 'silty' : 'clear'));
     const nightTarget = state.nightMode ? 1.0 : 0.0;
+    const isNightSky = state.timeOfDay === 'night' || state.timeOfDay === 'night_no_ir' || Boolean(state.nightMode);
+    const labDarken = isNightSky ? (state.nightMode ? 0.54 : 0.36) : 1.0;
 
     if (!isRiver && labHydraulics) {
-      const m = labHydraulics.getMetrics();
-      const particles = labHydraulics.getParticles();
+      const m = env?.metrics || labHydraulics.getMetrics();
+      const particles = env?.particles || labHydraulics.getParticles();
 
-      labVolumeMat.color.copy(turb.labDeep);
+      labVolumeMat.color.copy(turb.labDeep).multiplyScalar(labDarken);
       labVolumeMat.opacity = turb.labOpacity * 0.62;
-      labSurfaceMat.color.copy(turb.labColor);
+      labSurfaceMat.color.copy(turb.labColor).multiplyScalar(labDarken);
       labSurfaceMat.opacity = clamp(turb.labOpacity + 0.16, 0.35, 0.92);
+      labRippleTex.offset.x = (elapsed * 0.32) % 1;
+      labRippleTex.offset.y = Math.sin(elapsed * 0.6) * 0.05;
 
-      // Update volume heights
-      volHeadbox.scale.y = Math.max(0.003, m.y_headbox - LAB_GEOMETRY.floorY);
-      volStep1.scale.y = Math.max(0.003, m.y_w1 - (LAB_GEOMETRY.shelfY + 0.003));
-      volStep2.scale.y = Math.max(0.003, m.y_w2 - (LAB_GEOMETRY.shelfY + 0.003));
-      volStep3.scale.y = Math.max(0.003, m.y_w3 - (LAB_GEOMETRY.shelfY + 0.003));
-      volBasin.scale.y = Math.max(0.003, m.y_basin - LAB_GEOMETRY.floorY);
+      // Update volume heights cleanly below wave troughs
+      volHeadbox.scale.y = Math.max(0.003, m.y_headbox - LAB_GEOMETRY.floorY - 0.003);
+      volReturn.scale.y = Math.max(
+        0.004,
+        Math.min(LAB_GEOMETRY.returnTopY, Math.max(m.y_headbox, m.y_basin)) - LAB_GEOMETRY.floorY
+      );
+      volStep1.scale.y = Math.max(0.002, m.y_w1 - G.step1.sandTopY - 0.004);
+      volStep2.scale.y = Math.max(0.002, m.y_w2 - G.step2.sandTopY - 0.004);
+      volStep3.scale.y = Math.max(0.002, m.y_w3 - G.step3.sandTopY - 0.004);
+      volBasin.scale.y = Math.max(0.003, m.y_basin - LAB_GEOMETRY.floorY - 0.003);
 
       // Update dynamic wave surfaces
       updateLabSurfaceGrid(surfHeadbox, labHydraulics, m.y_headbox);
@@ -8389,12 +9016,10 @@ function createWaterSystem(sceneRefs = {}) {
       updateLabSurfaceGrid(surfBasin, labHydraulics, m.y_basin);
 
       // Update waterfalls & inlet jet stream
-      const wfU = waterfallMat.uniforms;
-      wfU.uTime.value = elapsed;
-      wfU.uFlow.value = clamp(m.qFlow / 0.00118, 0, 1.5);
-      wfU.uWaterColor.value.copy(turb.labColor);
-      wfU.uOpacity.value = clamp(turb.labOpacity + 0.3, 0.5, 0.95);
-      wfU.uNightMode.value = nightTarget;
+      waterfallBaseUniforms.uTime.value = elapsed;
+      waterfallBaseUniforms.uWaterColor.value.copy(turb.labColor);
+      waterfallBaseUniforms.uOpacity.value = clamp(turb.labOpacity + 0.3, 0.5, 0.95);
+      waterfallBaseUniforms.uNightMode.value = isNightSky ? 1.0 : 0.0;
 
       updateWaterfallSheet(wf1, m.y_w1, m.y_w2, m.qWeir1);
       updateWaterfallSheet(wf2, m.y_w2, m.y_w3, m.qWeir2);
@@ -8406,28 +9031,26 @@ function createWaterSystem(sceneRefs = {}) {
       if (jetActive) {
         const dropH = Math.max(0.01, LAB_GEOMETRY.nozzlePos.y - m.y_w1);
         const jetFlowNorm = clamp(m.inflowRate / 0.00118, 0.3, 1.4);
-        const jetU = inletJetMat.uniforms;
-        jetU.uTime.value = elapsed;
-        jetU.uFlow.value = jetFlowNorm;
-        jetU.uWaterColor.value.copy(turb.labColor);
-        jetU.uOpacity.value = clamp(turb.labOpacity + 0.35, 0.55, 0.95);
-        jetU.uNightMode.value = nightTarget;
+        inletJetUniforms.uFlow.value = jetFlowNorm;
         inletJetMesh.scale.set(0.75 + 0.35 * jetFlowNorm, dropH, 0.75 + 0.35 * jetFlowNorm);
         splashRing.position.y = m.y_w1 + 0.0025;
-        const pulse = 0.88 + 0.25 * Math.sin(elapsed * 14.0);
+        const pulse = 0.88 + 0.22 * Math.sin(elapsed * 14.0);
         splashRing.scale.setScalar(pulse * (0.7 + 0.35 * jetFlowNorm));
       }
+
+      splashRingMat.color.copy(turb.labColor).lerp(waterfallBaseUniforms.uFoamColor.value, 0.72).multiplyScalar(labDarken);
+      bubbleMat.color.copy(turb.labColor).lerp(waterfallBaseUniforms.uFoamColor.value, 0.78).multiplyScalar(labDarken);
 
       updateLabBubbles(elapsed, m);
       syncLabDebrisMeshes(particles);
     }
 
     if (isRiver && riverHydraulics) {
-      const m = riverHydraulics.getMetrics();
-      const particles = riverHydraulics.getParticles();
+      const m = env?.metrics || riverHydraulics.getMetrics();
+      const particles = env?.particles || riverHydraulics.getParticles();
 
       const rU = riverMat.uniforms;
-      rU.uTime.value = elapsed;
+      rU.uTime.value = m.simTime ?? elapsed;
       rU.uWaterLevel.value = m.waterLevelM;
       rU.uShallowColor.value.copy(turb.riverShallow);
       rU.uDeepColor.value.copy(turb.riverDeep);
@@ -8437,42 +9060,50 @@ function createWaterSystem(sceneRefs = {}) {
         0,
         1
       );
-      rU.uNightMode.value = nightTarget;
+      rU.uNightMode.value = isNightSky ? (state.nightMode ? 0.85 : 1.0) : 0.0;
       rU.uRainIntensity.value = clamp(m.rainIntensity || 0, 0, 1);
       rU.uWindChop.value = clamp(m.windChop || 0.15, 0, 1);
       rU.uBridgeActive.value =
         state.riverMountMode !== 'side_pole' && state.riverMountMode !== 'lab_pole' ? 1.0 : 0.0;
 
-      // Update per-Z-row cumulative downstream advection without phase discontinuities
+      if (env?.sunDir) rU.uSunDir.value.copy(env.sunDir);
+      if (env?.skyColor) rU.uSkyColor.value.copy(env.skyColor);
+      if (env?.fogColor) rU.uFogColor.value.copy(env.fogColor);
+      if (env?.fogDensity !== undefined) rU.uFogDensity.value = env.fogDensity;
+      if (env?.irSpotPos) rU.uIrSpotPos.value.copy(env.irSpotPos);
+      if (env?.irSpotDir) rU.uIrSpotDir.value.copy(env.irSpotDir);
+      rU.uIrSpotIntensity.value = env?.irSpotIntensity ?? (nightTarget > 0.5 ? 1.0 : 0.0);
+
+      // Update per-Z-row cumulative downstream advection via compact 97-float uniform array
       for (let r = 0; r < rowsZ; r++) {
         const vel = riverHydraulics.getVelocityAtZ(rowZCoords[r], 0.8);
         rowFlowAccum[r] += vel * clampedDt;
-        const acc = rowFlowAccum[r];
-        const rowBase = r * colsX;
-        for (let c = 0; c < colsX; c++) {
-          flowScrollArray[rowBase + c] = acc;
-        }
       }
-      flowScrollAttr.needsUpdate = true;
 
       syncRiverDebrisMeshes(particles);
     }
   }
 
+  function disposeGroupChildren(grp) {
+    grp.traverse((obj) => {
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        for (const m of mats) {
+          if (m.map) m.map.dispose();
+          if (m.bumpMap) m.bumpMap.dispose();
+          m.dispose();
+        }
+      }
+    });
+  }
+
   function dispose() {
-    labVolumeMat.dispose();
-    labSurfaceMat.dispose();
+    labRippleTex.dispose();
+    splashTex.dispose();
     waterfallMat.dispose();
-    inletJetMat.dispose();
-    splashRingMat.dispose();
-    bubbleGeom.dispose();
-    bubbleMat.dispose();
-    riverGeom.dispose();
-    riverMat.dispose();
-    for (const surf of allLabSurfaces) {
-      surf.geom.dispose();
-      surf.lineGeom.dispose();
-    }
+    disposeGroupChildren(labWaterGroup);
+    disposeGroupChildren(riverWaterGroup);
   }
 
   return {
@@ -8483,7 +9114,9 @@ function createWaterSystem(sceneRefs = {}) {
   };
 }
 
-  return { createWaterSystem };
+  return {
+    createWaterSystem,
+  };
 })(THREE, RiverSimModules.hydraulics, RiverSimModules.realRiverHydraulics);
 
 /* === MODULE: src/sim/sensorOptics.js === */
@@ -8561,10 +9194,11 @@ function clamp(v, lo, hi) {
   return v < lo ? lo : v > hi ? hi : v;
 }
 
-function toVector3(v, fallback) {
-  if (!v) return fallback.clone();
-  if (v.isVector3) return v.clone();
-  return new THREE.Vector3(v.x ?? fallback.x, v.y ?? fallback.y, v.z ?? fallback.z);
+function toVector3(v, fallback, out = null) {
+  const dst = out || new THREE.Vector3();
+  if (!v) return dst.copy(fallback);
+  if (v.isVector3) return dst.copy(v);
+  return dst.set(v.x ?? fallback.x, v.y ?? fallback.y, v.z ?? fallback.z);
 }
 
 function createSensorOptics(renderer = null) {
@@ -8708,7 +9342,7 @@ function createSensorOptics(renderer = null) {
   irConeGeom.translate(0, -0.5, 0); // top at origin, extends down along -Y
   const irConeUniforms = {
     uTime: { value: 0 },
-    uColor: { value: new THREE.Color('#c8358a') },
+    uColor: { value: new THREE.Color('#be185d') },
     uIntensity: { value: 0.0 },
   };
   const irConeMat = new THREE.ShaderMaterial({
@@ -8770,6 +9404,10 @@ function createSensorOptics(renderer = null) {
   const _sidePoleCamUp = new THREE.Vector3(0, 1, 0);
   const _rayCorner = new THREE.Vector3();
   const _projScratch = new THREE.Vector3();
+  const _lidarAnchor = new THREE.Vector3();
+  const _camAnchor = new THREE.Vector3();
+  const _irAnchor = new THREE.Vector3();
+  const _riverIrFallback = new THREE.Vector3();
   const _corners = [
     new THREE.Vector3(),
     new THREE.Vector3(),
@@ -8830,14 +9468,18 @@ function createSensorOptics(renderer = null) {
       1
     );
 
-    // Turbidity optical model (Jannata et al.)
+    // Turbidity & water surface color optical model (Obj 3E/5D & Jannata et al. 2021)
     let baseSnr = 76;
     let stdNoise = 0.0025;
     let turbidityBias = 0.001;
     if (turbidity === 'clear') {
-      baseSnr = 58;
+      baseSnr = 56;
       stdNoise = 0.0038;
-      turbidityBias = 0.0022;
+      turbidityBias = 0.0042;
+    } else if (turbidity === 'turbid_white') {
+      baseSnr = 95;
+      stdNoise = 0.0012;
+      turbidityBias = -0.0022;
     } else if (turbidity === 'silty') {
       baseSnr = 78;
       stdNoise = 0.0022;
@@ -8846,24 +9488,32 @@ function createSensorOptics(renderer = null) {
       baseSnr = 93;
       stdNoise = 0.0014;
       turbidityBias = 0.0;
+    } else if (turbidity === 'algal_green') {
+      baseSnr = 80;
+      stdNoise = 0.0020;
+      turbidityBias = 0.0005;
     } else if (turbidity === 'dark') {
-      baseSnr = nightMode ? 74 : 52;
-      stdNoise = 0.0032;
-      turbidityBias = 0.0016;
+      baseSnr = 48;
+      stdNoise = 0.0044;
+      turbidityBias = 0.0025;
     }
 
-    // Sun glare interference (Kupper et al.), grazing angle penalty & night NIR ambient clarity
-    const effectiveGlare = nightMode ? 0.0 : sunGlare;
+    // Sun glare interference (Kupper et al.), grazing clear-water reflection loss & 1/R^2 falloff
+    const isDarkSky = state.timeOfDay === 'night' || state.timeOfDay === 'night_no_ir';
+    const effectiveGlare = isDarkSky ? 0.0 : sunGlare;
     const glarePenalty = effectiveGlare * 42.0;
-    const nightBonus = nightMode ? 8.0 : 0.0;
-    const rangePenalty = isRiver ? Math.max(0, trueSlantDistanceM - 1.2) * 1.4 : 0.0;
-    const anglePenalty = (1.0 - Math.cos(thetaRad)) * 20.0;
+    const irShotPenalty = nightMode ? 2.5 : 0.0;
+    const rangePenalty = isRiver ? 6.5 * Math.log10(Math.max(1.0, trueSlantDistanceM)) : 0.0;
+    const clearGrazingLoss =
+      turbidity === 'clear'
+        ? Math.pow(Math.sin(thetaRad), 1.5) * 28.0
+        : Math.pow(Math.sin(thetaRad), 2.0) * 14.0;
     const rainPenalty = rain * 12.0;
 
     // Smooth signal strength ripple
     const snrRipple = Math.sin(simTime * 5.2) * 2.1 + Math.cos(simTime * 11.7) * 1.2;
     const snr = clamp(
-      baseSnr - glarePenalty + nightBonus - rangePenalty - anglePenalty - rainPenalty + snrRipple,
+      baseSnr - glarePenalty - irShotPenalty - rangePenalty - clearGrazingLoss - rainPenalty + snrRipple,
       8,
       99
     );
@@ -8882,16 +9532,20 @@ function createSensorOptics(renderer = null) {
       inDropout = false;
     }
 
-    // Ornstein-Uhlenbeck smooth sensor noise
+    // FPS-independent Ornstein-Uhlenbeck smooth sensor noise
     const extraJitter = (chop * 0.0025 + rain * 0.0035 + effectiveGlare * 0.0055) * (isRiver ? 1.8 : 0.65);
     const totalStd = stdNoise + extraJitter;
-    const randWalk = (Math.random() * 2 - 1) * totalStd;
-    smoothNoise += (randWalk - smoothNoise) * Math.min(1, dt * 8.0);
+    const ouAlpha = 1 - Math.exp(-8.0 * dt);
+    const ouSigma = totalStd / Math.sqrt(Math.max(0.01, ouAlpha));
+    const randWalk = (Math.random() * 2 - 1) * ouSigma;
+    smoothNoise += (randWalk - smoothNoise) * ouAlpha;
 
-    // Note: in lab nominal clear mode at default waveMaker, keep bias mild so 35.8 cm reads clearly
-    const bias = isRiver ? turbidityBias * 1.3 : turbidityBias * 0.12;
-    const noisySlantDist = Math.max(0.04, trueSlantDistanceM + bias + smoothNoise);
-    const rawLaserDistanceM = inDropout ? lastValidDistance : Math.round(noisySlantDist * 1000) / 1000;
+    // TF-Luna ToF 1 cm native resolution (edge_node/laser_sensor.py) + optional debris beam spike
+    const debrisSpike = Number(slantMeta.debrisSpikeM) || 0;
+    const bias = isRiver ? turbidityBias * 1.3 : turbidityBias;
+    const noisySlantDist = Math.max(0.04, trueSlantDistanceM + bias + smoothNoise - debrisSpike);
+    const quantizedM = Math.round(noisySlantDist * 100) / 100;
+    const rawLaserDistanceM = inDropout ? lastValidDistance : quantizedM;
     if (!inDropout) lastValidDistance = rawLaserDistanceM;
 
     // Apply optional slant-range trigonometric compensation: H_water = H_mount - (D_laser * cos(theta))
@@ -8900,7 +9554,7 @@ function createSensorOptics(renderer = null) {
 
     const signalStrengthPct = inDropout ? Math.round(snr * 0.25) : Math.round(snr * 10) / 10;
     const signalStrength = Math.round((snr / 100) * 14200 * (inDropout ? 0.12 : 1.0));
-    const waterLevelM = sensorY - lidarDistanceM;
+    const waterLevelM = Math.max(0, sensorY - lidarDistanceM);
 
     lastReading = {
       trueDistanceM: trueVerticalDistM,
@@ -8933,15 +9587,20 @@ function createSensorOptics(renderer = null) {
   function updateFrustumGeometry(cameraPos, targetSurfaceY) {
     // Intersect 4 corner rays from pipCamera with horizontal water plane y = targetSurfaceY
     pipCamera.updateMatrixWorld();
+    const minReachY = Math.min(targetSurfaceY, cameraPos.y - 0.15);
     for (let i = 0; i < 4; i++) {
       const [nx, ny] = NDC_CORNERS[i];
       _rayCorner.set(nx, ny, 0.5).unproject(pipCamera).sub(cameraPos).normalize();
-      const dy = _rayCorner.y;
-      // Guard against near-horizontal rays
-      const safeDy = dy < -0.08 ? dy : -0.08;
-      const t = (targetSurfaceY - cameraPos.y) / safeDy;
-      _corners[i].copy(cameraPos).addScaledVector(_rayCorner, Math.max(0.1, t));
-      _corners[i].y = targetSurfaceY + 0.002;
+      let t;
+      if (_rayCorner.y < -0.05) {
+        t = (minReachY - cameraPos.y) / _rayCorner.y;
+      } else {
+        // Near-horizon ray: clamp smoothly along forward view direction up to far clip
+        t = pipCamera.far * 0.55;
+      }
+      t = clamp(t, 0.1, pipCamera.far * 0.65);
+      _corners[i].copy(cameraPos).addScaledVector(_rayCorner, t);
+      _corners[i].y = Math.max(targetSurfaceY + 0.002, _corners[i].y);
     }
 
     // Fill 4 outward-facing triangles: (apex, c_{i+1}, c_i)
@@ -8997,7 +9656,7 @@ function createSensorOptics(renderer = null) {
     footprintGeom.attributes.position.needsUpdate = true;
   }
 
-  function update(dt, state = {}, anchors = null, waterSampler = null) {
+  function update(dt, state = {}, anchors = null, waterSampler = null, particles = null) {
     const clampedDt = clamp(dt || 0.016, 0.001, 0.05);
     simTime += clampedDt;
 
@@ -9011,41 +9670,87 @@ function createSensorOptics(renderer = null) {
     const isAnySidePole = isLabPole || isSidePole;
 
     const defaults = isRiver ? DEFAULT_RIVER_ANCHORS : DEFAULT_LAB_ANCHORS;
-    const lidarPos = toVector3(anchors?.lidar || anchors?.mountAnchor, defaults.lidar);
-    const camPos = toVector3(anchors?.camera || anchors?.cameraAnchor, defaults.camera);
-    const irPos = toVector3(
-      anchors?.ir,
-      isRiver
-        ? new THREE.Vector3(camPos.x + 0.35, camPos.y, camPos.z)
-        : defaults.ir
-    );
+    const lidarPos = toVector3(anchors?.lidar || anchors?.mountAnchor, defaults.lidar, _lidarAnchor);
+    const camPos = toVector3(anchors?.camera || anchors?.cameraAnchor, defaults.camera, _camAnchor);
+    _riverIrFallback.set(camPos.x + 0.35, camPos.y, camPos.z);
+    const irPos = toVector3(anchors?.ir, isRiver ? _riverIrFallback : defaults.ir, _irAnchor);
 
     const showOptics = state.showOptics !== false;
     const showLidar = showOptics && state.showLidarBeam !== false;
     const showFov = showOptics && state.showCameraFov !== false;
 
-    // 1. Intersect TF-Luna LiDAR ray (vertical nadir or slant-angled) with water/bank surface
+    // 1. Intersect TF-Luna LiDAR ray using 16-step bracketed ray-march + 6 binary refinements
     const thetaDeg = isAnySidePole ? clamp(Number(state.riverLidarTiltDeg ?? 32), 0, 45) : 0;
     const thetaRad = (thetaDeg * Math.PI) / 180;
     const slantComp = isAnySidePole ? state.riverLidarSlantComp !== false : true;
     _lidarDir.set(0, -Math.cos(thetaRad), Math.sin(thetaRad)).normalize();
 
-    const wlEst = sampleWaterY(waterSampler, lidarPos.x, lidarPos.z, isRiver);
-    let tHit = Math.max(0.1, (lidarPos.y - wlEst) / Math.max(0.2, -_lidarDir.y));
-    let hitX = lidarPos.x;
-    let hitZ = lidarPos.z;
-    let waterAtHit = wlEst;
-    let bedAtHit = -99;
-    let hitSurfaceY = wlEst;
-    for (let iter = 0; iter < 4; iter++) {
-      hitX = lidarPos.x + _lidarDir.x * tHit;
-      hitZ = lidarPos.z + _lidarDir.z * tHit;
-      waterAtHit = sampleWaterY(waterSampler, hitX, hitZ, isRiver);
-      bedAtHit = isRiver && typeof waterSampler?.getBedY === 'function' ? waterSampler.getBedY(hitZ) : -99;
-      hitSurfaceY = Math.max(waterAtHit, bedAtHit);
-      tHit = Math.max(0.1, (lidarPos.y - hitSurfaceY) / Math.max(0.2, -_lidarDir.y));
+    const evalRayClearance = (tVal) => {
+      const px = lidarPos.x + _lidarDir.x * tVal;
+      const py = lidarPos.y + _lidarDir.y * tVal;
+      const pz = lidarPos.z + _lidarDir.z * tVal;
+      const wY = sampleWaterY(waterSampler, px, pz, isRiver);
+      const bY = isRiver && typeof waterSampler?.getBedY === 'function' ? waterSampler.getBedY(pz) : -99;
+      return { clearance: py - Math.max(wY, bY), wY, bY, surfY: Math.max(wY, bY), px, pz };
+    };
+
+    const tMax = isRiver ? 12.0 : 2.5;
+    let tLo = 0.05;
+    let tHi = tMax;
+    let bracketFound = false;
+    let prevRes = evalRayClearance(tLo);
+    for (let s = 1; s <= 16; s++) {
+      const tCur = 0.05 + (tMax - 0.05) * (s / 16);
+      const curRes = evalRayClearance(tCur);
+      if (prevRes.clearance >= 0 && curRes.clearance <= 0) {
+        tHi = tCur;
+        bracketFound = true;
+        break;
+      }
+      tLo = tCur;
+      prevRes = curRes;
     }
+
+    if (!bracketFound) {
+      const wlFallback = sampleWaterY(waterSampler, lidarPos.x, lidarPos.z, isRiver);
+      tLo = Math.max(0.05, (lidarPos.y - wlFallback) / Math.max(0.2, -_lidarDir.y));
+    } else {
+      for (let b = 0; b < 6; b++) {
+        const tMid = 0.5 * (tLo + tHi);
+        const midRes = evalRayClearance(tMid);
+        if (midRes.clearance > 0) tLo = tMid;
+        else tHi = tMid;
+      }
+    }
+
+    const tHit = clamp(bracketFound ? 0.5 * (tLo + tHi) : tLo, 0.05, tMax);
+    const hitRes = evalRayClearance(tHit);
+    const hitX = hitRes.px;
+    const hitZ = hitRes.pz;
+    const waterAtHit = hitRes.wY;
+    const bedAtHit = hitRes.bY;
+    const hitSurfaceY = hitRes.surfY;
     const hitDryBank = isRiver && bedAtHit > waterAtHit + 0.005;
+
+    // 2° full-angle TF-Luna beam footprint transient debris occlusion spike
+    let debrisSpikeM = 0;
+    const activeList = Array.isArray(particles)
+      ? particles
+      : typeof waterSampler?.getParticles === 'function'
+        ? waterSampler.getParticles()
+        : null;
+    if (Array.isArray(activeList)) {
+      const beamHalfR = Math.max(0.015, tHit * Math.tan((1.0 * Math.PI) / 180));
+      for (let i = 0; i < activeList.length; i++) {
+        const pt = activeList[i];
+        const rad = beamHalfR + (pt.size || 0.02) * 0.5;
+        const dxP = pt.x - hitX;
+        const dzP = pt.z - hitZ;
+        if (dxP * dxP + dzP * dzP <= rad * rad) {
+          debrisSpikeM = Math.max(debrisSpikeM, clamp((pt.size || 0.02) * 0.45, 0.008, 0.045));
+        }
+      }
+    }
 
     const reading = simulateLidarReading(clampedDt, state, lidarPos.y, hitSurfaceY, isRiver, {
       thetaRad,
@@ -9053,6 +9758,7 @@ function createSensorOptics(renderer = null) {
       slantComp,
       trueSlantDistanceM: tHit,
       hitDryBank,
+      debrisSpikeM,
     });
 
     // 2. Update Green TF-Luna LiDAR Beam & Impact Ring
@@ -9248,7 +9954,9 @@ function createSensorOptics(renderer = null) {
   };
 }
 
-  return { createSensorOptics };
+  return {
+    createSensorOptics,
+  };
 })(THREE);
 
 /* === MODULE: src/sim/pipelineModel.js === */
@@ -9287,9 +9995,9 @@ function getDefaultThresholds(mode = 'lab') {
     };
   }
   return {
-    waterLevelM: 0.345,
-    surfaceVelocityMs: 0.28,
-    dischargeM3s: 0.00145,
+    waterLevelM: 0.343,
+    surfaceVelocityMs: 0.145,
+    dischargeM3s: 0.00160,
     debrisCount: 8,
   };
 }
@@ -9314,6 +10022,16 @@ const YOLO_BASE_RECALL = {
   bag: 0.80,
 };
 
+function createLightingBucket() {
+  return {
+    frames: 0,
+    exactFrames: 0,
+    tp: 0,
+    fp: 0,
+    fn: 0,
+  };
+}
+
 function createPhaseAccumulator() {
   return {
     samples: 0,
@@ -9321,6 +10039,7 @@ function createPhaseAccumulator() {
     wlSumSqErr: 0,
     wlSumBias: 0,
     wlMaxAbsErrM: 0,
+    wlMaxPctErr: 0,
     wlPassCount: 0,
 
     vSumAbsErr: 0,
@@ -9338,10 +10057,83 @@ function createPhaseAccumulator() {
     tpTotal: 0,
     fpTotal: 0,
     fnTotal: 0,
+    day: createLightingBucket(),
+    nightIr: createLightingBucket(),
 
     nExp: 0,
     nRec: 0,
+    lidarExp: 0,
+    lidarRec: 0,
+    videoExp: 0,
+    videoRec: 0,
     invalidCount: 0,
+  };
+}
+
+function crc16Ccitt(bytes, init = 0xffff) {
+  let crc = init & 0xffff;
+  for (let i = 0; i < bytes.length; i++) {
+    crc ^= (bytes[i] & 0xff) << 8;
+    for (let b = 0; b < 8; b++) {
+      crc = (crc & 0x8000) ? (((crc << 1) ^ 0x1021) & 0xffff) : ((crc << 1) & 0xffff);
+    }
+  }
+  return crc & 0xffff;
+}
+
+function computeHazardIndex(count, coverageRatio, vSurfaceMs) {
+  const hi = Math.min(
+    100.0,
+    (Number(count) || 0) * 8.5 + (Number(coverageRatio) || 0) * 250.0 + Math.max(0.0, Number(vSurfaceMs) || 0) * 6.0
+  );
+  const alertLevel = hi >= 70.0 ? 'CRITICAL' : hi >= 40.0 ? 'WARNING' : 'NORMAL';
+  return { hazardIndex: Number(hi.toFixed(2)), alertLevel };
+}
+
+function encodeLoRa12BytePayload({
+  nodeId = 1,
+  waterLevelM = 0,
+  velocityMs = 0,
+  dischargeM3s = 0,
+  hazardIndex = 0,
+  debrisCount = 0,
+}) {
+  const wlMm = clamp(Math.round((Number(waterLevelM) || 0) * 1000), 0, 65535);
+  const velMms = clamp(Math.round((Number(velocityMs) || 0) * 1000), 0, 65535);
+  // Matches edge_node/esp32_uart_bridge.py '>BHHHHBH' (discharge in L/s = m3/s * 1000)
+  const qLs = clamp(Math.round((Number(dischargeM3s) || 0) * 1000), 0, 65535);
+  const hiX100 = clamp(Math.round((Number(hazardIndex) || 0) * 100), 0, 10000);
+  const nsByte = clamp(Math.trunc(Number(debrisCount) || 0), 0, 255);
+
+  const buf = new Uint8Array(12);
+  buf[0] = (Number(nodeId) || 1) & 0xff;
+  buf[1] = (wlMm >> 8) & 0xff;
+  buf[2] = wlMm & 0xff;
+  buf[3] = (velMms >> 8) & 0xff;
+  buf[4] = velMms & 0xff;
+  buf[5] = (qLs >> 8) & 0xff;
+  buf[6] = qLs & 0xff;
+  buf[7] = (hiX100 >> 8) & 0xff;
+  buf[8] = hiX100 & 0xff;
+  buf[9] = nsByte;
+
+  const crc = crc16Ccitt(buf.subarray(0, 10), 0xffff);
+  buf[10] = (crc >> 8) & 0xff;
+  buf[11] = crc & 0xff;
+
+  const hexParts = Array.from(buf, (b) => b.toString(16).toUpperCase().padStart(2, '0'));
+  return {
+    bytes: Array.from(buf),
+    byteLength: 12,
+    hex: hexParts.join(' '),
+    compactHex: hexParts.join(''),
+    crc16Hex: `${hexParts[10]}${hexParts[11]}`,
+    nodeId: buf[0],
+    waterMm: wlMm,
+    velocityMms: velMms,
+    dischargeLs: qLs,
+    hazardIndexX100: hiX100,
+    debrisCount: nsByte,
   };
 }
 
@@ -9429,6 +10221,13 @@ function createPipelineModel() {
         if (srcAcc && typeof srcAcc === 'object') {
           const dst = accumulators[pk];
           for (const k of Object.keys(dst)) {
+            if (typeof dst[k] === 'object' && dst[k] !== null && typeof srcAcc[k] === 'object' && srcAcc[k] !== null) {
+              for (const sk of Object.keys(dst[k])) {
+                const sval = Number(srcAcc[k][sk]);
+                if (Number.isFinite(sval) && sval >= 0) dst[k][sk] = sval;
+              }
+              continue;
+            }
             const val = Number(srcAcc[k]);
             if (Number.isFinite(val) && val >= 0) dst[k] = val;
           }
@@ -9515,8 +10314,8 @@ function createPipelineModel() {
         tableXRule: '<= 6.0 cm (0.2-3 m)',
       },
       velocity: {
-        estimatedVs: 0.24,
-        referenceVr: 0.24,
+        estimatedVs: 0.09,
+        referenceVr: 0.09,
         errorMs: 0,
         percentError: 0,
         maeMs: 0,
@@ -9549,12 +10348,15 @@ function createPipelineModel() {
         f1Pct: 100,
         exactMatchFrame: true,
         exactMatchPct: 100,
+        hazardIndex: 0.54,
+        alertLevel: 'NORMAL',
         tableXPass: true,
         tableXRule: '>= 90% exact match',
         detections: [],
         missed: [],
       },
       edgeStorage: {
+        architectureProfile: 'proposal',
         wifiOnline: true,
         queuedCount: 0,
         microSdRecords: 0,
@@ -9563,105 +10365,42 @@ function createPipelineModel() {
         receivedRecords: 0,
         missingOrInvalid: 0,
         tsrPct: 100,
+        lidarTsrPct: 100,
+        videoTsrPct: 100,
         tableXPass: true,
         tableXRule: 'TSR >= 90%',
         processingLatencyMs: 185,
+        processingMode: 'Real-Time (Lab)',
+        edgeStageLabel: 'LiDAR + Wi-Fi Sync',
+        ramUsedMb: 420,
+        loraRssiDbm: -74,
+        loraSnrDb: 9.2,
         uploadStatus: 'SYNCED',
       },
       functionalityChecks: [
-        { name: 'Data acquisition', criterion: 'Reading & video logged on schedule', status: 'PASS' },
-        { name: 'Timestamping', criterion: 'DS3231 RTC drift < 100 ms', status: 'PASS' },
-        { name: 'Server-side processing', criterion: 'WL, Vs, Q & YOLOv8 outputs ready', status: 'PASS' },
-        { name: 'Database storage', criterion: 'Local SQLite & remote sync match', status: 'PASS' },
-        { name: 'Dashboard display', criterion: 'HUD values match stored telemetry', status: 'PASS' },
+        { name: 'Data acquisition', criterion: 'Reading & video logged on schedule', status: 'PASS', tested: 1, passed: 1 },
+        { name: 'Timestamping', criterion: 'DS3231 RTC drift < 100 ms', status: 'PASS', tested: 1, passed: 1 },
+        { name: 'Server-side processing', criterion: 'WL, Vs, Q & YOLOv8 outputs ready', status: 'PASS', tested: 1, passed: 1 },
+        { name: 'Database storage', criterion: 'Local SQLite & remote sync match', status: 'PASS', tested: 1, passed: 1 },
+        { name: 'Dashboard display', criterion: 'HUD values match stored telemetry', status: 'PASS', tested: 1, passed: 1 },
       ],
       loraPayload: encodeLoRa12BytePayload({
-        mountMode: 'lab_gantry',
+        nodeId: 1,
         waterLevelM: 0.335,
-        distanceM: 0.358,
-        velocityMs: 0.24,
+        velocityMs: 0.09,
         dischargeM3s: 0.00118,
+        hazardIndex: 0.54,
         debrisCount: 0,
-        slantComp: true,
-        valid: true,
-        nightMode: false,
-        hitDryBank: false,
       }),
+      alertsMeta: {
+        total: 0,
+        delivered: 0,
+        deliveryRatePct: 100,
+        meanDelayMs: 0,
+        tableXPass: true,
+      },
       alerts: [],
       newAlerts: [],
-    };
-  }
-
-  function encodeLoRa12BytePayload({
-    mountMode = 'bridge',
-    waterLevelM = 0,
-    distanceM = 0,
-    velocityMs = 0,
-    dischargeM3s = 0,
-    debrisCount = 0,
-    slantComp = true,
-    valid = true,
-    nightMode = false,
-    hitDryBank = false,
-  }) {
-    const modeCode =
-      mountMode === 'lab_pole'
-        ? 3
-        : mountMode === 'side_pole'
-          ? 2
-          : mountMode === 'bridge'
-            ? 1
-            : 0;
-    const flags =
-      (modeCode & 0x03) |
-      (slantComp ? 0x04 : 0) |
-      (valid ? 0x08 : 0) |
-      (nightMode ? 0x10 : 0) |
-      (hitDryBank ? 0x20 : 0);
-
-    const wlMm = clamp(Math.round((Number(waterLevelM) || 0) * 1000), 0, 65535);
-    const distMm = clamp(Math.round((Number(distanceM) || 0) * 1000), 0, 65535);
-    const velMms = clamp(Math.round((Number(velocityMs) || 0) * 1000), 0, 65535);
-    // 24-bit unsigned discharge in units of 1e-5 m^3/s (0.01 L/s resolution, up to 167.77 m^3/s)
-    const qScaled = clamp(Math.round((Number(dischargeM3s) || 0) * 100000), 0, 16777215);
-    const nsByte = clamp(Math.round(Number(debrisCount) || 0), 0, 255);
-
-    const buf = new Uint8Array(12);
-    buf[0] = flags & 0xff;
-    buf[1] = (wlMm >> 8) & 0xff;
-    buf[2] = wlMm & 0xff;
-    buf[3] = (distMm >> 8) & 0xff;
-    buf[4] = distMm & 0xff;
-    buf[5] = (velMms >> 8) & 0xff;
-    buf[6] = velMms & 0xff;
-    buf[7] = (qScaled >> 16) & 0xff;
-    buf[8] = (qScaled >> 8) & 0xff;
-    buf[9] = qScaled & 0xff;
-    buf[10] = nsByte;
-
-    // CRC-8 (poly 0x07) over payload bytes 0..10
-    let crc = 0x00;
-    for (let i = 0; i < 11; i++) {
-      crc ^= buf[i];
-      for (let b = 0; b < 8; b++) {
-        crc = (crc & 0x80) ? (((crc << 1) ^ 0x07) & 0xff) : ((crc << 1) & 0xff);
-      }
-    }
-    buf[11] = crc & 0xff;
-
-    const hexParts = Array.from(buf, (b) => b.toString(16).toUpperCase().padStart(2, '0'));
-    return {
-      bytes: Array.from(buf),
-      byteLength: 12,
-      hex: hexParts.join(' '),
-      compactHex: hexParts.join(''),
-      crc8Hex: hexParts[11],
-      flagsByte: buf[0],
-      waterMm: wlMm,
-      distanceMm: distMm,
-      velocityMms: velMms,
-      dischargeScaled: qScaled,
-      debrisCount: nsByte,
     };
   }
 
@@ -9715,12 +10454,18 @@ function createPipelineModel() {
     }
   }
 
-  function computeSensitivitySweep(isRiver, wlRef, vsEst, areaBase, topWidthM, currentK) {
+  function computeSensitivitySweep(isRiver, wlRef, vsEst, areaBase, topWidthM, currentK, hydraulicsRef = null, vRrmsePct = 6.0) {
     const ks = [0.70, 0.75, 0.80, 0.85, 0.90, 0.95];
     const deltaWL = 0.05;
     const widthEff = Math.max(0.2, topWidthM || (isRiver ? 7.5 : 0.35));
-    const areaLow = Math.max(0.002, areaBase - widthEff * deltaWL);
-    const areaHigh = areaBase + widthEff * deltaWL;
+    const areaLow =
+      typeof hydraulicsRef?.computeAreaAtWaterLevel === 'function'
+        ? Math.max(0.002, hydraulicsRef.computeAreaAtWaterLevel(Math.max(0, wlRef - deltaWL)))
+        : Math.max(0.002, areaBase - widthEff * deltaWL);
+    const areaHigh =
+      typeof hydraulicsRef?.computeAreaAtWaterLevel === 'function'
+        ? Math.max(0.002, hydraulicsRef.computeAreaAtWaterLevel(wlRef + deltaWL))
+        : areaBase + widthEff * deltaWL;
 
     const points = ks.map((kVal) => ({
       k: kVal,
@@ -9735,8 +10480,12 @@ function createPipelineModel() {
     const deltaQOverK = qAt95 - qAt70;
     const deltaQOverWL = points[midIdx].qHighWL - points[midIdx].qLowWL;
     const currentQ = currentK * vsEst * areaBase;
-    const uncertaintyBandPct =
-      currentQ > 1e-7 ? ((0.5 * (deltaQOverK + deltaQOverWL)) / currentQ) * 100 : 0;
+
+    // JCGM GUM-1:2023 RSS combined relative uncertainty (%) across k, Vs, and A(WL +- 0.05 m)
+    const relUk = (0.125 / Math.sqrt(3)) / Math.max(0.5, currentK);
+    const relUv = Math.max(0.03, (Number(vRrmsePct) || 6.0) / 100);
+    const relUa = areaBase > 1e-6 ? Math.abs(areaHigh - areaLow) / (2 * Math.sqrt(3) * areaBase) : 0;
+    const uncertaintyBandPct = Math.sqrt(relUk * relUk + relUv * relUv + relUa * relUa) * 100;
 
     return {
       phase: isRiver ? 'phase2' : 'phase1',
@@ -9760,11 +10509,13 @@ function createPipelineModel() {
     const glare = clamp(Number(state?.sunGlare ?? 0), 0, 1);
     const rain = clamp(Number(state?.rainIntensity ?? 0), 0, 1);
     const wavePower = clamp(Number(state?.waveMakerPower ?? state?.windChop ?? 0.2), 0, 1);
-    const isNightScene = Boolean(state?.timeOfDay === 'night' || turbidity === 'dark');
+    const isNightScene = state?.timeOfDay === 'night' || state?.timeOfDay === 'night_no_ir';
     const irActive = Boolean(state?.nightMode);
 
-    // Filter ground truth particles inside camera FOV
-    const fovParticles = (visibleParticles || []).filter((p) => p && p.inFov !== false);
+    // Filter ground truth debris inside camera FOV (natural river foam in Phase 2 is not anthropogenic debris)
+    const fovParticles = (visibleParticles || []).filter(
+      (p) => p && p.inFov !== false && !(isRiver && p.type === 'foam')
+    );
     const epoch = Math.floor(frameTick / 5);
 
     const detections = [];
@@ -9972,6 +10723,10 @@ function createPipelineModel() {
       glare: (state?.sunGlare ?? 0) > 0.5 ? 'High' : (state?.sunGlare ?? 0) > 0.15 ? 'Moderate' : 'Low',
       obstruction: phaseKey === 'phase2' && snap.mounting?.mode === 'bridge' ? 'Bridge Pier Wake' : 'None',
       tableXWaterLevelPass: snap.waterLevel.tableXPass,
+      lidarTsrPct: snap.edgeStorage.lidarTsrPct,
+      videoTsrPct: snap.edgeStorage.videoTsrPct,
+      hazardIndex: snap.debris.hazardIndex,
+      alertLevel: snap.debris.alertLevel,
       loraPayloadHex: snap.loraPayload?.compactHex || '',
       alertsCount: alertLog.length,
     };
@@ -10156,7 +10911,7 @@ function createPipelineModel() {
       const scaleFactor = isRiver ? 2.8 : 1.0;
       const waveOsc = Math.sin(simClock * 7.4) * rippleAmp * 0.55;
       const jitter = (hash01(frameTick, 19) - 0.5) * 2.0 * turbSigma * scaleFactor;
-      rawLaserDistanceM = Math.max(0.05, trueSlantD + turbBias * scaleFactor + waveOsc + jitter);
+      rawLaserDistanceM = Math.max(0.05, Math.round((trueSlantD + turbBias + waveOsc + jitter) * 100) / 100);
       rawDistanceM = slantComp ? rawLaserDistanceM * Math.cos(thetaRad) : rawLaserDistanceM;
 
       const baseSnr =
@@ -10165,7 +10920,7 @@ function createPipelineModel() {
           : turbidity === 'silty'
             ? 79
             : turbidity === 'dark'
-              ? 75
+              ? 64
               : 54;
       signalStrengthPct = clamp(
         baseSnr - glare * 36 - rain * 10 - (1 - Math.cos(thetaRad)) * 18 + (hash01(frameTick, 31) - 0.5) * 6,
@@ -10175,30 +10930,35 @@ function createPipelineModel() {
       readingValid = !(glare > 0.78 && hash01(frameTick, 53) < (glare - 0.72) * 1.6);
     }
 
-    const inRange = trueSlantD >= 0.20 && trueSlantD <= 8.00;
+    const inRange =
+      trueSlantD >= 0.20 &&
+      trueSlantD <= 8.00 &&
+      rawLaserDistanceM >= 0.20 &&
+      rawLaserDistanceM <= 8.00;
     if (!inRange) {
       readingValid = false;
     }
 
+    const archProfile = state?.architectureProfile === 'edge_lora' ? 'edge_lora' : 'proposal';
+    const filterWindowSize = archProfile === 'edge_lora' ? 7 : 10;
+
     if (readingValid) {
       lastValidLidarM = rawDistanceM;
       lidarWindow.push(rawDistanceM);
-      if (lidarWindow.length > 10) lidarWindow.shift();
-    } else if (lidarWindow.length === 0) {
-      lidarWindow.push(trueD);
     }
+    while (lidarWindow.length > filterWindowSize) lidarWindow.shift();
 
     const filteredDistanceM = medianOf(lidarWindow.length ? lidarWindow : [lastValidLidarM]);
-    const calcWlRaw = H - filteredDistanceM;
+    const calcWlRaw = Math.max(0, H - filteredDistanceM);
     smoothedWL = smoothedWL === null ? calcWlRaw : smoothedWL + (calcWlRaw - smoothedWL) * Math.min(1, safeDt * 10);
-    const calculatedWL = smoothedWL;
+    const calculatedWL = Math.max(0, smoothedWL);
 
     const wlErrorM = calculatedWL - trueWL;
     const wlAbsErrorM = Math.abs(wlErrorM);
     const wlAbsErrorCm = wlAbsErrorM * 100;
     const distPctError = trueD > 1e-6 ? (Math.abs(filteredDistanceM - trueD) / trueD) * 100 : 0;
-    const tableXRule = trueSlantD <= 3.0 ? '<= 6.0 cm (0.2-3 m)' : '<= 2.0% (3-8 m)';
-    const wlTableXPass = !inRange
+    const tableXRule = trueSlantD <= 3.0 ? 'Max AE <= 6.0 cm (0.2-3 m)' : 'Max Err <= 2.0% (3-8 m)';
+    const wlSamplePass = !inRange
       ? false
       : trueSlantD <= 3.0
         ? wlAbsErrorCm <= 6.0
@@ -10214,38 +10974,63 @@ function createPipelineModel() {
       updateSignalHistogram(filteredDistanceM, signalStrengthPct, readingValid, glare);
     }
 
-    // 2. PyORC / LSPIV Surface Velocity Vs & Discharge Q = k * Vs * A
-    const trueVs = Number(hydraulicsMetrics?.trueSurfaceVelocity ?? (isRiver ? 1.2 : 0.24));
-    const fovCount = (visibleParticles || []).filter((p) => p && p.inFov !== false).length;
-    const isNightScene = Boolean(state?.timeOfDay === 'night' || turbidity === 'dark');
+    // 2. PyORC / LSPIV Surface Velocity Vs & Discharge Q = k * Vs * A(WL_calc)
+    const trueVs = Number(hydraulicsMetrics?.trueSurfaceVelocity ?? (isRiver ? 1.2 : 0.09));
+    const pivTracers = (visibleParticles || []).filter(
+      (p) => p && p.inFov !== false && !String(p.zone || '').startsWith('fall')
+    );
+    const fovCount = pivTracers.length;
+    const isNightScene = state?.timeOfDay === 'night' || state?.timeOfDay === 'night_no_ir';
     const irActive = Boolean(state?.nightMode);
+
+    let tracerMeanVx = trueVs;
+    if (fovCount > 0) {
+      let sumVx = 0;
+      for (let i = 0; i < fovCount; i++) {
+        sumVx += Math.max(0, Number(pivTracers[i].vx) || 0);
+      }
+      tracerMeanVx = sumVx / fovCount;
+    }
 
     let lspivRelBias = 0.0;
     if (fovCount < 2) lspivRelBias -= 0.065; // sparse tracers (Tlhomole et al. 2025)
-    if (isNightScene && !irActive) lspivRelBias -= 0.24; // unlit night footage degrades PIV
-    if (glare > 0.45) lspivRelBias -= glare * 0.07;
+    if (isNightScene && !irActive) lspivRelBias -= 0.45; // unlit night footage severely degrades PIV
+    if (!isNightScene && glare > 0.45) lspivRelBias -= glare * 0.09;
     if (isAnySidePole && state?.showGcpGrid === false) lspivRelBias -= 0.14; // unrectified oblique perspective
     const gcpUncert = state?.showGcpGrid === false ? (isAnySidePole ? 0.065 : 0.042) : (isAnySidePole ? 0.028 : 0.024);
     const lspivNoise = (hash01(Math.floor(simClock * 4), 73) - 0.5) * 2.0 * (gcpUncert + rain * 0.03);
-    const targetVs = Math.max(0, trueVs * (1 + lspivRelBias + lspivNoise));
+    const rawObservedVs =
+      fovCount === 0
+        ? 0.0
+        : (fovCount === 1 ? tracerMeanVx * 0.85 : tracerMeanVx * 0.85 + trueVs * 0.15) *
+          (1 + lspivRelBias + lspivNoise);
+    const targetVs = Math.max(0, rawObservedVs);
     smoothedVs = smoothedVs === null ? targetVs : smoothedVs + (targetVs - smoothedVs) * Math.min(1, safeDt * 6);
     const estimatedVs = smoothedVs;
 
     const vErrorMs = estimatedVs - trueVs;
     const vPctError = trueVs > 1e-4 ? (Math.abs(vErrorMs) / trueVs) * 100 : 0;
 
-    const wettedAreaM2 = Number(hydraulicsMetrics?.wettedAreaM2 ?? (isRiver ? 10.5 : 0.01575));
+    const wettedAreaTrueM2 = Number(hydraulicsMetrics?.wettedAreaM2 ?? (isRiver ? 10.5 : 0.01575));
+    const areaFromLidar =
+      typeof state?._hydraulics?.computeAreaAtWaterLevel === 'function'
+        ? state._hydraulics.computeAreaAtWaterLevel(calculatedWL)
+        : wettedAreaTrueM2;
+    const wettedAreaM2 = Math.max(0.002, areaFromLidar);
     const k = clamp(Number(state?.velocityCoeffK ?? 0.85), 0.70, 0.95);
     const estimatedQ = k * estimatedVs * wettedAreaM2;
-    const referenceQ = Number(hydraulicsMetrics?.trueVolumetricQ ?? (k * trueVs * wettedAreaM2));
+    const referenceQ = Number(hydraulicsMetrics?.trueVolumetricQ ?? (0.85 * trueVs * wettedAreaTrueM2));
     const qErrorM3s = estimatedQ - referenceQ;
     const qPctError = referenceQ > 1e-7 ? (Math.abs(qErrorM3s) / referenceQ) * 100 : 0;
 
-    // 3. YOLOv8 Debris Detection & Classification Metrics
+    // 3. YOLOv8 Debris Detection, Classification & Hazard Index (edge_node/debris_detector.py)
     const yolo = evaluateYoloFrame(visibleParticles, state, isRiver);
+    const coverageRatio = clamp(yolo.detections.length * (isRiver ? 0.012 : 0.014), 0, 1);
+    const { hazardIndex, alertLevel } = computeHazardIndex(yolo.ns, coverageRatio, estimatedVs);
 
-    // 4. Accumulate Phase Statistics (at ~4 Hz cadence to avoid frame-rate dependence)
+    // 4. Accumulate Phase & Day/Night Statistics (~4 Hz cadence, avoiding frame-rate bias)
     const acc = accumulators[phaseKey];
+    const isNightIrBucket = isNightScene && irActive;
     if (statsClock >= 0.25) {
       statsClock = 0;
       acc.samples++;
@@ -10253,7 +11038,8 @@ function createPipelineModel() {
       acc.wlSumSqErr += wlErrorM * wlErrorM;
       acc.wlSumBias += wlErrorM;
       if (wlAbsErrorM > acc.wlMaxAbsErrM) acc.wlMaxAbsErrM = wlAbsErrorM;
-      if (wlTableXPass) acc.wlPassCount++;
+      if (distPctError > acc.wlMaxPctErr) acc.wlMaxPctErr = distPctError;
+      if (wlSamplePass) acc.wlPassCount++;
 
       acc.vSumAbsErr += Math.abs(vErrorMs);
       acc.vSumSqErr += vErrorMs * vErrorMs;
@@ -10272,7 +11058,22 @@ function createPipelineModel() {
       acc.tpTotal += yolo.tp;
       acc.fpTotal += yolo.fp;
       acc.fnTotal += yolo.fn;
+
+      const lightBucket = isNightIrBucket ? acc.nightIr : acc.day;
+      lightBucket.frames++;
+      if (yolo.ns === yolo.nr) lightBucket.exactFrames++;
+      lightBucket.tp += yolo.tp;
+      lightBucket.fp += yolo.fp;
+      lightBucket.fn += yolo.fn;
     }
+
+    const wlMaxAeCm = Math.max(wlAbsErrorCm, acc.wlMaxAbsErrM * 100);
+    const wlMaxPct = Math.max(distPctError, acc.wlMaxPctErr);
+    const wlTableXPass = !inRange
+      ? false
+      : trueSlantD <= 3.0
+        ? wlMaxAeCm <= 6.0
+        : wlMaxPct <= 2.0;
 
     const nSamples = Math.max(1, acc.samples);
     const wlMaeCm = (acc.wlSumAbsErr / nSamples) * 100;
@@ -10296,63 +11097,102 @@ function createPipelineModel() {
         : 100;
     const exactMatchPct = acc.debrisFrames > 0 ? (acc.debrisExactFrames / acc.debrisFrames) * 100 : 100;
 
-    // 5. DS3231 RTC, Local SQLite/SSD Buffering & Cloud Upload (TSR%)
+    // 5. DS3231 RTC, Local SQLite/SSD Buffering & Upload / 5s Edge-LoRa Staggered Loop
     const nowDate = new Date();
     rtcDriftMs = 0.65 + 0.35 * Math.sin(simClock * 0.25);
     const rtcLabel = formatRtcLabel(nowDate);
     const rtcIso = nowDate.toISOString();
 
+    const cycleMod = simClock % 5.0;
+    const edgeStageLabel =
+      archProfile === 'edge_lora'
+        ? cycleMod < 1.0
+          ? 'Stage 1: TF-Luna (7-Med)'
+          : cycleMod < 2.5
+            ? 'Stage 2: LSPIV Flow'
+            : cycleMod < 4.2
+              ? 'Stage 3: YOLOv8n + HI + gc()'
+              : 'Stage 4: SQLite + Ra-02 TX'
+        : isRiver
+          ? 'Edge Capture -> Batch Post-Process'
+          : 'Real-Time Server Pipeline';
+    const ramUsedMb =
+      archProfile === 'edge_lora'
+        ? Math.round(
+            cycleMod < 1.0
+              ? 410
+              : cycleMod < 2.5
+                ? 560
+                : cycleMod < 4.2
+                  ? 765
+                  : 445
+          )
+        : 390;
+    const loraRssiDbm = Number((-68 - (isRiver ? 16 : 4) - rain * 6 - (H - 0.7) * 1.1).toFixed(1));
+    const loraSnrDb = Number(clamp(9.8 - rain * 3.2 - (isRiver ? 1.8 : 0.0), 1.5, 11.5).toFixed(1));
+
     if (pipelineActive && uploadClock >= 1.0) {
       uploadClock = 0;
       acc.nExp++;
+      acc.lidarExp++;
+      acc.videoExp++;
       microSdRecords++;
       ssdUsedMB += isRiver ? 0.42 : 0.18;
 
       processingLatencyMs = Math.round(
-        (isRiver ? 420 : 175) + yolo.nr * 9 + (wifiOnline ? 35 : 0) + hash01(acc.nExp, 11) * 45
+        archProfile === 'edge_lora'
+          ? 2450 + yolo.nr * 35 + hash01(acc.nExp, 11) * 180
+          : isRiver
+            ? 1850 + yolo.nr * 18 + hash01(acc.nExp, 11) * 160 // Obj 2B batch post-processing turnaround
+            : 175 + yolo.nr * 9 + (wifiOnline ? 35 : 0) + hash01(acc.nExp, 11) * 45
       );
 
       const tsrPreview = acc.nExp > 0 ? (acc.nRec / acc.nExp) * 100 : 100;
       const telemetryPacket = {
         trialId: `${phaseKey === 'phase1' ? 'LAB' : 'GMB'}-${String(acc.nExp).padStart(4, '0')}`,
-        phase: phaseKey,
+        phaseKey,
         timestamp: rtcIso,
         lidarDistanceM: Number(filteredDistanceM.toFixed(4)),
         waterLevelM: Number(calculatedWL.toFixed(4)),
         surfaceVelocityMs: Number(estimatedVs.toFixed(4)),
         dischargeM3s: Number(estimatedQ.toFixed(6)),
         debrisCount: yolo.ns,
+        hazardIndex,
+        lidarValid: readingValid,
+        hasVideo: true,
         tsrPct: Number(tsrPreview.toFixed(2)),
         alerts: pendingNewAlerts,
-        refWaterLevelM: Number(trueWL.toFixed(4)),
-        wlAbsErrorCm: Number(wlAbsErrorCm.toFixed(2)),
-        refVelocityMs: Number(trueVs.toFixed(4)),
-        wettedAreaM2: Number(wettedAreaM2.toFixed(4)),
-        debrisRefNr: yolo.nr,
-        precisionPct: Number(precisionPct.toFixed(1)),
-        recallPct: Number(recallPct.toFixed(1)),
-        f1Pct: Number(f1Pct.toFixed(1)),
         turbidityMode: turbidity,
         wifiOnline,
       };
       pendingNewAlerts = [];
 
       if (wifiOnline) {
-        if (!readingValid && !inRange) {
+        if (!readingValid) {
           acc.invalidCount++;
         } else {
           acc.nRec++;
+          acc.lidarRec++;
           cloudSyncedRecords++;
         }
-        // Batch drain any records buffered in SQLite/SSD during an earlier Wi-Fi outage
+        acc.videoRec++;
+
+        // Batch drain records buffered in SQLite/SSD crediting the phase that queued each item
         let drained = 0;
-        let lastDrained = null;
         while (offlineQueue.length > 0 && drained < 4) {
           const queuedItem = offlineQueue.shift();
-          acc.nRec++;
+          const targetAcc = accumulators[queuedItem.phaseKey] || acc;
+          if (queuedItem.lidarValid !== false) {
+            targetAcc.nRec++;
+            targetAcc.lidarRec++;
+          } else {
+            targetAcc.invalidCount++;
+          }
+          if (queuedItem.hasVideo !== false) {
+            targetAcc.videoRec++;
+          }
           cloudSyncedRecords++;
           drained++;
-          lastDrained = queuedItem;
         }
         persistStateToBrowser(false);
       } else {
@@ -10364,16 +11204,20 @@ function createPipelineModel() {
     }
 
     const tsrPct = acc.nExp > 0 ? clamp((acc.nRec / acc.nExp) * 100, 0, 100) : 100;
+    const lidarTsrPct = acc.lidarExp > 0 ? clamp((acc.lidarRec / acc.lidarExp) * 100, 0, 100) : 100;
+    const videoTsrPct = acc.videoExp > 0 ? clamp((acc.videoRec / acc.videoExp) * 100, 0, 100) : 100;
     const missingOrInvalid = Math.max(0, acc.nExp - acc.nRec);
 
-    // 6. Sensitivity Sweep (Objective 5A / Table 7)
+    // 6. Sensitivity Sweep & JCGM GUM-1:2023 RSS Uncertainty (Objective 5A / Table 7)
     latestSensitivity = computeSensitivitySweep(
       isRiver,
       trueWL,
       estimatedVs,
       wettedAreaM2,
       hydraulicsMetrics?.topWidthM,
-      k
+      k,
+      state?._hydraulics,
+      vRrmsePct
     );
 
     const statusLabel = !inRange
@@ -10399,17 +11243,20 @@ function createPipelineModel() {
       : 'lab_gantry';
 
     const loraPayload = encodeLoRa12BytePayload({
-      mountMode: activeMountModeKey,
+      nodeId: 1,
       waterLevelM: calculatedWL,
-      distanceM: filteredDistanceM,
       velocityMs: estimatedVs,
       dischargeM3s: estimatedQ,
+      hazardIndex,
       debrisCount: yolo.ns,
-      slantComp,
-      valid: readingValid,
-      nightMode: irActive,
-      hitDryBank: Boolean(lidarReading?.hitDryBank),
     });
+
+    // Compute Email Alert delivery metrics (Obj 4E)
+    const deliveredAlerts = alertLog.filter((a) => String(a.deliveryStatus || '').includes('DELIVERED'));
+    const alertDeliveryRatePct = alertLog.length > 0 ? (deliveredAlerts.length / alertLog.length) * 100 : 100;
+    const alertMeanDelayMs = deliveredAlerts.length > 0
+      ? Math.round(deliveredAlerts.reduce((s, a) => s + (Number(a.deliveryDelayMs) || 0), 0) / deliveredAlerts.length)
+      : 0;
 
     const snapshot = {
       phase: phaseKey,
@@ -10438,6 +11285,7 @@ function createPipelineModel() {
         hitDryBank: Boolean(lidarReading?.hitDryBank),
       },
       lidar: {
+        seqTick: lidarSeqTick,
         heightM: H,
         distanceM: filteredDistanceM,
         rawLaserDistanceM,
@@ -10455,6 +11303,7 @@ function createPipelineModel() {
         referenceM: trueWL,
         errorM: wlErrorM,
         absErrorCm: wlAbsErrorCm,
+        maxAbsErrorCm: wlMaxAeCm,
         percentError: distPctError,
         maeCm: wlMaeCm,
         rmseCm: wlRmseCm,
@@ -10477,6 +11326,7 @@ function createPipelineModel() {
         estimatedQ,
         referenceQ,
         wettedAreaM2,
+        referenceAreaM2: wettedAreaTrueM2,
         velocityCoeffK: k,
         errorM3s: qErrorM3s,
         percentError: qPctError,
@@ -10497,12 +11347,15 @@ function createPipelineModel() {
         f1Pct,
         exactMatchFrame: yolo.ns === yolo.nr,
         exactMatchPct,
+        hazardIndex,
+        alertLevel,
         tableXPass: exactMatchPct >= 90.0,
         tableXRule: '>= 90% exact match',
         detections: yolo.detections,
         missed: yolo.missed,
       },
       edgeStorage: {
+        architectureProfile: archProfile,
         wifiOnline,
         queuedCount: offlineQueue.length,
         microSdRecords,
@@ -10512,9 +11365,16 @@ function createPipelineModel() {
         receivedRecords: acc.nRec,
         missingOrInvalid,
         tsrPct,
-        tableXPass: tsrPct >= 90.0,
-        tableXRule: 'TSR >= 90%',
+        lidarTsrPct,
+        videoTsrPct,
+        tableXPass: lidarTsrPct >= 90.0 && videoTsrPct >= 90.0,
+        tableXRule: 'TSR >= 90% (LiDAR & Video)',
         processingLatencyMs,
+        processingMode: archProfile === 'edge_lora' ? '5s Staggered 1GB Edge' : isRiver ? 'Batch Post-Process' : 'Real-Time (Lab)',
+        edgeStageLabel,
+        ramUsedMb,
+        loraRssiDbm,
+        loraSnrDb,
         uploadStatus: !wifiOnline
           ? `BUFFERING (${offlineQueue.length})`
           : offlineQueue.length > 0
@@ -10528,29 +11388,46 @@ function createPipelineModel() {
           name: 'Data acquisition',
           criterion: 'Reading & video logged on schedule',
           status: pipelineActive ? 'PASS' : 'PAUSED',
+          tested: Math.max(1, acc.nExp),
+          passed: Math.max(1, acc.lidarRec),
         },
         {
           name: 'Timestamping',
           criterion: 'DS3231 RTC drift < 100 ms',
           status: Math.abs(rtcDriftMs) < 100 ? 'PASS' : 'FAIL',
+          tested: Math.max(1, acc.nExp),
+          passed: Math.max(1, acc.nExp),
         },
         {
           name: 'Server-side processing',
           criterion: 'WL, Vs, Q & YOLOv8 outputs ready',
           status: readingValid ? 'PASS' : 'DEGRADED',
+          tested: Math.max(1, acc.samples),
+          passed: Math.max(0, acc.samples - acc.invalidCount),
         },
         {
           name: 'Database storage',
-          criterion: 'Browser localStorage & edge queue match',
+          criterion: 'Local SQLite & remote sync match',
           status: wifiOnline ? 'PASS' : 'BUFFERED',
+          tested: Math.max(1, acc.nExp),
+          passed: Math.max(1, acc.nRec),
         },
         {
           name: 'Dashboard display',
           criterion: 'HUD metrics match telemetry store',
           status: 'PASS',
+          tested: Math.max(1, acc.samples),
+          passed: Math.max(1, acc.samples),
         },
       ],
       loraPayload,
+      alertsMeta: {
+        total: alertLog.length,
+        delivered: deliveredAlerts.length,
+        deliveryRatePct: Number(alertDeliveryRatePct.toFixed(1)),
+        meanDelayMs: alertMeanDelayMs,
+        tableXPass: alertDeliveryRatePct >= 90.0,
+      },
       alerts: alertLog.slice(0, 20),
       newAlerts: [],
     };
@@ -10593,6 +11470,21 @@ function createPipelineModel() {
     };
   }
 
+  function summarizeLightBucket(b) {
+    const tp = b?.tp || 0;
+    const fp = b?.fp || 0;
+    const fn = b?.fn || 0;
+    const frames = b?.frames || 0;
+    const exact = b?.exactFrames || 0;
+    return {
+      frames,
+      exactMatchPct: frames > 0 ? (exact / frames) * 100 : 100,
+      precisionPct: tp + fp > 0 ? (tp / (tp + fp)) * 100 : 100,
+      recallPct: tp + fn > 0 ? (tp / (tp + fn)) * 100 : 100,
+      f1Pct: 2 * tp + fp + fn > 0 ? ((2 * tp) / (2 * tp + fp + fn)) * 100 : 100,
+    };
+  }
+
   function summarizeStats(acc) {
     const n = Math.max(1, acc.samples);
     const vMean = acc.vSumRef / n;
@@ -10603,6 +11495,7 @@ function createPipelineModel() {
       wlRmseCm: Math.sqrt(acc.wlSumSqErr / n) * 100,
       wlBiasCm: (acc.wlSumBias / n) * 100,
       wlMaxAeCm: acc.wlMaxAbsErrM * 100,
+      wlMaxPctErr: acc.wlMaxPctErr || 0,
       vMaeMs: acc.vSumAbsErr / n,
       vRmseMs: vRmse,
       vRrmsePct: vMean > 1e-4 ? (vRmse / vMean) * 100 : 0,
@@ -10614,7 +11507,15 @@ function createPipelineModel() {
           ? ((2 * acc.tpTotal) / (2 * acc.tpTotal + acc.fpTotal + acc.fnTotal)) * 100
           : 100,
       exactMatchPct: acc.debrisFrames > 0 ? (acc.debrisExactFrames / acc.debrisFrames) * 100 : 100,
+      day: summarizeLightBucket(acc.day),
+      nightIr: summarizeLightBucket(acc.nightIr),
       tsrPct: acc.nExp > 0 ? (acc.nRec / acc.nExp) * 100 : 100,
+      lidarTsrPct: acc.lidarExp > 0 ? (acc.lidarRec / acc.lidarExp) * 100 : 100,
+      videoTsrPct: acc.videoExp > 0 ? (acc.videoRec / acc.videoExp) * 100 : 100,
+      nExp: acc.nExp || 0,
+      lidarRec: acc.lidarRec || 0,
+      videoRec: acc.videoRec || 0,
+      invalidCount: acc.invalidCount || 0,
     };
   }
 
@@ -10650,17 +11551,56 @@ function createPipelineModel() {
     clearPersistedStore();
   }
 
+  function triggerTestAlert(state = {}) {
+    const isRiver = state?.mode === 'river';
+    const snap = latestSnapshot || buildInitialSnapshot();
+    const wifiOnline = state?.wifiOnline !== false;
+    const defaults = getDefaultThresholds(isRiver ? 'river' : 'lab');
+    const thresh = Number(state?.thresholds?.dischargeM3s ?? defaults.dischargeM3s);
+    const testVal = isRiver ? Math.max(31.4, thresh * 1.15) : Math.max(0.00175, thresh * 1.12);
+    const delayMs = wifiOnline ? Math.round(280 + hash01(alertSeq, 17) * 240) : 0;
+    const alertObj = {
+      id: `ALT-${String(alertSeq++).padStart(3, '0')}`,
+      phase: isRiver ? 'phase2' : 'phase1',
+      timestamp: snap.rtcLocalLabel || formatRtcLabel(new Date()),
+      isoTimestamp: snap.rtcTimestamp || new Date().toISOString(),
+      parameterKey: 'dischargeM3s',
+      parameter: 'Discharge (Q)',
+      value: Number(testVal.toFixed(isRiver ? 2 : 5)),
+      threshold: Number(thresh.toFixed(isRiver ? 2 : 5)),
+      unit: 'm³/s',
+      severity: 'CRITICAL',
+      recipient: isRiver ? 'guimbal-drrmo@iloilo.gov.ph' : 'lab-monitor@usa.edu.ph',
+      subject: `[CRITICAL] Simulated Discharge Breach (${testVal.toFixed(isRiver ? 2 : 5)} m³/s)`,
+      message: `Manual threshold verification alert triggered in ${isRiver ? 'Guimbal River, Iloilo' : 'Controlled Lab Tank'}.`,
+      deliveryStatus: wifiOnline ? 'DELIVERED' : 'QUEUED (NO WIFI)',
+      deliveryDelayMs: delayMs,
+    };
+    alertLog.unshift(alertObj);
+    if (alertLog.length > 50) alertLog.length = 50;
+    pendingNewAlerts.push(alertObj);
+    persistStateToBrowser(true);
+    return alertObj;
+  }
+
   return {
     step,
     getSnapshot,
     getTrialLogs,
     getSensitivityData,
     captureTrial,
+    triggerTestAlert,
     resetLogs,
   };
 }
 
-  return { getDefaultThresholds, createPipelineModel };
+  return {
+    getDefaultThresholds,
+    createPipelineModel,
+    crc16Ccitt,
+    computeHazardIndex,
+    encodeLoRa12BytePayload,
+  };
 })();
 
 /* === MODULE: src/ui/timelineController.js === */
@@ -10686,7 +11626,8 @@ const TIMELINE_STAGES = [
     endSec: 10,
     shortLabel: '0. Power & RTC',
     title: 'Hardware Power-Up & DS3231 RTC Init',
-    subtitle: 'Exploded IP65 CAD: 12V LiFePO4 -> 5A Fuse -> 5.1V/12V Buck -> Pi 3B & DS3231',
+    subtitle: 'Exploded IP65 CAD: 11.1V 3S2P Li-ion -> 5A Fuse -> 5.1V/12V Buck -> Pi 3B & DS3231',
+    equation: '12V Bus -> 5.1V (Pi/LiDAR) + 12.0V (IR) • DS3231 ±2 ppm',
     cameraPreset: 'exploded_cad',
   },
   {
@@ -10696,6 +11637,7 @@ const TIMELINE_STAGES = [
     shortLabel: '1. Pump & Weir',
     title: 'Pump Startup & Stepped Weir Cascade',
     subtitle: 'Submersible pump primes blue PVC riser -> red valve opens -> Steps 1->2->3->Basin',
+    equation: 'Q_weir = Cd · (2/3) · b · √(2g) · H^(3/2)',
     cameraPreset: 'video_replica',
   },
   {
@@ -10704,7 +11646,8 @@ const TIMELINE_STAGES = [
     endSec: 33,
     shortLabel: '2. LiDAR Range',
     title: 'TF-Luna LiDAR Ranging (WL = H - D)',
-    subtitle: 'Green ToF laser locks onto Step 1 at 35.8 cm with live signal histogram & waveform',
+    subtitle: 'False-color 850nm NIR ToF locks onto Step 1 at 35.8 cm with live histogram & waveform',
+    equation: 'WL = H_mount - D_laser · cos(θ)',
     cameraPreset: 'video_replica',
   },
   {
@@ -10714,6 +11657,7 @@ const TIMELINE_STAGES = [
     shortLabel: '3. NoIR + 850nm IR',
     title: 'NoIR Camera + 850 nm IR & Debris Injection',
     subtitle: 'Crimson FOV frustum & foam tracers cascade across Day -> Night 850 nm IR sweep',
+    equation: 'F1 = 2·P·R/(P+R) • 850nm NIR Night Illumination',
     cameraPreset: 'video_replica',
   },
   {
@@ -10723,6 +11667,7 @@ const TIMELINE_STAGES = [
     shortLabel: '4. Buffer & Sync',
     title: 'Local SQLite/SSD Buffering & Wi-Fi Upload',
     subtitle: 'Simulated Wi-Fi outage queues RTC-stamped records, then reconnects & recovers TSR%',
+    equation: 'TSR% = (N_rec / N_exp) × 100 >= 90%',
     cameraPreset: 'exploded_cad',
   },
   {
@@ -10732,6 +11677,7 @@ const TIMELINE_STAGES = [
     shortLabel: '5. Analytics & Alert',
     title: 'PyORC/LSPIV + YOLOv8 & Threshold Email Alert',
     subtitle: 'High-flow valve surge breaches Q & debris thresholds -> automated Email Alert toast',
+    equation: 'Q = k · Vs · A(WL) • Email Breach <= 5 s',
     cameraPreset: 'video_replica',
   },
   {
@@ -10741,6 +11687,7 @@ const TIMELINE_STAGES = [
     shortLabel: '6. Guimbal River',
     title: 'Phase 2 Real River Twin (Guimbal River, Iloilo)',
     subtitle: 'Bridge-mounted station over surveyed bathymetry A(WL), Monsoon Hydrograph & GCP grid',
+    equation: 'K = Σ(1/n_i)·A_i·R_hi^(2/3) • Q = K·√S₀',
     cameraPreset: 'river_cross_section',
   },
 ];
@@ -10750,6 +11697,7 @@ const TOTAL_TIMELINE_DURATION_S = 75.0;
 function createTimelineController(state, callbacks = {}) {
   let currentTime = 0;
   let playing = false;
+  let holdAtStageEnd = false;
   let lastStageIndex = -1;
   let lastAppliedPreset = null;
   let lastSubPhaseCam = null;
@@ -10776,6 +11724,7 @@ function createTimelineController(state, callbacks = {}) {
       // Stage 0: Hardware Power-Up & RTC Init
       state.mode = 'lab';
       state.lidarHeightM = 0.693;
+      state.labLidarHeightM = 0.693;
       state.powerOn = localT >= 0.8;
       state.explodeFactor = 0.25 + 0.75 * smoothstep(0.0, 3.0, localT);
       state.pumpActive = false;
@@ -10798,6 +11747,7 @@ function createTimelineController(state, callbacks = {}) {
       // Stage 1: Pump Startup & Stepped Weir Cascade
       state.mode = 'lab';
       state.lidarHeightM = 0.693;
+      state.labLidarHeightM = 0.693;
       state.powerOn = true;
       state.explodeFactor = 1.0 - smoothstep(0.0, 2.2, localT);
       state.pumpActive = true;
@@ -10819,6 +11769,8 @@ function createTimelineController(state, callbacks = {}) {
       // Stage 2: TF-Luna LiDAR Ranging (35.8 cm HUD waveform & WL=H-D)
       state.mode = 'lab';
       state.lidarHeightM = 0.693;
+      state.labLidarHeightM = 0.693;
+      state.powerOn = true;
       state.explodeFactor = 0.0;
       state.pumpActive = true;
       state.valveOpening = 0.75;
@@ -10840,6 +11792,8 @@ function createTimelineController(state, callbacks = {}) {
       const nightSweep = localT >= 5.0;
       state.mode = 'lab';
       state.lidarHeightM = 0.693;
+      state.labLidarHeightM = 0.693;
+      state.powerOn = true;
       state.explodeFactor = 0.0;
       state.pumpActive = true;
       state.valveOpening = 0.75;
@@ -10861,6 +11815,8 @@ function createTimelineController(state, callbacks = {}) {
       const reconnected = localT >= 5.0;
       state.mode = 'lab';
       state.lidarHeightM = 0.693;
+      state.labLidarHeightM = 0.693;
+      state.powerOn = true;
       state.explodeFactor = 0.55;
       state.pumpActive = true;
       state.valveOpening = 0.75;
@@ -10881,6 +11837,8 @@ function createTimelineController(state, callbacks = {}) {
       // Stage 5: Server PyORC/LSPIV + YOLOv8 & Threshold Email Alert
       state.mode = 'lab';
       state.lidarHeightM = 0.693;
+      state.labLidarHeightM = 0.693;
+      state.powerOn = true;
       state.explodeFactor = 0.0;
       state.pumpActive = true;
       state.valveOpening = 0.75 + 0.25 * smoothstep(0.4, 3.0, localT);
@@ -10899,14 +11857,16 @@ function createTimelineController(state, callbacks = {}) {
       state.showYoloBoxes = true;
       // Ensure lab thresholds allow the high-flow valve surge to fire a clear email alert
       state.thresholds = {
-        waterLevelM: 0.343,
-        surfaceVelocityMs: 0.28,
-        dischargeM3s: 0.00145,
+        waterLevelM: 0.342,
+        surfaceVelocityMs: 0.140,
+        dischargeM3s: 0.00160,
         debrisCount: 8,
       };
     } else if (stage.index === 6) {
       // Stage 6: Phase 2 Real River Twin (Guimbal River, Iloilo)
       state.mode = 'river';
+      state.riverMountMode = 'bridge';
+      state.powerOn = true;
       state.lidarHeightM = 4.5;
       state.riverLidarHeightM = 4.5;
       state.explodeFactor = 0.0;
@@ -10954,6 +11914,7 @@ function createTimelineController(state, callbacks = {}) {
           progress: currentTime / TOTAL_TIMELINE_DURATION_S,
           stageProgress: stageFrac,
           playing,
+          holdAtStageEnd,
         });
       }
     }
@@ -10983,6 +11944,7 @@ function createTimelineController(state, callbacks = {}) {
       progress: clamp(currentTime / TOTAL_TIMELINE_DURATION_S, 0, 1),
       stageProgress: clamp(localT / stageDur, 0, 1),
       playing,
+      holdAtStageEnd,
     };
   }
 
@@ -10991,6 +11953,11 @@ function createTimelineController(state, callbacks = {}) {
       currentTime = 0;
       lastStageIndex = -1;
       lastSubPhaseCam = null;
+    } else if (holdAtStageEnd) {
+      const st = findStageByTime(currentTime);
+      if (st && currentTime >= st.endSec - 0.05 && st.index < TIMELINE_STAGES.length - 1) {
+        currentTime = st.endSec + 0.05;
+      }
     }
     playing = true;
     applyStateAtTime(currentTime, lastStageIndex < 0);
@@ -11021,17 +11988,27 @@ function createTimelineController(state, callbacks = {}) {
     callbacks.onProgress?.(getCurrentStageInfo());
   }
 
+  function setHoldAtStageEnd(enabled) {
+    holdAtStageEnd = Boolean(enabled);
+  }
+
   function update(dt) {
     if (!playing) {
       return getCurrentStageInfo();
     }
+    const prevStage = findStageByTime(currentTime);
     const safeDt = clamp(dt || 0.016, 0, 0.2);
-    currentTime += safeDt;
-    if (currentTime >= TOTAL_TIMELINE_DURATION_S) {
+    const nextTime = currentTime + safeDt;
+    if (holdAtStageEnd && prevStage && nextTime >= prevStage.endSec - 0.02 && prevStage.index < TIMELINE_STAGES.length - 1) {
+      currentTime = prevStage.endSec - 0.02;
+      applyStateAtTime(currentTime, false);
+      pause();
+    } else if (nextTime >= TOTAL_TIMELINE_DURATION_S) {
       currentTime = TOTAL_TIMELINE_DURATION_S;
       applyStateAtTime(currentTime, false);
       pause();
     } else {
+      currentTime = nextTime;
       applyStateAtTime(currentTime, false);
     }
     const info = getCurrentStageInfo();
@@ -11045,13 +12022,19 @@ function createTimelineController(state, callbacks = {}) {
     pause,
     seekStage,
     setProgress,
+    setHoldAtStageEnd,
+    isHoldAtStageEnd: () => holdAtStageEnd,
     getCurrentStageInfo,
     getStages: () => TIMELINE_STAGES.map((s) => ({ ...s })),
     isPlaying: () => playing,
   };
 }
 
-  return { TIMELINE_STAGES, TOTAL_TIMELINE_DURATION_S, createTimelineController };
+  return {
+    TIMELINE_STAGES,
+    TOTAL_TIMELINE_DURATION_S,
+    createTimelineController,
+  };
 })();
 
 /* === MODULE: src/ui/videoHud.js === */
@@ -11252,7 +12235,7 @@ function ensureHudStyles() {
     .vhud-tooltip {
       position: absolute;
       left: 50%;
-      bottom: 84px;
+      bottom: var(--bottom-bar-clear, 82px);
       transform: translateX(-50%);
       width: min(380px, calc(100vw - 32px));
       pointer-events: auto;
@@ -11445,6 +12428,21 @@ function createVideoHud(containerEl) {
   const histCtx = histCanvas.getContext('2d');
   const waveCtx = waveCanvas.getContext('2d');
 
+  function syncHiDpiCanvas(canvasEl, ctx, cssW, cssH) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const targetW = Math.round(cssW * dpr);
+    const targetH = Math.round(cssH * dpr);
+    if (canvasEl.width !== targetW || canvasEl.height !== targetH) {
+      canvasEl.width = targetW;
+      canvasEl.height = targetH;
+      canvasEl.style.width = `${cssW}px`;
+      canvasEl.style.height = `${cssH}px`;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  syncHiDpiCanvas(histCanvas, histCtx, 288, 58);
+  syncHiDpiCanvas(waveCanvas, waveCtx, 288, 62);
+
   const camDot = q('[data-el="cam-dot"]');
   const camTitle = q('[data-el="cam-title"]');
   const pipWrap = q('[data-el="pip-wrap"]');
@@ -11483,6 +12481,29 @@ function createVideoHud(containerEl) {
   let bufH = 0;
   let pinnedComponent = null;
   let hoveredComponent = null;
+  let waveGrad = null;
+  let waveGradHeight = 0;
+  let lastLidarSeqTick = -1;
+  let lastOverlaySig = '';
+  let lastTooltipKey = null;
+  let projVecScratch = null;
+  let lidarCardRect = { left: 0, top: 0, width: 0, height: 0 };
+  let camCardRect = { left: 0, top: 0, width: 0, height: 0 };
+
+  function measureCardRects() {
+    const lr = lidarCard.getBoundingClientRect();
+    lidarCardRect = { left: lr.left, top: lr.top, width: lr.width, height: lr.height };
+    const cr = camCard.getBoundingClientRect();
+    camCardRect = { left: cr.left, top: cr.top, width: cr.width, height: cr.height };
+  }
+
+  measureCardRects();
+  window.addEventListener('resize', measureCardRects);
+  if (typeof ResizeObserver === 'function') {
+    const cardRo = new ResizeObserver(measureCardRects);
+    cardRo.observe(lidarCard);
+    cardRo.observe(camCard);
+  }
 
   btnPiv.addEventListener('click', () => {
     if (!stateRef) return;
@@ -11500,6 +12521,7 @@ function createVideoHud(containerEl) {
     pipCollapsed = !pipCollapsed;
     pipWrap.style.display = pipCollapsed ? 'none' : '';
     btnCollapse.textContent = pipCollapsed ? '+' : '_';
+    requestAnimationFrame(measureCardRects);
   });
 
   tipCloseBtn.addEventListener('click', () => {
@@ -11513,8 +12535,9 @@ function createVideoHud(containerEl) {
   });
 
   function renderHistogram(bins = []) {
-    const w = histCanvas.width;
-    const h = histCanvas.height;
+    syncHiDpiCanvas(histCanvas, histCtx, 288, 58);
+    const w = 288;
+    const h = 58;
     histCtx.clearRect(0, 0, w, h);
 
     // Grid
@@ -11547,8 +12570,9 @@ function createVideoHud(containerEl) {
   }
 
   function renderDistanceWaveform(waveformCm = []) {
-    const w = waveCanvas.width;
-    const h = waveCanvas.height;
+    syncHiDpiCanvas(waveCanvas, waveCtx, 288, 62);
+    const w = 288;
+    const h = 62;
     waveCtx.clearRect(0, 0, w, h);
 
     waveCtx.strokeStyle = 'rgba(148, 163, 184, 0.14)';
@@ -11586,14 +12610,17 @@ function createVideoHud(containerEl) {
     waveCtx.lineWidth = 1.8;
     waveCtx.stroke();
 
-    // Soft area fill below trace
+    // Soft area fill below trace (cached gradient)
     waveCtx.lineTo(w - 5, h - 4);
     waveCtx.lineTo(5, h - 4);
     waveCtx.closePath();
-    const grad = waveCtx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, 'rgba(56, 189, 248, 0.28)');
-    grad.addColorStop(1, 'rgba(56, 189, 248, 0.01)');
-    waveCtx.fillStyle = grad;
+    if (!waveGrad || waveGradHeight !== h) {
+      waveGrad = waveCtx.createLinearGradient(0, 0, 0, h);
+      waveGrad.addColorStop(0, 'rgba(56, 189, 248, 0.28)');
+      waveGrad.addColorStop(1, 'rgba(56, 189, 248, 0.01)');
+      waveGradHeight = h;
+    }
+    waveCtx.fillStyle = waveGrad;
     waveCtx.fill();
   }
 
@@ -11606,11 +12633,11 @@ function createVideoHud(containerEl) {
       pipVideoCtx.font = '12px monospace';
       pipVideoCtx.textAlign = 'center';
       pipVideoCtx.fillText('Camera NoIR Standby', 160, 120);
-      return;
+      return true;
     }
 
     const nowMs = performance.now();
-    if (nowMs - lastPipRefreshMs < 38) return; // ~26 Hz PIP capture
+    if (nowMs - lastPipRefreshMs < 66) return false; // ~15 Hz PIP capture matching edge camera
     lastPipRefreshMs = nowMs;
 
     if (scene && typeof sensorOptics.renderPip === 'function') {
@@ -11668,16 +12695,24 @@ function createVideoHud(containerEl) {
       pipVideoCtx.fillStyle = 'rgba(168, 85, 247, 0.08)';
       pipVideoCtx.fillRect(0, 0, w, h);
     }
+    return true;
   }
 
-  function approxRiverBedY(z) {
+  function approxRiverBedY(z, hydraulicsRef = null) {
+    if (typeof hydraulicsRef?.getBedY === 'function') {
+      const val = hydraulicsRef.getBedY(z);
+      if (Number.isFinite(val)) return val;
+    }
     const az = Math.abs(z);
     if (az >= 6.0) return 3.20;
     const shifted = z - 0.25;
     const innerBowl = 0.92 * Math.pow(clamp(Math.abs(shifted) / 5.45, 0, 1.05), 1.95);
+    const cobbleBar =
+      z < -1.5 && z > -5.1 ? 0.11 * Math.exp(-Math.pow((z + 3.4) / 1.1, 2)) : 0;
     const wallT = clamp((az - 5.42) / (6.0 - 5.42), 0, 1);
     const wallSmooth = wallT * wallT * (3 - 2 * wallT);
-    return clamp(innerBowl + (3.20 - innerBowl) * wallSmooth, 0.0, 3.20);
+    const floor = innerBowl + cobbleBar;
+    return clamp(floor + (3.20 - floor) * wallSmooth, 0.0, 3.20);
   }
 
   function drawPipOverlays(state, snapshot, sensorOptics) {
@@ -11691,18 +12726,29 @@ function createVideoHud(containerEl) {
     const isLabPole = isRiver && state?.riverMountMode === 'lab_pole';
     const isSidePole = isRiver && state?.riverMountMode === 'side_pole';
     const isAnySidePole = isLabPole || isSidePole;
-    const waterY = snapshot?.waterLevel?.referenceM ?? (isRiver ? 1.15 : 0.335);
-    const vs = snapshot?.velocity?.estimatedVs ?? (isRiver ? 1.2 : 0.24);
+    const hyd = state?._hydraulics || null;
+    const hydMetrics = typeof hyd?.getMetrics === 'function' ? hyd.getMetrics() : null;
+    const waterY = snapshot?.waterLevel?.referenceM ?? hydMetrics?.waterLevelM ?? (isRiver ? 1.15 : 0.335);
+    const vs = snapshot?.velocity?.estimatedVs ?? (isRiver ? 1.2 : 0.09);
 
-    // 1. Optional GCP ortho-rectification grid lines (Bridge Rectangle vs Side-Pole Trapezoidal H_gcp)
+    // 1. Optional GCP ortho-rectification grid lines (Bridge 3D coords vs Side-Pole Trapezoidal H_gcp)
     if (state?.showGcpGrid !== false && isRiver) {
-      pipOverlayCtx.strokeStyle = isAnySidePole ? 'rgba(56, 189, 248, 0.45)' : 'rgba(250, 204, 21, 0.32)';
+      pipOverlayCtx.strokeStyle = isAnySidePole ? 'rgba(56, 189, 248, 0.45)' : 'rgba(250, 204, 21, 0.36)';
       pipOverlayCtx.lineWidth = 1;
-      if (isAnySidePole) {
-        const c1 = isLabPole ? { x: 0.20, z: -3.55, id: 'GCP-1' } : { x: -0.30, z: -4.6, id: 'GCP-1' };
-        const c2 = isLabPole ? { x: 4.10, z: -3.55, id: 'GCP-2' } : { x: 4.50, z: -4.6, id: 'GCP-2' };
-        const c3 = isLabPole ? { x: -1.60, z: 4.80, id: 'GCP-3' } : { x: -1.90, z: 4.6, id: 'GCP-3' };
-        const c4 = isLabPole ? { x: 5.90, z: 4.80, id: 'GCP-4' } : { x: 6.10, z: 4.6, id: 'GCP-4' };
+      const gcpCorners = Array.isArray(state?._gcpCorners) && state._gcpCorners.length === 4 ? state._gcpCorners : null;
+      if (isAnySidePole || gcpCorners) {
+        const c1 = gcpCorners
+          ? gcpCorners[0]
+          : isLabPole ? { x: 0.20, z: -3.55, id: 'GCP-1' } : { x: -0.30, z: -4.6, id: 'GCP-1' };
+        const c2 = gcpCorners
+          ? gcpCorners[1]
+          : isLabPole ? { x: 4.10, z: -3.55, id: 'GCP-2' } : { x: 4.50, z: -4.6, id: 'GCP-2' };
+        const c3 = gcpCorners
+          ? gcpCorners[2]
+          : isLabPole ? { x: -1.60, z: 4.80, id: 'GCP-3' } : { x: -1.90, z: 4.6, id: 'GCP-3' };
+        const c4 = gcpCorners
+          ? gcpCorners[3]
+          : isLabPole ? { x: 5.90, z: 4.80, id: 'GCP-4' } : { x: 6.10, z: 4.6, id: 'GCP-4' };
         const interp = (u, v) => ({
           x: (1 - v) * ((1 - u) * c1.x + u * c2.x) + v * ((1 - u) * c3.x + u * c4.x),
           z: (1 - v) * ((1 - u) * c1.z + u * c2.z) + v * ((1 - u) * c3.z + u * c4.z),
@@ -11729,10 +12775,10 @@ function createVideoHud(containerEl) {
           }
           pipOverlayCtx.stroke();
         }
-        // Highlight GCP-1..4 trapezoidal perspective markers
+        // Highlight GCP-1..4 corner markers inside PIP
         pipOverlayCtx.font = 'bold 8.5px monospace';
         for (const corner of [c1, c2, c3, c4]) {
-          const wy = Math.max(waterY + 0.04, approxRiverBedY(corner.z) + 0.14);
+          const wy = Math.max(waterY + 0.04, approxRiverBedY(corner.z, hyd) + 0.14);
           const p = sensorOptics.projectWorldToPip({ x: corner.x, y: wy, z: corner.z });
           if (p.visible) {
             pipOverlayCtx.fillStyle = '#fb923c';
@@ -11743,8 +12789,8 @@ function createVideoHud(containerEl) {
           }
         }
       } else {
-        const xs = [-1.2, -0.2, 0.8, 1.8, 2.8];
-        const zs = [-1.8, -0.9, 0.0, 0.9, 1.8];
+        const xs = [-2.2, -0.75, 0.7, 2.15, 3.6];
+        const zs = [-4.8, -2.4, 0.0, 2.4, 4.8];
         for (const gx of xs) {
           pipOverlayCtx.beginPath();
           let started = false;
@@ -11790,19 +12836,34 @@ function createVideoHud(containerEl) {
         : isSidePole
           ? [-3.0, -1.8, -0.6, 0.6, 1.8, 3.0]
           : isRiver
-            ? [-1.3, -0.65, 0.0, 0.65, 1.3]
+            ? [-4.2, -2.4, -1.2, 0.0, 1.2, 2.4]
             : [-0.10, -0.03, 0.04, 0.11];
-      const vecDt = isRiver ? 0.42 : 0.24;
-      const maxSpeedRef = isRiver ? Math.max(1.8, vs * 1.35) : Math.max(0.35, vs * 1.4);
+      const vecDt = isRiver ? 0.42 : 0.48;
+      const maxSpeedRef = isRiver ? Math.max(1.8, vs * 1.35) : Math.max(0.14, vs * 1.45);
+      const yW1Live = hydMetrics?.y_w1 ?? waterY;
+      const yW2Live = hydMetrics?.y_w2 ?? 0.270;
+      const yW3Live = hydMetrics?.y_w3 ?? 0.205;
+      const velScale = isRiver && hydMetrics?.trueSurfaceVelocity > 1e-4 ? vs / hydMetrics.trueSurfaceVelocity : 1.0;
 
       for (const gx of gxList) {
         for (const gz of gzList) {
-          if (isRiver && approxRiverBedY(gz) >= waterY - 0.06) continue;
-          // Local lateral speed profile (faster near central thalweg)
-          const zNorm = isRiver ? Math.abs(gz) / (isAnySidePole ? 4.2 : 2.2) : Math.abs(gz) / 0.18;
-          const profileFactor = clamp(1.12 - 0.35 * zNorm * zNorm, 0.35, 1.15);
-          const localSpeed = vs * profileFactor;
-          const localY = !isRiver && gx > -0.08 ? (gx > 0.11 ? 0.205 : 0.270) : waterY;
+          if (isRiver && approxRiverBedY(gz, hyd) >= waterY - 0.06) continue;
+          let localSpeed;
+          if (isRiver && typeof hyd?.getVelocityAtZ === 'function') {
+            localSpeed = hyd.getVelocityAtZ(gz, gx) * velScale;
+          } else {
+            const zNorm = isRiver ? Math.abs(gz) / (isAnySidePole ? 4.2 : 3.2) : Math.abs(gz) / 0.18;
+            const profileFactor = clamp(1.12 - 0.35 * zNorm * zNorm, 0.35, 1.15);
+            localSpeed = vs * profileFactor;
+          }
+          if (localSpeed < 0.01) continue;
+          const localY = !isRiver
+            ? gx > 0.11
+              ? yW3Live
+              : gx > -0.08
+                ? yW2Live
+                : yW1Live
+            : waterY;
 
           const p0 = sensorOptics.projectWorldToPip({ x: gx, y: localY + 0.005, z: gz });
           const p1 = sensorOptics.projectWorldToPip({
@@ -11929,8 +12990,8 @@ function createVideoHud(containerEl) {
     const liveReading = typeof sensorOptics?.getLidarReading === 'function' ? sensorOptics.getLidarReading() : null;
 
     const projectToScreen = (wx, wy, wz) => {
-      // Lightweight perspective/view projection using Three Vector3 math if clone available
-      const v = cam.position.clone().set(wx, wy, wz).project(cam);
+      if (!projVecScratch) projVecScratch = cam.position.clone();
+      const v = projVecScratch.set(wx, wy, wz).project(cam);
       const visible = v.z >= -1 && v.z <= 1 && Math.abs(v.x) <= 1.05 && Math.abs(v.y) <= 1.05;
       return {
         x: (v.x * 0.5 + 0.5) * vw,
@@ -11939,8 +13000,8 @@ function createVideoHud(containerEl) {
       };
     };
 
-    const lidarRect = lidarCard.getBoundingClientRect();
-    const camRect = camCard.getBoundingClientRect();
+    const lidarRect = lidarCardRect;
+    const camRect = camCardRect;
 
     if (state?.showOptics !== false && state?.showLidarBeam !== false) {
       const imp = liveReading?.impactPoint;
@@ -11992,6 +13053,9 @@ function createVideoHud(containerEl) {
   }
 
   function renderTooltip(info) {
+    const key = info ? (info.id || info.designator || info.title || 'HW') : '';
+    if (key === lastTooltipKey) return;
+    lastTooltipKey = key;
     if (!info) {
       tooltipEl.classList.add('hidden');
       return;
@@ -12064,8 +13128,12 @@ function createVideoHud(containerEl) {
 
     histPeak.textContent = `Peak: ${lidar.signalStrengthPct}%`;
 
-    renderHistogram(lidar.histogramBins || []);
-    renderDistanceWaveform(lidar.waveformCm || []);
+    const seqTick = lidar.seqTick;
+    if (seqTick === undefined || seqTick !== lastLidarSeqTick) {
+      if (seqTick !== undefined) lastLidarSeqTick = seqTick;
+      renderHistogram(lidar.histogramBins || []);
+      renderDistanceWaveform(lidar.waveformCm || []);
+    }
 
     // 2. Camera NoIR PIP Card
     const isNight = Boolean(state?.nightMode);
@@ -12073,15 +13141,22 @@ function createVideoHud(containerEl) {
     camDot.className = isNight ? 'vhud-dot noir' : 'vhud-dot';
 
     if (!pipCollapsed) {
-      copyPipRenderTarget(sensorOptics, renderer, scene, isNight);
-      drawPipOverlays(state, snapshot, sensorOptics);
+      const pipUpdated = copyPipRenderTarget(sensorOptics, renderer, scene, isNight);
+      const overlaySig = `${state?.showGcpGrid !== false ? 1 : 0}:${state?.showPivVectors !== false ? 1 : 0}:${state?.showYoloBoxes !== false ? 1 : 0}:${isNight ? 1 : 0}:${state?.mode || 'lab'}:${state?.riverMountMode || 'bridge'}`;
+      if (pipUpdated || overlaySig !== lastOverlaySig) {
+        lastOverlaySig = overlaySig;
+        drawPipOverlays(state, snapshot, sensorOptics);
+      }
     }
 
     const vs = snapshot.velocity.estimatedVs;
     const q = snapshot.discharge.estimatedQ;
     const qStr = q < 0.05 ? q.toFixed(4) : q.toFixed(2);
     pivSummary.textContent = `Vs: ${vs.toFixed(2)} m/s | Q: ${qStr} m³/s`;
-    yoloSummary.textContent = `Ns: ${snapshot.debris.systemCountNs}/${snapshot.debris.manualCountNr} | F1: ${snapshot.debris.f1Pct.toFixed(0)}%`;
+    const hiTag = snapshot.edgeStorage?.architectureProfile === 'edge_lora'
+      ? ` | HI:${Number(snapshot.debris.hazardIndex ?? 0).toFixed(0)}`
+      : '';
+    yoloSummary.textContent = `Ns: ${snapshot.debris.systemCountNs}/${snapshot.debris.manualCountNr} | F1: ${snapshot.debris.f1Pct.toFixed(0)}%${hiTag}`;
 
     // 3. Leader lines & interactive component tooltip
     updateLeaderLines(state, snapshot, scene, sensorOptics);
@@ -12103,11 +13178,13 @@ function createVideoHud(containerEl) {
   };
 }
 
-  return { createVideoHud };
+  return {
+    createVideoHud,
+  };
 })();
 
 /* === MODULE: src/ui/dashboardPanel.js === */
-RiverSimModules.dashboardPanel = (function ({ getDefaultThresholds }, { TIMELINE_STAGES, TOTAL_TIMELINE_DURATION_S }) {
+RiverSimModules.dashboardPanel = (function ({ getDefaultThresholds }, { TIMELINE_STAGES, TOTAL_TIMELINE_DURATION_S }, { THESIS_BOM, THESIS_BOM_TOTAL_PHP, EDGE_LORA_BOM, BUDGET_ALTERNATIVES }) {
 /**
  * Interactive Thesis Dashboard, Simulation Controls & Email Alert Studio
  * Exports createDashboardPanel(containerEl, state, actions) returning:
@@ -12376,47 +13453,28 @@ function ensureDashboardStyles() {
 }
 
 const CAMERA_PRESETS = [
-  { id: 'video_replica', label: 'Video Replica' },
-  { id: 'side_profile', label: 'Side Profile' },
-  { id: 'overhead_gantry', label: 'Overhead Gantry' },
-  { id: 'exploded_cad', label: 'Exploded IP65 CAD' },
-  { id: 'hydraulic_cutaway', label: 'Hydraulic Cutaway' },
-  { id: 'noir_pov', label: 'NoIR Camera POV' },
-  { id: 'river_cross_section', label: 'River Cross-Section' },
-  { id: 'gcp_aerial', label: 'GCP Aerial' },
+  { id: 'video_replica', label: 'Video Replica', phase: 'lab' },
+  { id: 'side_profile', label: 'Side Profile', phase: 'lab' },
+  { id: 'overhead_gantry', label: 'Overhead Gantry', phase: 'lab' },
+  { id: 'hydraulic_cutaway', label: 'Hydraulic Cutaway', phase: 'lab' },
+  { id: 'river_cross_section', label: 'River Cross-Section', phase: 'river' },
+  { id: 'gcp_aerial', label: 'GCP Aerial', phase: 'river' },
+  { id: 'exploded_cad', label: 'Exploded IP65 CAD', phase: 'both' },
+  { id: 'noir_pov', label: 'NoIR Camera POV', phase: 'both' },
 ];
 
 const TABLE3_PINOUT = [
-  { id: 'BT1', comp: 'BT1: 12V LiFePO4 w/ BMS', pin: '+ / -', target: 'F1 Pin 1 / Common GND' },
+  { id: 'BT1', comp: 'BT1: 3S2P Li-ion w/ 3S BMS (4S LFP Alt.)', pin: '+ / -', target: 'F1 Pin 1 / Common GND' },
   { id: 'F1', comp: 'F1: 5A Inline Fuse', pin: 'Pin 1 / Pin 2', target: 'BT1 + / PS1 IN+ & PS2 VIN+' },
   { id: 'PS1', comp: 'PS1: LM2596 Buck (5.1V)', pin: 'IN+ / OUT+', target: 'F1 Pin 2 / Pi 5V & TF-Luna VCC' },
   { id: 'PS2', comp: 'PS2: DC-DC Buck-Boost (12V)', pin: 'VIN+ / OUT+', target: 'F1 Pin 2 / 850nm IR Illuminator VCC' },
-  { id: 'U1', comp: 'U1: Raspberry Pi 3 Model B', pin: 'GPIO 2, 3 (I2C)', target: 'U4 DS3231 SDA, SCL (3V3)' },
-  { id: 'U1', comp: 'U1: Raspberry Pi 3 Model B', pin: 'GPIO 14, 15 (UART)', target: 'U2 TF-Luna RX, TX (5V)' },
+  { id: 'U1', comp: 'U1: Raspberry Pi 3 Model B', pin: 'GPIO 2, 3 (I2C1)', target: 'U4 DS3231 SDA, SCL (3V3)' },
+  { id: 'U1', comp: 'U1: Raspberry Pi 3 Model B', pin: 'GPIO 14, 15 (UART0)', target: 'U2 TF-Luna RX, TX (5V / 3V3 TTL)' },
   { id: 'U1', comp: 'U1: Raspberry Pi 3 Model B', pin: 'CSI / USB / SDIO', target: 'U3 Cam 3 NoIR / SATA SSD / 32GB microSD' },
   { id: 'U2', comp: 'U2: Benewake TF-Luna LiDAR', pin: 'VCC, GND, TX, RX', target: 'PS1 5V, GND, GPIO15, GPIO14' },
-  { id: 'U4', comp: 'U4: DS3231 RTC Module', pin: 'VCC, GND, DAT, CLK', target: 'Pi 3V3, GND, GPIO2, GPIO3' },
+  { id: 'U4', comp: 'U4: DS3231 RTC Module (0x68)', pin: 'VCC, GND, SDA, SCL', target: 'Pi 3V3 (Pin 1), GND, GPIO2, GPIO3' },
   { id: 'IR1', comp: 'IR Illuminator (850 nm)', pin: 'VCC / GND', target: 'PS2 OUT+ (12V) / Common GND' },
-  { id: 'AP1', comp: 'AP1: Wi-Fi Router / AP', pin: '2.4 GHz WLAN', target: 'Separately Powered Wireless Uplink' },
-];
-
-const THESIS_BOM = [
-  { item: 'Raspberry Pi 3 Model B (1 GB)', qty: '1', cost: '₱4,849', spec: 'BCM2837, 40-pin GPIO, CSI, Wi-Fi' },
-  { item: 'Pi Camera Module 3 NoIR', qty: '1', cost: '₱2,191', spec: 'Sony IMX708 11.9MP, No IR-Cut, CSI-2' },
-  { item: '850 nm IR Illuminator (4-LED)', qty: '1', cost: '₱517', spec: '12V DC, 10–40 m Night Vision' },
-  { item: 'Benewake TF-Luna ToF LiDAR', qty: '1', cost: '₱1,650', spec: '0.2–8 m Range, UART, 850 nm ToF' },
-  { item: 'Custom Aquarium w/ Pump', qty: '1', cost: '₱6,500', spec: 'Stepped-Weir Flume + Submersible Pump' },
-  { item: 'Aquarium Wave Makers', qty: '2', cost: '₱420', spec: 'Controlled Surface Turbulence' },
-  { item: '32 GB microSD Card (Class 10)', qty: '1', cost: '₱399', spec: 'Raspberry Pi OS & Local Logs' },
-  { item: 'DS3231 Precision RTC Module', qty: '1', cost: '₱180', spec: 'I2C TCXO + CR2032 Backup' },
-  { item: 'External 2.5" SATA SSD', qty: '1', cost: '₱2,003', spec: 'USB 2.0 Video & SQLite Archive' },
-  { item: 'LM2596 DC-DC Buck Converter', qty: '1', cost: '₱125', spec: 'Regulated 5.1 V DC Rail' },
-  { item: '12V Regulated DC-DC Converter', qty: '1', cost: '₱155', spec: 'Buck-Boost for 850nm IR Array' },
-  { item: '3S2P Li-ion / LiFePO4 Battery', qty: '1', cost: '₱547', spec: '12V Pack w/ 3S BMS (~6 Ah)' },
-  { item: '5 A Inline Fuse Holder', qty: '1', cost: '₱50', spec: 'Battery Positive Overcurrent Guard' },
-  { item: 'PVC/Al Mounting Bracket', qty: '1', cost: '₱384', spec: 'Height & Angle Adjustable Gantry' },
-  { item: 'IP65 Weatherproof Enclosures', qty: '2', cost: 'Custom', spec: 'Dust & Water-Jet Protected CAD' },
-  { item: 'JST GH 1.25mm & Harnesses', qty: '2', cost: '₱153', spec: 'Color-Coded Power & Sensor Bus' },
+  { id: 'AP1', comp: 'AP1: Wi-Fi AP (or ESP32+Ra-02 9600 UART)', pin: '2.4 GHz / 433 MHz', target: 'Cloud FastAPI Server / LoRa Gateway' },
 ];
 
 function createDashboardPanel(containerEl, state, actions = {}) {
@@ -12432,39 +13490,69 @@ function createDashboardPanel(containerEl, state, actions = {}) {
   }
 
   root.innerHTML = `
-    <!-- TOP BAR: Drawer Toggle, Phase Mode Switcher & 8 Camera Presets -->
+    <!-- TOP BAR: Drawer Toggle, Phase Mode Switcher & Filtered Camera Presets -->
     <header class="top-bar">
       <div class="top-bar-group">
-        <button type="button" class="btn active" data-act="toggle-drawer" title="Show/Hide Left Controls & Thesis Drawer">☰ Studio Panel</button>
+        <button type="button" class="btn active" data-act="toggle-drawer" title="Show/Hide Left Controls & Thesis Drawer (D)">☰ Studio</button>
         <div class="dash-sep"></div>
-        <button type="button" class="btn active" data-mode="lab">Phase 1: Controlled Lab Tank</button>
-        <button type="button" class="btn" data-mode="river">Phase 2: Guimbal River (Field)</button>
+        <button type="button" class="btn active" data-mode="lab">Phase 1: Lab</button>
+        <button type="button" class="btn" data-mode="river">Phase 2: River</button>
       </div>
       <div class="top-bar-group">
         <div class="dash-preset-strip" data-el="preset-strip">
           ${CAMERA_PRESETS.map(
-            (p) => `<button type="button" class="btn dash-preset-btn" data-preset="${p.id}">${p.label}</button>`
+            (p) => `<button type="button" class="btn dash-preset-btn" data-preset="${p.id}" data-preset-phase="${p.phase}">${p.label}</button>`
           ).join('')}
         </div>
         <div class="dash-sep"></div>
-        <button type="button" class="btn" data-act="quick-ir" title="Toggle Day / 850nm Night IR">850nm IR</button>
-        <button type="button" class="btn active" data-act="quick-hud" title="Toggle Video Telemetry HUD">HUD</button>
+        <button type="button" class="btn" data-act="quick-explode" title="Explode / Assemble IP65 Enclosures (E)">Explode</button>
+        <button type="button" class="btn" data-act="quick-ir" title="Toggle 850nm Night IR (N)">850nm IR</button>
+        <button type="button" class="btn active" data-act="quick-hud" title="Toggle Video Telemetry HUD (H)">HUD</button>
+        <button type="button" class="btn" data-act="toggle-present" title="Projector / Defense Presentation Mode (P)">Present</button>
+        <button type="button" class="btn" data-act="screenshot" title="Capture High-Res PNG Screenshot">📸</button>
       </div>
     </header>
 
+    <!-- TOP-CENTER STAGE SUBTITLE NARRATION BANNER (Defense Presenter Aid) -->
+    <div class="stage-narration-banner" data-el="stage-banner" role="region" aria-label="Stage Narration">
+      <div class="stage-banner-head">
+        <span class="stage-banner-title" data-el="banner-title">Stage 0: Ready</span>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <button type="button" class="btn" style="padding:2px 6px;font-size:10px;" data-act="prev-stage" title="Previous Stage (←)">◀</button>
+          <button type="button" class="btn" style="padding:2px 6px;font-size:10px;" data-act="next-stage" title="Next Stage (→)">▶</button>
+          <button type="button" class="btn" style="padding:2px 7px;font-size:10px;" data-act="toggle-hold" title="Auto-pause at end of each stage for panel Q&amp;A">Hold: OFF</button>
+          <button type="button" class="btn" style="padding:2px 6px;font-size:10px;" data-act="close-banner" title="Dismiss Narration Banner">×</button>
+        </div>
+      </div>
+      <div class="stage-banner-sub" data-el="banner-sub">Select Play Story or any stage below to narrate governance equations and hardware flow.</div>
+      <div class="stage-banner-eq" data-el="banner-eq">WL = H_mount - D · cos(θ) • Q = k · Vs · A(WL)</div>
+    </div>
+
     <!-- LEFT COLLAPSIBLE THESIS & CONTROLS DRAWER -->
-    <aside class="drawer-shell" data-el="drawer">
+    <aside class="drawer-shell" data-el="drawer" aria-label="Simulation Controls and Thesis Dashboard">
       <nav class="dash-tabs" role="tablist">
-        <button type="button" class="dash-tab-btn active" data-tab="controls">Controls</button>
-        <button type="button" class="dash-tab-btn" data-tab="telemetry">Telemetry</button>
-        <button type="button" class="dash-tab-btn" data-tab="tables">Tables 1–9</button>
-        <button type="button" class="dash-tab-btn" data-tab="hardware">Pinout &amp; BOM</button>
-        <button type="button" class="dash-tab-btn" data-tab="alerts">Alerts (<span data-el="alert-tab-count">0</span>)</button>
+        <button type="button" role="tab" aria-selected="true" aria-controls="pane-controls" class="dash-tab-btn active" data-tab="controls">Controls</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="pane-telemetry" class="dash-tab-btn" data-tab="telemetry">Telemetry</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="pane-tables" class="dash-tab-btn" data-tab="tables">Tables 1–9</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="pane-hardware" class="dash-tab-btn" data-tab="hardware">Pinout &amp; BOM</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="pane-alerts" class="dash-tab-btn" data-tab="alerts">Alerts (<span data-el="alert-tab-count">0</span>)</button>
       </nav>
 
       <div class="drawer-scroll">
         <!-- TAB 1: SIMULATION CONTROLS -->
         <div class="dash-pane active" data-pane="controls">
+          <!-- Architecture Profile Alignment Selector -->
+          <div class="dash-section">
+            <div class="dash-section-title">
+              <span>System Architecture Profile</span>
+              <span class="badge badge-ok mono" data-kpi="arch-badge">PROPOSAL</span>
+            </div>
+            <div class="dash-seg-group" role="group" aria-label="Architecture Profile">
+              <button type="button" class="btn dash-seg-btn active" data-arch="proposal">Thesis Proposal (Wi-Fi + Cloud)</button>
+              <button type="button" class="btn dash-seg-btn" data-arch="edge_lora">Edge / LoRa (ESP32 + Ra-02)</button>
+            </div>
+          </div>
+
           <!-- Phase 1 Controls -->
           <div class="dash-section" data-el="phase1-controls">
             <div class="dash-section-title">
@@ -12523,6 +13611,13 @@ function createDashboardPanel(containerEl, state, actions = {}) {
                 <button type="button" class="btn dash-seg-btn" data-mount="side_pole">Riverbank Side-Pole</button>
                 <button type="button" class="btn dash-seg-btn" data-mount="lab_pole">Lab-Style Side Pole</button>
               </div>
+            </div>
+            <div class="dash-ctrl-row" data-el="bridge-height-row">
+              <div class="dash-ctrl-label">
+                <span>Bridge Mount Height H</span>
+                <span class="dash-ctrl-val" data-val="riverLidarHeightM">4.50 m</span>
+              </div>
+              <input type="range" min="3.20" max="6.50" step="0.05" value="4.50" data-input="riverLidarHeightM" />
             </div>
             <div class="dash-subbox" data-el="side-pole-controls" style="display:none;">
               <div class="dash-ctrl-row">
@@ -12595,7 +13690,8 @@ function createDashboardPanel(containerEl, state, actions = {}) {
                   <option value="day">Daylight (Clear)</option>
                   <option value="glare">High Noon Solar Glare</option>
                   <option value="dusk">Dusk Low-Light</option>
-                  <option value="night">Nighttime (850nm IR)</option>
+                  <option value="night_no_ir">Nighttime (IR OFF)</option>
+                  <option value="night">Nighttime (850nm IR ON)</option>
                 </select>
               </div>
             </div>
@@ -12616,6 +13712,7 @@ function createDashboardPanel(containerEl, state, actions = {}) {
             <div class="dash-toggle-grid" style="margin-top:6px;">
               <button type="button" class="btn active" data-ctrl="showBathymetrySlice">Bathymetry Slice</button>
               <button type="button" class="btn active" data-ctrl="showGcpGrid">GCP Grid</button>
+              <button type="button" class="btn" data-ctrl="independentFieldRef" style="grid-column:1 / -1;" title="Objective 5A / Table 7: Enable when independent field discharge measurement is present">Field Discharge Ref: ABSENT (Obj 5A)</button>
             </div>
           </div>
 
@@ -12634,19 +13731,21 @@ function createDashboardPanel(containerEl, state, actions = {}) {
             </div>
             <div class="dash-ctrl-row">
               <div class="dash-ctrl-label">
-                <span>Water Turbidity / Color</span>
+                <span>Water Surface Color (Obj 3E/5D)</span>
                 <select data-input="turbidityMode">
                   <option value="clear">Clear (&lt; 50 NTU)</option>
+                  <option value="turbid_white">Turbid White (Kaolin)</option>
                   <option value="silty">Silty (200–500 NTU)</option>
-                  <option value="muddy">Muddy (&gt;= 700 NTU)</option>
-                  <option value="dark">Dark / Nocturnal</option>
+                  <option value="muddy">Muddy Brown (&gt;= 700 NTU)</option>
+                  <option value="algal_green">Algal Green Water</option>
+                  <option value="dark">Dark / Black Water</option>
                 </select>
               </div>
             </div>
             <div class="dash-toggle-grid">
               <button type="button" class="btn" data-ctrl="nightMode">850nm Night IR: OFF</button>
               <button type="button" class="btn btn-emerald" data-ctrl="wifiOnline">Wi-Fi: ONLINE</button>
-              <button type="button" class="btn active" data-ctrl="showOptics">Laser &amp; FOV: ON</button>
+              <button type="button" class="btn active" data-ctrl="showOptics" title="False-color visualization of invisible 850 nm NIR LiDAR beam + NoIR FOV">850nm NIR Visual: ON</button>
               <button type="button" class="btn active" data-ctrl="pipelineActive">Logging: ON</button>
             </div>
           </div>
@@ -12707,9 +13806,9 @@ function createDashboardPanel(containerEl, state, actions = {}) {
               <div class="dash-kpi-sub mono" data-kpi="q-sub">A: 0.016 m² | k: 0.85</div>
             </div>
             <div class="dash-kpi-card">
-              <div class="dash-kpi-name">YOLOv8 Debris (Ns / Nr)</div>
+              <div class="dash-kpi-name">YOLOv8 Debris &amp; Hazard HI</div>
               <div class="dash-kpi-val mono" data-kpi="ns">0 / 0</div>
-              <div class="dash-kpi-sub mono" data-kpi="f1">P:100% R:100% F1:100%</div>
+              <div class="dash-kpi-sub mono" data-kpi="f1">F1:100% | HI: 0.5 (NORMAL)</div>
             </div>
           </div>
 
@@ -12737,15 +13836,17 @@ function createDashboardPanel(containerEl, state, actions = {}) {
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;" class="mono">
               <div>RTC: <span data-kpi="rtc-time" style="color:#e2e8f0;">--</span></div>
-              <div>TSR: <span data-kpi="tsr" style="color:#6ee7b7;">100.0%</span></div>
+              <div>TSR L/V: <span data-kpi="tsr" style="color:#6ee7b7;">100% / 100%</span></div>
               <div>Local Queue: <span data-kpi="queue">0</span> rec</div>
               <div>Latency: <span data-kpi="latency">185 ms</span></div>
+              <div>Mode/RAM: <span data-kpi="proc-mode">Real-Time</span></div>
+              <div>Alert Deliv: <span data-kpi="alert-meta">100% / 0ms</span></div>
               <div>microSD Logs: <span data-kpi="sd-logs">0</span></div>
               <div>SATA SSD: <span data-kpi="ssd-mb">42.6 MB</span></div>
             </div>
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(148,163,184,0.14);font-size:10.5px;line-height:1.4;" class="mono">
-              <div>LoRa 12B Frame: <span data-kpi="lora-hex" style="color:#7dd3fc;word-break:break-all;">--</span></div>
-              <div style="color:#94a3b8;" data-kpi="lora-meta">Flags -- | WL -- mm | D -- mm | CRC --</div>
+              <div>12B LoRa (&gt;BHHHHBH): <span data-kpi="lora-hex" style="color:#7dd3fc;word-break:break-all;">--</span></div>
+              <div style="color:#94a3b8;" data-kpi="lora-meta">Node 1 | WL -- mm | Vs -- mm/s | CRC16 --</div>
             </div>
           </div>
 
@@ -12761,6 +13862,15 @@ function createDashboardPanel(containerEl, state, actions = {}) {
             </div>
           </div>
 
+          <!-- Synchronized Live Time-Series Plot (WL, Vs, Q vs Thresholds) -->
+          <div class="dash-section">
+            <div class="dash-section-title">
+              <span>Live Telemetry Time Series</span>
+              <span class="mono" style="font-size:9.5px;color:#94a3b8;">WL(cyan) • Vs(green) • Q(amber)</span>
+            </div>
+            <canvas width="340" height="118" style="width:100%;height:auto;background:#050a14;border-radius:7px;border:1px solid rgba(148,163,184,0.16);" data-el="ts-canvas"></canvas>
+          </div>
+
           <!-- Table X Acceptance Criteria Live Status -->
           <div class="dash-section">
             <div class="dash-section-title"><span>Table X Acceptance Criteria</span></div>
@@ -12774,26 +13884,35 @@ function createDashboardPanel(containerEl, state, actions = {}) {
             <button type="button" class="btn btn-primary" data-act="capture-trial">+ Log Trial</button>
             <button type="button" class="btn" data-act="export-csv">Export CSV</button>
             <button type="button" class="btn" data-act="export-json">Export JSON</button>
+            <button type="button" class="btn" data-act="export-md">Export MD</button>
             <button type="button" class="btn btn-danger" data-act="reset-logs">Reset</button>
           </div>
+          <div class="dash-seg-group" style="flex-wrap:wrap;" role="group" aria-label="Thesis Table Sub-Views">
+            <button type="button" class="btn dash-seg-btn active" data-tview="all">All 1–9</button>
+            <button type="button" class="btn dash-seg-btn" data-tview="t12">T1–T2 Lab</button>
+            <button type="button" class="btn dash-seg-btn" data-tview="t34">T3–T4 Day/IR</button>
+            <button type="button" class="btn dash-seg-btn" data-tview="t5">T5 Func</button>
+            <button type="button" class="btn dash-seg-btn" data-tview="t67">T6–T7 Field</button>
+            <button type="button" class="btn dash-seg-btn" data-tview="t89">T8–T9 Field</button>
+          </div>
           <div style="font-size:10.5px;color:#94a3b8;">
-            Offline Standalone Mode: trials &amp; alerts persist in browser <code>localStorage</code> and export directly to CSV/JSON.
+            Daytime vs 850 nm IR-assisted metrics &amp; separate LiDAR/Video TSR% reported per Paper pp. 47–60.
           </div>
 
-          <div class="dash-section">
+          <div class="dash-section" data-tsec="t12">
             <div class="dash-section-title">
               <span>Table 1: Controlled WL &amp; Velocity</span>
-              <span class="mono" data-kpi="t1-stats" style="font-size:10px;color:#94a3b8;">MAE: --</span>
+              <span class="mono" data-kpi="t1-stats" style="font-size:10px;color:#94a3b8;">MaxAE: --</span>
             </div>
             <div class="dash-table-wrap">
               <table class="data-table">
-                <thead><tr><th>ID</th><th>D(m)</th><th>WL(m)</th><th>Ref(m)</th><th>Vs</th><th>Vr</th></tr></thead>
+                <thead><tr><th>ID</th><th>Time</th><th>D(m)</th><th>WL(m)</th><th>Ref(m)</th><th>AE(cm)</th><th>Vs</th><th>Vr</th></tr></thead>
                 <tbody data-tbody="t1"></tbody>
               </table>
             </div>
           </div>
 
-          <div class="dash-section">
+          <div class="dash-section" data-tsec="t12">
             <div class="dash-section-title"><span>Table 2: Controlled Discharge (m³/s)</span></div>
             <div class="dash-table-wrap">
               <table class="data-table">
@@ -12803,32 +13922,48 @@ function createDashboardPanel(containerEl, state, actions = {}) {
             </div>
           </div>
 
-          <div class="dash-section">
-            <div class="dash-section-title"><span>Table 3 &amp; 4: Controlled Debris &amp; TSR%</span></div>
+          <div class="dash-section" data-tsec="t34">
+            <div class="dash-section-title">
+              <span>Table 3 &amp; 4: Controlled Debris (Day/IR) &amp; TSR%</span>
+              <span class="mono" data-kpi="t34-split" style="font-size:9.5px;color:#94a3b8;">Day: -- | IR: --</span>
+            </div>
             <div class="dash-table-wrap">
               <table class="data-table">
-                <thead><tr><th>ID</th><th>Light</th><th>Ns/Nr</th><th>P%</th><th>R%</th><th>TSR%</th></tr></thead>
+                <thead><tr><th>ID</th><th>Light</th><th>Ns/Nr</th><th>TP/FP/FN</th><th>F1%</th><th>L-TSR</th><th>V-TSR</th></tr></thead>
                 <tbody data-tbody="t34"></tbody>
               </table>
             </div>
           </div>
 
-          <div class="dash-section">
-            <div class="dash-section-title"><span>Table 5: Functionality Checklist</span></div>
+          <div class="dash-section" data-tsec="t5">
+            <div class="dash-section-title"><span>Table 5: System Functionality Checklist</span></div>
             <div class="dash-table-wrap">
               <table class="data-table">
-                <thead><tr><th>Function</th><th>Pass Criterion</th><th>Status</th></tr></thead>
+                <thead><tr><th>Function</th><th>Pass Criterion</th><th>Tested</th><th>Passed</th><th>Status</th></tr></thead>
                 <tbody data-tbody="t5"></tbody>
               </table>
             </div>
           </div>
 
-          <div class="dash-section">
-            <div class="dash-section-title"><span>Tables 6–9: Field Guimbal River Logs</span></div>
+          <div class="dash-section" data-tsec="t67">
+            <div class="dash-section-title"><span>Tables 6–7: Field WL, Conditions &amp; Discharge</span></div>
             <div class="dash-table-wrap">
               <table class="data-table">
-                <thead><tr><th>ID</th><th>Stage</th><th>WL(m)</th><th>Vs</th><th>Q(m³/s)</th><th>Ns/Nr</th><th>TSR%</th></tr></thead>
+                <thead><tr><th>ID</th><th>Stage/Rain</th><th>WL(m)</th><th>Vs</th><th>Q(m³/s)</th><th>Ref?</th></tr></thead>
                 <tbody data-tbody="field"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="dash-section" data-tsec="t89">
+            <div class="dash-section-title">
+              <span>Tables 8–9: Field Debris (Day/IR) &amp; TSR%</span>
+              <span class="mono" data-kpi="t89-split" style="font-size:9.5px;color:#94a3b8;">Day: -- | IR: --</span>
+            </div>
+            <div class="dash-table-wrap">
+              <table class="data-table">
+                <thead><tr><th>ID</th><th>Light</th><th>Ns/Nr</th><th>F1%</th><th>HI</th><th>L-TSR</th><th>V-TSR</th></tr></thead>
+                <tbody data-tbody="field89"></tbody>
               </table>
             </div>
           </div>
@@ -12838,7 +13973,7 @@ function createDashboardPanel(containerEl, state, actions = {}) {
         <div class="dash-pane" data-pane="hardware">
           <div class="dash-section">
             <div class="dash-section-title"><span>Table 3: Prototype Pin Connection Table</span></div>
-            <div class="dash-table-wrap" style="max-height:240px;">
+            <div class="dash-table-wrap" style="max-height:220px;">
               <table class="data-table">
                 <thead><tr><th>Component</th><th>Pin / Port</th><th>Connected To</th></tr></thead>
                 <tbody>
@@ -12851,13 +13986,18 @@ function createDashboardPanel(containerEl, state, actions = {}) {
           </div>
           <div class="dash-section">
             <div class="dash-section-title">
-              <span>Appendix: Bill of Materials</span>
-              <span class="badge badge-ok mono">Total: ₱20,278</span>
+              <span>Bill of Materials Comparison</span>
+              <span class="badge badge-ok mono" data-kpi="bom-total">Total: ₱${THESIS_BOM_TOTAL_PHP.toLocaleString()}</span>
             </div>
-            <div class="dash-table-wrap" style="max-height:260px;">
-              <table class="data-table">
-                <thead><tr><th>Material</th><th>Qty</th><th>Cost</th><th>Specification</th></tr></thead>
-                <tbody>
+            <div class="dash-seg-group dash-seg-group-3" style="margin-bottom:6px;" role="group" aria-label="BOM View">
+              <button type="button" class="btn dash-seg-btn active" data-bom="proposal">Proposal ₱20,278</button>
+              <button type="button" class="btn dash-seg-btn" data-bom="edge_lora">Edge CSV $223.50</button>
+              <button type="button" class="btn dash-seg-btn" data-bom="budget">Budget -$65</button>
+            </div>
+            <div class="dash-table-wrap" style="max-height:250px;">
+              <table class="data-table" data-el="bom-table">
+                <thead><tr data-el="bom-thead"><th>Material</th><th>Qty</th><th>Cost</th><th>Specification</th></tr></thead>
+                <tbody data-el="bom-tbody">
                   ${THESIS_BOM.map(
                     (b) => `<tr><td>${b.item}</td><td class="mono">${b.qty}</td><td class="mono">${b.cost}</td><td>${b.spec}</td></tr>`
                   ).join('')}
@@ -12896,8 +14036,9 @@ function createDashboardPanel(containerEl, state, actions = {}) {
           <span data-el="stage-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Ready — Start-to-End 7-Stage Pipeline</span>
           <span class="mono" data-el="stage-time">0.0s / 75.0s</span>
         </div>
-        <input type="range" min="0" max="1000" step="1" value="0" data-input="timeline-scrub" />
+        <input type="range" min="0" max="1000" step="1" value="0" data-input="timeline-scrub" aria-label="Timeline Progress Scrubber" />
       </div>
+      <button type="button" class="btn" style="padding:4px 8px;font-size:10.5px;" data-act="open-banner" title="Show Stage Subtitle Banner">Caption</button>
     </footer>
   `;
 
@@ -12913,10 +14054,17 @@ function createDashboardPanel(containerEl, state, actions = {}) {
   const phase1Box = q('[data-el="phase1-controls"]');
   const phase2Box = q('[data-el="phase2-controls"]');
   const sidePoleBox = q('[data-el="side-pole-controls"]');
+  const bridgeHeightRow = q('[data-el="bridge-height-row"]');
   const sensCanvas = q('[data-el="sens-canvas"]');
   const sensCtx = sensCanvas.getContext('2d');
+  const tsCanvas = q('[data-el="ts-canvas"]');
+  const tsCtx = tsCanvas ? tsCanvas.getContext('2d') : null;
   const alertListEl = q('[data-el="alert-list"]');
   const alertTabCount = q('[data-el="alert-tab-count"]');
+  const stageBannerEl = q('[data-el="stage-banner"]');
+  const bannerTitleEl = q('[data-el="banner-title"]');
+  const bannerSubEl = q('[data-el="banner-sub"]');
+  const bannerEqEl = q('[data-el="banner-eq"]');
 
   const playPauseBtn = q('[data-act="play-pause"]');
   const scrubInput = q('[data-input="timeline-scrub"]');
@@ -12925,33 +14073,152 @@ function createDashboardPanel(containerEl, state, actions = {}) {
 
   const quickIrBtn = q('[data-act="quick-ir"]');
   const quickHudBtn = q('[data-act="quick-hud"]');
+  const quickExplodeBtn = q('[data-act="quick-explode"]');
+  const togglePresentBtn = q('[data-act="toggle-present"]');
+  const holdBtn = q('[data-act="toggle-hold"]');
 
+  // Cache DOM refs once on mount to prevent ~45 querySelector calls per 75 ms tick
+  const domVal = new Map(qa('[data-val]').map((el) => [el.dataset.val, el]));
+  const domInput = new Map(qa('[data-input]').map((el) => [el.dataset.input, el]));
+  const domCtrl = new Map(qa('[data-ctrl]').map((el) => [el.dataset.ctrl, el]));
+  const domKpi = new Map(qa('[data-kpi]').map((el) => [el.dataset.kpi, el]));
+  const domTbody = new Map(qa('[data-tbody]').map((el) => [el.dataset.tbody, el]));
+  const presetBtns = qa('[data-preset]');
+  const modeBtns = qa('[data-mode]');
+  const archBtns = qa('[data-arch]');
+  const mountBtns = qa('[data-mount]');
+  const lidarAimBtns = qa('[data-lidar-aim]');
+  const stagePills = qa('[data-stage]');
+  const tableXListEl = q('[data-el="tablex-list"]');
+
+  // Accessible aria-labels on range inputs
+  domInput.forEach((el, key) => {
+    if (el.tagName === 'INPUT' && el.type === 'range' && !el.getAttribute('aria-label')) {
+      el.setAttribute('aria-label', key);
+    }
+  });
+
+  function sizeHiDpi(canvasEl, ctx, cssW, cssH) {
+    if (!canvasEl || !ctx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const tw = Math.round(cssW * dpr);
+    const th = Math.round(cssH * dpr);
+    if (canvasEl.width !== tw || canvasEl.height !== th) {
+      canvasEl.width = tw;
+      canvasEl.height = th;
+      canvasEl.style.width = `${cssW}px`;
+      canvasEl.style.height = `${cssH}px`;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  sizeHiDpi(sensCanvas, sensCtx, 340, 150);
+  if (tsCanvas && tsCtx) sizeHiDpi(tsCanvas, tsCtx, 340, 118);
+
+  const tsSeries = [];
+  let lastTsSampleMs = 0;
   let drawerOpen = true;
+  let prePresentDrawerOpen = true;
+  let presentationMode = false;
+  let bannerDismissed = false;
+  let holdAtStageEnd = false;
+  let activeTab = 'controls';
   let hudVisible = true;
   let lastLoggedTrialSig = '';
-  let lastAlertCount = -1;
+  let lastAlertSig = '';
+  let lastTableXSig = '';
   let lastModeRendered = null;
 
   function emitChange(key, value) {
     actions.onStateChange?.(key, value, state);
   }
 
-  // Top Bar Interactions
-  toggleDrawerBtn.addEventListener('click', () => {
-    drawerOpen = !drawerOpen;
+  function pauseOnManualEdit() {
+    actions.pauseTimeline?.();
+  }
+
+  function setDrawerOpen(open) {
+    drawerOpen = Boolean(open);
     drawerEl.classList.toggle('collapsed', !drawerOpen);
     toggleDrawerBtn.classList.toggle('active', drawerOpen);
+    if (stageBannerEl) stageBannerEl.classList.toggle('wide', !drawerOpen);
+  }
+
+  function setPresentationMode(nextPresent) {
+    const val = Boolean(nextPresent);
+    if (val === presentationMode) return;
+    presentationMode = val;
+    document.body.classList.toggle('presentation-mode', presentationMode);
+    if (togglePresentBtn) togglePresentBtn.classList.toggle('active', presentationMode);
+    if (presentationMode) {
+      prePresentDrawerOpen = drawerOpen;
+      setDrawerOpen(false);
+    } else {
+      setDrawerOpen(prePresentDrawerOpen);
+    }
+  }
+
+  function toggleIrIlluminator() {
+    pauseOnManualEdit();
+    const nextNight = !state.nightMode;
+    state.nightMode = nextNight;
+    if (nextNight) {
+      state.sunGlare = 0.0;
+      state.timeOfDay = 'night';
+    } else if (state.timeOfDay === 'night') {
+      state.timeOfDay = 'night_no_ir';
+    }
+    emitChange('nightMode', state.nightMode);
+    syncControlWidgets();
+  }
+
+  // Top Bar Interactions
+  toggleDrawerBtn.addEventListener('click', () => {
+    setDrawerOpen(!drawerOpen);
+  });
+
+  if (quickExplodeBtn) {
+    quickExplodeBtn.addEventListener('click', () => {
+      pauseOnManualEdit();
+      state.explodeFactor = (state.explodeFactor ?? 0) > 0.2 ? 0.0 : 0.85;
+      emitChange('explodeFactor', state.explodeFactor);
+      if (state.explodeFactor > 0.2) actions.setCameraPreset?.('exploded_cad');
+      syncControlWidgets();
+    });
+  }
+
+  if (togglePresentBtn) {
+    togglePresentBtn.addEventListener('click', () => {
+      setPresentationMode(!presentationMode);
+    });
+  }
+
+  q('[data-act="screenshot"]')?.addEventListener('click', () => {
+    actions.onScreenshot?.();
+  });
+
+  q('[data-act="prev-stage"]')?.addEventListener('click', () => actions.onPrevStage?.());
+  q('[data-act="next-stage"]')?.addEventListener('click', () => actions.onNextStage?.());
+  if (holdBtn) {
+    holdBtn.addEventListener('click', () => {
+      holdAtStageEnd = !holdAtStageEnd;
+      holdBtn.textContent = holdAtStageEnd ? 'Hold: ON' : 'Hold: OFF';
+      holdBtn.classList.toggle('active', holdAtStageEnd);
+      actions.onToggleHold?.(holdAtStageEnd);
+    });
+  }
+  q('[data-act="close-banner"]')?.addEventListener('click', () => {
+    bannerDismissed = true;
+    stageBannerEl?.classList.add('hidden');
+  });
+  q('[data-act="open-banner"]')?.addEventListener('click', () => {
+    bannerDismissed = !bannerDismissed;
+    stageBannerEl?.classList.toggle('hidden', bannerDismissed);
   });
 
   qa('[data-mode]').forEach((btn) => {
     btn.addEventListener('click', () => {
+      pauseOnManualEdit();
       const nextMode = btn.dataset.mode;
-      state.mode = nextMode;
-      state.lidarHeightM = nextMode === 'river' ? (state.riverLidarHeightM || 4.5) : 0.693;
-      state.thresholds = getDefaultThresholds(nextMode);
-      if (nextMode === 'river' && state.turbidityMode === 'clear') {
-        state.turbidityMode = 'silty';
-      }
       actions.onModeChange?.(nextMode);
       syncControlWidgets();
     });
@@ -12959,6 +14226,7 @@ function createDashboardPanel(containerEl, state, actions = {}) {
 
   qa('[data-preset]').forEach((btn) => {
     btn.addEventListener('click', () => {
+      pauseOnManualEdit();
       const presetId = btn.dataset.preset;
       state.cameraPreset = presetId;
       actions.setCameraPreset?.(presetId);
@@ -12966,12 +14234,7 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     });
   });
 
-  quickIrBtn.addEventListener('click', () => {
-    state.nightMode = !state.nightMode;
-    state.timeOfDay = state.nightMode ? 'night' : 'day';
-    emitChange('nightMode', state.nightMode);
-    syncControlWidgets();
-  });
+  quickIrBtn.addEventListener('click', toggleIrIlluminator);
 
   quickHudBtn.addEventListener('click', () => {
     hudVisible = !hudVisible;
@@ -12979,12 +14242,19 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     actions.onToggleHud?.(hudVisible);
   });
 
-  // Tab Switching
-  qa('[data-tab]').forEach((btn) => {
+  // Tab Switching (with ARIA selected states)
+  const tabBtns = qa('[data-tab]');
+  const paneEls = qa('[data-pane]');
+  tabBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
-      qa('[data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
-      qa('[data-pane]').forEach((p) => p.classList.toggle('active', p.dataset.pane === tab));
+      activeTab = tab;
+      tabBtns.forEach((b) => {
+        const isSel = b.dataset.tab === tab;
+        b.classList.toggle('active', isSel);
+        b.setAttribute('aria-selected', isSel ? 'true' : 'false');
+      });
+      paneEls.forEach((p) => p.classList.toggle('active', p.dataset.pane === tab));
     });
   });
 
@@ -12993,6 +14263,7 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     const btn = q(`[data-ctrl="${ctrlKey}"]`);
     if (!btn) return;
     btn.addEventListener('click', () => {
+      pauseOnManualEdit();
       state[ctrlKey] = !state[ctrlKey];
       onToggle?.(state[ctrlKey]);
       emitChange(ctrlKey, state[ctrlKey]);
@@ -13001,19 +14272,84 @@ function createDashboardPanel(containerEl, state, actions = {}) {
   };
 
   bindToggleBtn('pumpActive');
-  bindToggleBtn('nightMode', (v) => {
-    state.timeOfDay = v ? 'night' : 'day';
-  });
+  const nightBtnCtrl = q('[data-ctrl="nightMode"]');
+  if (nightBtnCtrl) {
+    nightBtnCtrl.addEventListener('click', toggleIrIlluminator);
+  }
   bindToggleBtn('wifiOnline');
-  bindToggleBtn('showOptics');
+  bindToggleBtn('showOptics', (v) => {
+    state.showLidarBeam = v;
+    state.showCameraFov = v;
+  });
   bindToggleBtn('pipelineActive');
   bindToggleBtn('showBathymetrySlice');
   bindToggleBtn('showGcpGrid');
   bindToggleBtn('riverLidarSlantComp');
+  bindToggleBtn('independentFieldRef');
 
-  // River Mounting Placement Segmented Selector (Overhead Bridge Mount vs Riverbank Side-Pole vs Lab-Style Side Pole)
+  // Architecture Profile Segmented Selector (Thesis Proposal vs Edge/LoRa)
+  qa('[data-arch]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      pauseOnManualEdit();
+      const arch = btn.dataset.arch === 'edge_lora' ? 'edge_lora' : 'proposal';
+      state.architectureProfile = arch;
+      emitChange('architectureProfile', arch);
+      syncControlWidgets();
+    });
+  });
+
+  // Table 1-9 Sub-view Filter
+  let activeTableView = 'all';
+  qa('[data-tview]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      activeTableView = btn.dataset.tview || 'all';
+      qa('[data-tview]').forEach((b) => b.classList.toggle('active', b.dataset.tview === activeTableView));
+      qa('[data-tsec]').forEach((sec) => {
+        sec.style.display = activeTableView === 'all' || sec.dataset.tsec === activeTableView ? '' : 'none';
+      });
+    });
+  });
+
+  // 3-Way BOM Comparison Switcher
+  const bomThead = q('[data-el="bom-thead"]');
+  const bomTbody = q('[data-el="bom-tbody"]');
+  const bomTotalBadge = q('[data-kpi="bom-total"]');
+  qa('[data-bom]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.bom || 'proposal';
+      qa('[data-bom]').forEach((b) => b.classList.toggle('active', b.dataset.bom === mode));
+      if (mode === 'edge_lora') {
+        if (bomTotalBadge) bomTotalBadge.textContent = 'Total: $223.50 / ₱12,909';
+        if (bomThead) bomThead.innerHTML = '<th>Component</th><th>Qty</th><th>Cost</th><th>Specification</th>';
+        if (bomTbody) {
+          bomTbody.innerHTML = EDGE_LORA_BOM.map(
+            (b) => `<tr><td>${b.item}</td><td class="mono">${b.qty}</td><td class="mono">${b.usd} (${b.php})</td><td>${b.spec}</td></tr>`
+          ).join('');
+        }
+      } else if (mode === 'budget') {
+        if (bomTotalBadge) bomTotalBadge.textContent = 'Savings: -$65.00 ($128 -> $63)';
+        if (bomThead) bomThead.innerHTML = '<th>Subsystem</th><th>Alternative</th><th>Cost (Save)</th><th>Trade-Off</th>';
+        if (bomTbody) {
+          bomTbody.innerHTML = BUDGET_ALTERNATIVES.map(
+            (b) => `<tr><td>${b.sub}</td><td>${b.alt}</td><td class="mono">${b.cost} (${b.save})</td><td>${b.note}</td></tr>`
+          ).join('');
+        }
+      } else {
+        if (bomTotalBadge) bomTotalBadge.textContent = `Total: ₱${THESIS_BOM_TOTAL_PHP.toLocaleString()}`;
+        if (bomThead) bomThead.innerHTML = '<th>Material</th><th>Qty</th><th>Cost</th><th>Specification</th>';
+        if (bomTbody) {
+          bomTbody.innerHTML = THESIS_BOM.map(
+            (b) => `<tr><td>${b.item}</td><td class="mono">${b.qty}</td><td class="mono">${b.cost}</td><td>${b.spec}</td></tr>`
+          ).join('');
+        }
+      }
+    });
+  });
+
+  // River Mounting Placement Segmented Selector
   qa('[data-mount]').forEach((btn) => {
     btn.addEventListener('click', () => {
+      pauseOnManualEdit();
       const m = btn.dataset.mount;
       const mountMode = m === 'lab_pole' ? 'lab_pole' : m === 'side_pole' ? 'side_pole' : 'bridge';
       state.riverMountMode = mountMode;
@@ -13023,9 +14359,10 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     });
   });
 
-  // Quick LiDAR Aim Buttons in Side-Pole Mode (0° Straight Down vs 32° Slant Channel)
+  // Quick LiDAR Aim Buttons in Side-Pole Mode
   qa('[data-lidar-aim]').forEach((btn) => {
     btn.addEventListener('click', () => {
+      pauseOnManualEdit();
       const aim = btn.dataset.lidarAim;
       state.riverLidarTiltDeg = aim === 'nadir' ? 0 : 32;
       emitChange('riverLidarTiltDeg', state.riverLidarTiltDeg);
@@ -13044,6 +14381,7 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     const el = q(`[data-input="${inputKey}"]`);
     if (!el) return;
     el.addEventListener('input', () => {
+      pauseOnManualEdit();
       onInput(Number(el.value));
       syncControlWidgets();
     });
@@ -13064,6 +14402,11 @@ function createDashboardPanel(containerEl, state, actions = {}) {
   bindRange('lidarHeightM', (v) => {
     state.lidarHeightM = v;
     emitChange('lidarHeightM', v);
+  });
+  bindRange('riverLidarHeightM', (v) => {
+    state.riverLidarHeightM = v;
+    if (state.mode === 'river') state.lidarHeightM = v;
+    emitChange('riverLidarHeightM', v);
   });
   bindRange('sidePoleHeightM', (v) => {
     state.sidePoleHeightM = v;
@@ -13124,6 +14467,7 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     const el = q(`[data-input="${inputKey}"]`);
     if (!el) return;
     el.addEventListener('change', () => {
+      pauseOnManualEdit();
       onSelect(el.value);
       syncControlWidgets();
     });
@@ -13152,6 +14496,9 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     } else if (val === 'dusk') {
       state.sunGlare = 0.15;
       state.nightMode = false;
+    } else if (val === 'night_no_ir') {
+      state.sunGlare = 0.0;
+      state.nightMode = false;
     } else if (val === 'night') {
       state.sunGlare = 0.0;
       state.nightMode = true;
@@ -13161,7 +14508,12 @@ function createDashboardPanel(containerEl, state, actions = {}) {
 
   // Table & Alert Actions
   q('[data-act="capture-trial"]')?.addEventListener('click', () => actions.onCaptureTrial?.());
-  q('[data-act="reset-logs"]')?.addEventListener('click', () => actions.onResetLogs?.());
+  q('[data-act="reset-logs"]')?.addEventListener('click', () => {
+    shownToastIds.clear();
+    lastAlertSig = '';
+    lastLoggedTrialSig = '';
+    actions.onResetLogs?.();
+  });
   q('[data-act="test-alert"]')?.addEventListener('click', () => triggerSyntheticAlert());
   q('[data-act="test-alert-2"]')?.addEventListener('click', () => triggerSyntheticAlert());
 
@@ -13176,6 +14528,61 @@ function createDashboardPanel(containerEl, state, actions = {}) {
   q('[data-act="export-json"]')?.addEventListener('click', () => {
     const payload = JSON.stringify(cachedTrialLogs || {}, null, 2);
     triggerDownload('river_monitoring_trials.json', payload, 'application/json');
+  });
+
+  function generateMarkdownReport() {
+    const snap = lastSnapshot;
+    const isRiver = snap?.phase === 'phase2' || state.mode === 'river';
+    const p1 = cachedTrialLogs?.phase1 || [];
+    const p2 = cachedTrialLogs?.phase2 || [];
+    const s1 = cachedTrialLogs?.stats?.phase1;
+    const s2 = cachedTrialLogs?.stats?.phase2;
+    const rows = [...p1, ...p2];
+    const recent = rows.slice(-10);
+    const lines = [
+      '# River Monitoring System — Simulation Trial Report',
+      '',
+      `- **RTC Timestamp:** ${snap?.rtcLocalLabel || new Date().toISOString()}`,
+      `- **Active Phase:** ${isRiver ? 'Phase 2 — Guimbal River Field' : 'Phase 1 — Controlled Flume Tank'}`,
+      `- **Mounting Mode:** ${snap?.mounting?.label || state.riverMountMode}`,
+      `- **Architecture Profile:** ${state.architectureProfile === 'edge_lora' ? 'Edge / LoRa (ESP32 + Ra-02)' : 'Thesis Proposal (Wi-Fi + Cloud)'}`,
+      '',
+      '## Live Telemetry Snapshot',
+      snap
+        ? [
+            `- **Water Level (WL):** ${snap.waterLevel.calculatedM.toFixed(3)} m (AE ${snap.waterLevel.absErrorCm.toFixed(2)} cm, Table X: ${snap.waterLevel.tableXPass ? 'PASS' : 'FAIL'})`,
+            `- **Surface Velocity (Vs):** ${snap.velocity.estimatedVs.toFixed(2)} m/s (rRMSE ${snap.velocity.rRrmsePct.toFixed(1)}%)`,
+            `- **Discharge (Q):** ${snap.discharge.estimatedQ < 0.05 ? snap.discharge.estimatedQ.toFixed(5) : snap.discharge.estimatedQ.toFixed(2)} m^3/s (A=${snap.discharge.wettedAreaM2.toFixed(isRiver ? 2 : 4)} m^2, k=${snap.discharge.velocityCoeffK.toFixed(2)})`,
+            `- **YOLOv8 Debris & Hazard Index:** ${snap.debris.systemCountNs}/${snap.debris.manualCountNr} (F1 ${snap.debris.f1Pct.toFixed(0)}%, HI ${Number(snap.debris.hazardIndex ?? 0).toFixed(1)} [${snap.debris.alertLevel}])`,
+            `- **Edge Storage TSR (LiDAR / Video):** ${Number(snap.edgeStorage.lidarTsrPct ?? snap.edgeStorage.tsrPct).toFixed(1)}% / ${Number(snap.edgeStorage.videoTsrPct ?? snap.edgeStorage.tsrPct).toFixed(1)}% (Queue: ${snap.edgeStorage.queuedCount})`,
+            `- **12-Byte LoRa Frame (>BHHHHBH):** \`${snap.loraPayload?.hex || '--'}\``,
+          ].join('\n')
+        : '_No live snapshot captured yet._',
+      '',
+      '## Aggregate Thesis Metrics',
+      s1
+        ? `- **Phase 1 (Lab, ${p1.length} trials):** MaxAE ${s1.wlMaxAeCm.toFixed(2)} cm | MAE ${s1.wlMaeCm.toFixed(2)} cm | RMSE ${s1.wlRmseCm.toFixed(2)} cm | Day F1 ${s1.day.f1Pct.toFixed(0)}% (${s1.day.frames}f) | 850nm IR F1 ${s1.nightIr.f1Pct.toFixed(0)}% (${s1.nightIr.frames}f)`
+        : '- **Phase 1:** No trials recorded.',
+      s2
+        ? `- **Phase 2 (River, ${p2.length} trials):** MaxAE ${s2.wlMaxAeCm.toFixed(2)} cm | MAE ${s2.wlMaeCm.toFixed(2)} cm | RMSE ${s2.wlRmseCm.toFixed(2)} cm | Day F1 ${s2.day.f1Pct.toFixed(0)}% (${s2.day.frames}f) | 850nm IR F1 ${s2.nightIr.f1Pct.toFixed(0)}% (${s2.nightIr.frames}f)`
+        : '- **Phase 2:** No trials recorded.',
+      '',
+      '## Latest Logged Trials (Up to 10)',
+      '| Trial | Phase | Lighting | WL (m) | AE (cm) | Vs (m/s) | Q (m^3/s) | Ns/Nr | F1% | HI | TSR L/V |',
+      '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+      ...(recent.length
+        ? recent.map(
+            (r) =>
+              `| ${r.trialId} | ${r.phase} | ${r.lightingCondition} | ${Number(r.calculatedWlM ?? 0).toFixed(3)} | ${Number(r.wlAbsErrorCm ?? 0).toFixed(2)} | ${Number(r.estimatedVsMs ?? 0).toFixed(2)} | ${Number(r.estimatedQM3s ?? 0) < 0.05 ? Number(r.estimatedQM3s ?? 0).toFixed(5) : Number(r.estimatedQM3s ?? 0).toFixed(2)} | ${r.systemDebrisNs}/${r.manualDebrisNr} | ${Number(r.f1Pct ?? 0).toFixed(0)}% | ${Number(r.hazardIndex ?? 0).toFixed(1)} | ${Number(r.lidarTsrPct ?? r.tsrPct ?? 0).toFixed(0)}%/${Number(r.videoTsrPct ?? r.tsrPct ?? 0).toFixed(0)}% |`
+          )
+        : ['| _None_ | - | - | - | - | - | - | - | - | - | - |']),
+      '',
+    ];
+    return lines.join('\n');
+  }
+
+  q('[data-act="export-md"]')?.addEventListener('click', () => {
+    triggerDownload('river_monitoring_report.md', generateMarkdownReport(), 'text/markdown;charset=utf-8');
   });
 
   // Bottom Timeline Transport
@@ -13257,9 +14664,10 @@ function createDashboardPanel(containerEl, state, actions = {}) {
       'TrialID', 'Phase', 'Timestamp_RTC', 'MountMode', 'MountHeight_m', 'LiDAR_Angle_deg',
       'Camera_Angle_deg', 'SlantComp', 'FlowStage', 'Lighting', 'Turbidity',
       'Rainfall', 'Glare', 'LiDAR_D_m', 'WL_m', 'Ref_WL_m', 'AE_cm', 'TableX_WL_Pass',
-      'Vs_ms', 'Vr_ms', 'Area_m2', 'k', 'Q_m3s', 'Ref_Q_m3s',
+      'Vs_ms', 'Vr_ms', 'Area_m2', 'k', 'Q_m3s', 'Ref_Q_m3s', 'IndependentRef',
       'Ns', 'Nr', 'TP', 'FP', 'FN', 'Precision_Pct', 'Recall_Pct', 'F1_Pct',
-      'TSR_Pct', 'AlertsCount', 'LoRa_12B_Hex'
+      'HazardIndex', 'AlertLevel', 'LiDAR_TSR_Pct', 'Video_TSR_Pct', 'TSR_Pct',
+      'AlertsCount', 'LoRa_12B_Hex'
     ];
     const lines = [header.join(',')];
     for (const r of rows) {
@@ -13283,10 +14691,15 @@ function createDashboardPanel(containerEl, state, actions = {}) {
         r.velocityCoeffK,
         Number(r.estimatedQM3s ?? 0).toFixed(5),
         Number(r.referenceQM3s ?? 0).toFixed(5),
+        Boolean(r.independentRefAvailable),
         r.systemDebrisNs, r.manualDebrisNr, r.tp, r.fp, r.fn,
         Number(r.precisionPct ?? 0).toFixed(1),
         Number(r.recallPct ?? 0).toFixed(1),
         Number(r.f1Pct ?? 0).toFixed(1),
+        Number(r.hazardIndex ?? 0).toFixed(2),
+        r.alertLevel || 'NORMAL',
+        Number(r.lidarTsrPct ?? r.tsrPct ?? 0).toFixed(1),
+        Number(r.videoTsrPct ?? r.tsrPct ?? 0).toFixed(1),
         Number(r.tsrPct ?? 0).toFixed(1),
         r.alertsCount ?? 0,
         r.loraPayloadHex || '',
@@ -13295,22 +14708,42 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     return lines.join('\n');
   }
 
-  function setIfUnfocused(sel, val) {
-    const el = q(sel);
+  function setIfUnfocused(inputKey, val) {
+    const el = domInput.get(inputKey) || q(`[data-input="${inputKey}"]`);
     if (el && document.activeElement !== el) {
       el.value = String(val);
     }
   }
 
+  function setValText(key, text) {
+    const el = domVal.get(key);
+    if (el) el.textContent = text;
+  }
+
+  function setKpiText(key, text) {
+    const el = domKpi.get(key);
+    if (el) el.textContent = text;
+  }
+
   function syncControlWidgets() {
     const isRiver = state.mode === 'river';
+    const phaseKey = isRiver ? 'river' : 'lab';
 
-    qa('[data-mode]').forEach((b) => b.classList.toggle('active', b.dataset.mode === (isRiver ? 'river' : 'lab')));
+    modeBtns.forEach((b) => b.classList.toggle('active', b.dataset.mode === phaseKey));
     phase1Box.style.display = isRiver ? 'none' : '';
     phase2Box.style.display = isRiver ? '' : 'none';
 
-    if (state.cameraPreset) {
-      qa('[data-preset]').forEach((b) => b.classList.toggle('active', b.dataset.preset === state.cameraPreset));
+    presetBtns.forEach((b) => {
+      const pPhase = b.dataset.presetPhase || 'both';
+      const visible = pPhase === 'both' || pPhase === phaseKey;
+      b.style.display = visible ? '' : 'none';
+      if (state.cameraPreset) {
+        b.classList.toggle('active', b.dataset.preset === state.cameraPreset);
+      }
+    });
+
+    if (quickExplodeBtn) {
+      quickExplodeBtn.classList.toggle('active', (state.explodeFactor ?? 0) > 0.2);
     }
 
     // Phase 1 values
@@ -13319,23 +14752,25 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     const debrisN = Math.round(state.debrisCountTarget ?? (isRiver ? 12 : 6));
     const hVal = Number(state.lidarHeightM ?? (isRiver ? 4.5 : 0.693));
 
-    setIfUnfocused('[data-input="valveOpening"]', valvePct);
-    q('[data-val="valveOpening"]').textContent = `${valvePct}%`;
+    setIfUnfocused('valveOpening', valvePct);
+    setValText('valveOpening', `${valvePct}%`);
 
-    setIfUnfocused('[data-input="waveMakerPower"]', wavePct);
-    q('[data-val="waveMakerPower"]').textContent = `${wavePct}%`;
+    setIfUnfocused('waveMakerPower', wavePct);
+    setValText('waveMakerPower', `${wavePct}%`);
 
-    setIfUnfocused('[data-input="debrisCountTarget"]', Math.min(15, debrisN));
-    q('[data-val="debrisCountTarget"]').textContent = `${debrisN} items`;
+    setIfUnfocused('debrisCountTarget', Math.min(15, debrisN));
+    setValText('debrisCountTarget', `${debrisN} items`);
 
-    setIfUnfocused('[data-input="lidarHeightM"]', hVal);
-    q('[data-val="lidarHeightM"]').textContent = `${hVal.toFixed(3)} m`;
+    setIfUnfocused('lidarHeightM', hVal);
+    setValText('lidarHeightM', `${hVal.toFixed(3)} m`);
 
-    const pumpBtn = q('[data-ctrl="pumpActive"]');
+    const pumpBtn = domCtrl.get('pumpActive');
     const pumpOn = state.pumpActive !== false;
-    pumpBtn.textContent = pumpOn ? 'Pump: ON' : 'Pump: OFF';
-    pumpBtn.classList.toggle('btn-emerald', pumpOn);
-    pumpBtn.classList.toggle('btn-danger', !pumpOn);
+    if (pumpBtn) {
+      pumpBtn.textContent = pumpOn ? 'Pump: ON' : 'Pump: OFF';
+      pumpBtn.classList.toggle('btn-emerald', pumpOn);
+      pumpBtn.classList.toggle('btn-danger', !pumpOn);
+    }
 
     // Phase 2 values
     const isLabPole = state.riverMountMode === 'lab_pole';
@@ -13347,123 +14782,160 @@ function createDashboardPanel(containerEl, state, actions = {}) {
       : isSidePole
         ? `Side-Pole (${Number(state.sidePoleHeightM ?? 6.00).toFixed(2)} m)`
         : `Bridge (${Number(state.riverLidarHeightM ?? 4.50).toFixed(2)} m)`;
-    const mountLabelEl = q('[data-val="riverMountMode"]');
-    if (mountLabelEl) mountLabelEl.textContent = mountValLabel;
-    qa('[data-mount]').forEach((b) =>
-      b.classList.toggle('active', b.dataset.mount === activeMountKey)
-    );
+    setValText('riverMountMode', mountValLabel);
+    mountBtns.forEach((b) => b.classList.toggle('active', b.dataset.mount === activeMountKey));
     if (sidePoleBox) sidePoleBox.style.display = isAnySidePole ? '' : 'none';
+    if (bridgeHeightRow) bridgeHeightRow.style.display = isRiver && !isAnySidePole ? '' : 'none';
+
+    const bridgeH = Number(state.riverLidarHeightM ?? 4.50);
+    setIfUnfocused('riverLidarHeightM', bridgeH);
+    setValText('riverLidarHeightM', `${bridgeH.toFixed(2)} m`);
 
     const sideH = Number(state.sidePoleHeightM ?? 6.00);
-    setIfUnfocused('[data-input="sidePoleHeightM"]', sideH);
-    const sideHVal = q('[data-val="sidePoleHeightM"]');
-    if (sideHVal) sideHVal.textContent = `${sideH.toFixed(2)} m`;
+    setIfUnfocused('sidePoleHeightM', sideH);
+    setValText('sidePoleHeightM', `${sideH.toFixed(2)} m`);
 
     const tiltDeg = Math.round(Number(state.riverLidarTiltDeg ?? 32));
-    setIfUnfocused('[data-input="riverLidarTiltDeg"]', tiltDeg);
-    const tiltValEl = q('[data-val="riverLidarTiltDeg"]');
-    if (tiltValEl) {
-      tiltValEl.textContent = tiltDeg <= 0 ? '0° (Nadir)' : `${tiltDeg}° (Slant)`;
-    }
-    qa('[data-lidar-aim]').forEach((b) => {
+    setIfUnfocused('riverLidarTiltDeg', tiltDeg);
+    setValText('riverLidarTiltDeg', tiltDeg <= 0 ? '0° (Nadir)' : `${tiltDeg}° (Slant)`);
+    lidarAimBtns.forEach((b) => {
       const want = b.dataset.lidarAim === 'nadir' ? tiltDeg === 0 : tiltDeg > 0;
       b.classList.toggle('active', want);
     });
 
-    const slantCompBtn = q('[data-ctrl="riverLidarSlantComp"]');
+    const slantCompBtn = domCtrl.get('riverLidarSlantComp');
     if (slantCompBtn) {
       const compOn = state.riverLidarSlantComp !== false;
       slantCompBtn.textContent = compOn ? 'cos(θ) Comp: ON' : 'cos(θ) Comp: OFF';
       slantCompBtn.classList.toggle('active', compOn);
     }
 
-    setIfUnfocused('[data-input="riverStagePreset"]', state.riverStagePreset || 'normal');
+    setIfUnfocused('riverStagePreset', state.riverStagePreset || 'normal');
     const stageM = Number(state.riverStageM ?? 1.15);
-    setIfUnfocused('[data-input="riverStageM"]', stageM);
-    q('[data-val="riverStageM"]').textContent = `${stageM.toFixed(2)} m`;
+    setIfUnfocused('riverStageM', stageM);
+    setValText('riverStageM', `${stageM.toFixed(2)} m`);
 
     const nVal = Number(state.manningN ?? 0.035);
-    setIfUnfocused('[data-input="manningN"]', nVal);
-    q('[data-val="manningN"]').textContent = nVal.toFixed(3);
+    setIfUnfocused('manningN', nVal);
+    setValText('manningN', nVal.toFixed(3));
 
     const s0Val = Number(state.channelSlope ?? 0.0022);
-    setIfUnfocused('[data-input="channelSlope"]', s0Val);
-    q('[data-val="channelSlope"]').textContent = s0Val.toFixed(4);
+    setIfUnfocused('channelSlope', s0Val);
+    setValText('channelSlope', s0Val.toFixed(4));
 
     const kVal = Number(state.velocityCoeffK ?? 0.85);
-    setIfUnfocused('[data-input="velocityCoeffK"]', kVal);
-    q('[data-val="velocityCoeffK"]').textContent = kVal.toFixed(2);
+    setIfUnfocused('velocityCoeffK', kVal);
+    setValText('velocityCoeffK', kVal.toFixed(2));
 
     const rainPct = Math.round((state.rainIntensity ?? 0) * 100);
-    setIfUnfocused('[data-input="rainIntensity"]', rainPct);
-    q('[data-val="rainIntensity"]').textContent = `${rainPct}%`;
+    setIfUnfocused('rainIntensity', rainPct);
+    setValText('rainIntensity', `${rainPct}%`);
 
-    setIfUnfocused('[data-input="riverDebrisTarget"]', debrisN);
-    q('[data-val="riverDebrisTarget"]').textContent = `${debrisN} items`;
+    setIfUnfocused('riverDebrisTarget', debrisN);
+    setValText('riverDebrisTarget', `${debrisN} items`);
 
-    const sliceBtn = q('[data-ctrl="showBathymetrySlice"]');
-    sliceBtn.classList.toggle('active', state.showBathymetrySlice !== false);
-    const gcpBtn = q('[data-ctrl="showGcpGrid"]');
-    gcpBtn.classList.toggle('active', state.showGcpGrid !== false);
+    const archKey = state.architectureProfile === 'edge_lora' ? 'edge_lora' : 'proposal';
+    archBtns.forEach((b) => b.classList.toggle('active', b.dataset.arch === archKey));
+    const archBadge = domKpi.get('arch-badge');
+    if (archBadge) {
+      archBadge.textContent = archKey === 'edge_lora' ? 'EDGE + LORA' : 'PROPOSAL';
+      archBadge.className = `badge mono ${archKey === 'edge_lora' ? 'badge-warn' : 'badge-ok'}`;
+    }
+
+    const sliceBtn = domCtrl.get('showBathymetrySlice');
+    if (sliceBtn) sliceBtn.classList.toggle('active', state.showBathymetrySlice !== false);
+    const gcpBtn = domCtrl.get('showGcpGrid');
+    if (gcpBtn) gcpBtn.classList.toggle('active', state.showGcpGrid !== false);
+    const refBtn = domCtrl.get('independentFieldRef');
+    if (refBtn) {
+      const hasRef = Boolean(state.independentFieldRef);
+      refBtn.classList.toggle('active', hasRef);
+      refBtn.textContent = hasRef ? 'Field Discharge Ref: AVAILABLE (Q_ref)' : 'Field Discharge Ref: ABSENT (Obj 5A)';
+    }
 
     // Shared values
     const expPct = Math.round((state.explodeFactor ?? 0) * 100);
-    setIfUnfocused('[data-input="explodeFactor"]', expPct);
-    q('[data-val="explodeFactor"]').textContent = `${expPct}%`;
+    setIfUnfocused('explodeFactor', expPct);
+    setValText('explodeFactor', `${expPct}%`);
 
-    setIfUnfocused('[data-input="turbidityMode"]', state.turbidityMode || (isRiver ? 'silty' : 'clear'));
+    setIfUnfocused('turbidityMode', state.turbidityMode || (isRiver ? 'silty' : 'clear'));
     const tod = state.nightMode
       ? 'night'
-      : (state.sunGlare ?? 0) > 0.5
-        ? 'glare'
-        : state.timeOfDay || 'day';
-    setIfUnfocused('[data-input="timeOfDayPreset"]', tod);
+      : state.timeOfDay === 'night_no_ir'
+        ? 'night_no_ir'
+        : (state.sunGlare ?? 0) > 0.5
+          ? 'glare'
+          : state.timeOfDay || 'day';
+    setIfUnfocused('timeOfDayPreset', tod);
 
     const nightOn = Boolean(state.nightMode);
-    const nightBtn = q('[data-ctrl="nightMode"]');
-    nightBtn.textContent = nightOn ? '850nm Night IR: ON' : '850nm Night IR: OFF';
-    nightBtn.classList.toggle('active', nightOn);
+    const nightBtn = domCtrl.get('nightMode');
+    if (nightBtn) {
+      nightBtn.textContent = nightOn ? '850nm Night IR: ON' : '850nm Night IR: OFF';
+      nightBtn.classList.toggle('active', nightOn);
+    }
     quickIrBtn.classList.toggle('active', nightOn);
 
     const wifiOn = state.wifiOnline !== false;
-    const wifiBtn = q('[data-ctrl="wifiOnline"]');
-    wifiBtn.textContent = wifiOn ? 'Wi-Fi: ONLINE' : 'Wi-Fi: OUTAGE';
-    wifiBtn.classList.toggle('btn-emerald', wifiOn);
-    wifiBtn.classList.toggle('btn-danger', !wifiOn);
+    const wifiBtn = domCtrl.get('wifiOnline');
+    if (wifiBtn) {
+      wifiBtn.textContent = wifiOn ? 'Wi-Fi: ONLINE' : 'Wi-Fi: OUTAGE';
+      wifiBtn.classList.toggle('btn-emerald', wifiOn);
+      wifiBtn.classList.toggle('btn-danger', !wifiOn);
+    }
 
-    const opticsBtn = q('[data-ctrl="showOptics"]');
+    const opticsBtn = domCtrl.get('showOptics');
     const opticsOn = state.showOptics !== false;
-    opticsBtn.textContent = opticsOn ? 'Laser & FOV: ON' : 'Laser & FOV: OFF';
-    opticsBtn.classList.toggle('active', opticsOn);
+    if (opticsBtn) {
+      opticsBtn.textContent = opticsOn ? '850nm NIR Visual: ON' : '850nm NIR Visual: OFF';
+      opticsBtn.classList.toggle('active', opticsOn);
+    }
 
-    const pipeBtn = q('[data-ctrl="pipelineActive"]');
+    const pipeBtn = domCtrl.get('pipelineActive');
     const pipeOn = state.pipelineActive !== false;
-    pipeBtn.textContent = pipeOn ? 'Logging: ON' : 'Logging: PAUSED';
-    pipeBtn.classList.toggle('active', pipeOn);
+    if (pipeBtn) {
+      pipeBtn.textContent = pipeOn ? 'Logging: ON' : 'Logging: PAUSED';
+      pipeBtn.classList.toggle('active', pipeOn);
+    }
 
     // Threshold sliders adapt range cleanly between Lab and River
-    const th = state.thresholds || getDefaultThresholds(isRiver ? 'river' : 'lab');
-    const thQInput = q('[data-input="th-q"]');
-    if (isRiver !== lastModeRendered && thQInput) {
+    const th = state.thresholds || getDefaultThresholds(phaseKey);
+    const thWlInput = domInput.get('th-wl');
+    const thVsInput = domInput.get('th-vs');
+    const thQInput = domInput.get('th-q');
+    if (isRiver !== lastModeRendered) {
       lastModeRendered = isRiver;
-      thQInput.min = isRiver ? '2.0' : '0.0005';
-      thQInput.max = isRiver ? '65.0' : '0.0040';
-      thQInput.step = isRiver ? '0.5' : '0.00005';
+      if (thWlInput) {
+        thWlInput.min = isRiver ? '0.50' : '0.200';
+        thWlInput.max = isRiver ? '3.30' : '0.420';
+        thWlInput.step = isRiver ? '0.05' : '0.002';
+      }
+      if (thVsInput) {
+        thVsInput.min = isRiver ? '0.30' : '0.040';
+        thVsInput.max = isRiver ? '4.50' : '0.350';
+        thVsInput.step = isRiver ? '0.05' : '0.005';
+      }
+      if (thQInput) {
+        thQInput.min = isRiver ? '2.0' : '0.0005';
+        thQInput.max = isRiver ? '65.0' : '0.0040';
+        thQInput.step = isRiver ? '0.5' : '0.00005';
+      }
     }
-    setIfUnfocused('[data-input="th-wl"]', th.waterLevelM);
-    q('[data-val="th-wl"]').textContent = `${Number(th.waterLevelM).toFixed(3)} m`;
-    setIfUnfocused('[data-input="th-vs"]', th.surfaceVelocityMs);
-    q('[data-val="th-vs"]').textContent = `${Number(th.surfaceVelocityMs).toFixed(2)} m/s`;
-    setIfUnfocused('[data-input="th-q"]', th.dischargeM3s);
-    q('[data-val="th-q"]').textContent = `${Number(th.dischargeM3s).toFixed(isRiver ? 1 : 5)} m³/s`;
-    setIfUnfocused('[data-input="th-n"]', th.debrisCount);
-    q('[data-val="th-n"]').textContent = `${Math.round(th.debrisCount)} items`;
+    setIfUnfocused('th-wl', th.waterLevelM);
+    setValText('th-wl', `${Number(th.waterLevelM).toFixed(3)} m`);
+    setIfUnfocused('th-vs', th.surfaceVelocityMs);
+    setValText('th-vs', `${Number(th.surfaceVelocityMs).toFixed(2)} m/s`);
+    setIfUnfocused('th-q', th.dischargeM3s);
+    setValText('th-q', `${Number(th.dischargeM3s).toFixed(isRiver ? 1 : 5)} m³/s`);
+    setIfUnfocused('th-n', th.debrisCount);
+    setValText('th-n', `${Math.round(th.debrisCount)} items`);
   }
 
   function renderSensitivityChart(sens) {
     if (!sens || !sens.points || !sens.points.length) return;
-    const w = sensCanvas.width;
-    const h = sensCanvas.height;
+    sizeHiDpi(sensCanvas, sensCtx, 340, 150);
+    const w = 340;
+    const h = 150;
     const padL = 44;
     const padR = 14;
     const padT = 14;
@@ -13544,74 +15016,207 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     sensCtx.fill();
 
     const fmtQ = (v) => (v < 0.05 ? v.toFixed(5) : v.toFixed(2));
-    q('[data-kpi="sens-summary"]').textContent =
-      `ΔQ(k): ${fmtQ(sens.deltaQOverK)} | ΔQ(±5cm): ${fmtQ(sens.deltaQOverWL)} | Band: ±${sens.uncertaintyBandPct.toFixed(1)}%`;
+    setKpiText(
+      'sens-summary',
+      `ΔQ(k): ${fmtQ(sens.deltaQOverK)} | ΔQ(±5cm): ${fmtQ(sens.deltaQOverWL)} | GUM u_c: ±${sens.uncertaintyBandPct.toFixed(1)}%`
+    );
+  }
+
+  let lastTsPhase = null;
+  function renderTimeSeriesChart() {
+    if (!tsCanvas || !tsCtx) return;
+    sizeHiDpi(tsCanvas, tsCtx, 340, 118);
+    const w = 340;
+    const h = 118;
+    const padL = 8;
+    const padR = 8;
+    const padT = 16;
+    const padB = 14;
+    const cw = w - padL - padR;
+    const ch = h - padT - padB;
+
+    tsCtx.clearRect(0, 0, w, h);
+    tsCtx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+    tsCtx.lineWidth = 1;
+    for (let i = 0; i <= 2; i++) {
+      const y = padT + (ch * i) / 2;
+      tsCtx.beginPath();
+      tsCtx.moveTo(padL, y);
+      tsCtx.lineTo(w - padR, y);
+      tsCtx.stroke();
+    }
+
+    if (tsSeries.length < 2) {
+      tsCtx.fillStyle = '#64748b';
+      tsCtx.font = '10px monospace';
+      tsCtx.fillText('Sampling live WL / Vs / Q series…', padL + 4, padT + ch * 0.52);
+      return;
+    }
+
+    const drawTrace = (getter, thGetter, strokeColor) => {
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (let i = 0; i < tsSeries.length; i++) {
+        const v = getter(tsSeries[i]);
+        const thV = thGetter(tsSeries[i]);
+        if (v < lo) lo = v;
+        if (v > hi) hi = v;
+        if (thV < lo) lo = thV;
+        if (thV > hi) hi = thV;
+      }
+      const span = Math.max(hi - lo, Math.max(Math.abs(hi), 1e-4) * 0.25);
+      lo = Math.max(0, lo - span * 0.15);
+      hi = hi + span * 0.15;
+      const denom = Math.max(hi - lo, 1e-6);
+
+      const lastTh = thGetter(tsSeries[tsSeries.length - 1]);
+      const thY = padT + ch - ((lastTh - lo) / denom) * ch;
+      tsCtx.save();
+      tsCtx.setLineDash([4, 4]);
+      tsCtx.strokeStyle = strokeColor;
+      tsCtx.globalAlpha = 0.42;
+      tsCtx.lineWidth = 1;
+      tsCtx.beginPath();
+      tsCtx.moveTo(padL, thY);
+      tsCtx.lineTo(w - padR, thY);
+      tsCtx.stroke();
+      tsCtx.restore();
+
+      tsCtx.strokeStyle = strokeColor;
+      tsCtx.lineWidth = 1.75;
+      tsCtx.beginPath();
+      for (let i = 0; i < tsSeries.length; i++) {
+        const x = padL + (i / (tsSeries.length - 1)) * cw;
+        const y = padT + ch - ((getter(tsSeries[i]) - lo) / denom) * ch;
+        if (i === 0) tsCtx.moveTo(x, y);
+        else tsCtx.lineTo(x, y);
+      }
+      tsCtx.stroke();
+    };
+
+    drawTrace((d) => d.wl, (d) => d.wlTh, '#38bdf8');
+    drawTrace((d) => d.vs, (d) => d.vsTh, '#34d399');
+    drawTrace((d) => d.q, (d) => d.qTh, '#fbbf24');
+
+    const latest = tsSeries[tsSeries.length - 1];
+    tsCtx.fillStyle = '#cbd5e1';
+    tsCtx.font = '9.5px monospace';
+    tsCtx.fillText(
+      `WL ${latest.wl.toFixed(3)}m | Vs ${latest.vs.toFixed(2)}m/s | Q ${latest.q < 0.05 ? latest.q.toFixed(4) : latest.q.toFixed(1)} (${tsSeries.length}/90)`,
+      padL,
+      11
+    );
   }
 
   function renderTables(trialLogs, snapshot) {
-    if (!trialLogs) return;
+    if (!trialLogs || !drawerOpen || activeTab !== 'tables') return;
     const p1 = trialLogs.phase1 || [];
     const p2 = trialLogs.phase2 || [];
-    const sig = `${p1.length}-${p2.length}-${p1[p1.length - 1]?.trialId || ''}-${p2[p2.length - 1]?.trialId || ''}-${snapshot.edgeStorage.tsrPct.toFixed(1)}`;
+    const sig = `${p1.length}-${p2.length}-${p1[p1.length - 1]?.trialId || ''}-${p2[p2.length - 1]?.trialId || ''}-${snapshot.edgeStorage.lidarTsrPct.toFixed(1)}-${snapshot.edgeStorage.videoTsrPct.toFixed(1)}-${snapshot.functionalityChecks?.[0]?.tested || 0}`;
     if (sig === lastLoggedTrialSig) return;
     lastLoggedTrialSig = sig;
 
     const s1 = trialLogs.stats?.phase1;
     if (s1) {
-      q('[data-kpi="t1-stats"]').textContent =
-        `MAE: ${s1.wlMaeCm.toFixed(2)}cm | RMSE: ${s1.wlRmseCm.toFixed(2)}cm | Bias: ${s1.wlBiasCm.toFixed(2)}cm`;
+      setKpiText(
+        't1-stats',
+        `MaxAE: ${s1.wlMaxAeCm.toFixed(2)}cm | MAE: ${s1.wlMaeCm.toFixed(2)}cm | RMSE: ${s1.wlRmseCm.toFixed(2)}cm`
+      );
+      setKpiText(
+        't34-split',
+        `Day: F1 ${s1.day.f1Pct.toFixed(0)}% (${s1.day.frames}f) | 850nm IR: F1 ${s1.nightIr.f1Pct.toFixed(0)}% (${s1.nightIr.frames}f)`
+      );
     }
 
-    q('[data-tbody="t1"]').innerHTML = p1
-      .slice(-10)
-      .reverse()
-      .map(
-        (r) =>
-          `<tr><td class="mono">${r.trialId}</td><td class="mono">${r.lidarDistanceM.toFixed(3)}</td><td class="mono">${r.calculatedWlM.toFixed(3)}</td><td class="mono">${r.referenceWlM.toFixed(3)}</td><td class="mono">${r.estimatedVsMs.toFixed(2)}</td><td class="mono">${r.referenceVsMs.toFixed(2)}</td></tr>`
-      )
-      .join('');
+    const s2 = trialLogs.stats?.phase2;
+    if (s2) {
+      setKpiText(
+        't89-split',
+        `Day: F1 ${s2.day.f1Pct.toFixed(0)}% (${s2.day.frames}f) | 850nm IR: F1 ${s2.nightIr.f1Pct.toFixed(0)}% (${s2.nightIr.frames}f)`
+      );
+    }
 
-    q('[data-tbody="t2"]').innerHTML = p1
-      .slice(-10)
-      .reverse()
-      .map(
-        (r) =>
-          `<tr><td class="mono">${r.trialId}</td><td class="mono">${r.wettedAreaM2.toFixed(4)}</td><td class="mono">${r.velocityCoeffK.toFixed(2)}</td><td class="mono">${r.estimatedQM3s.toFixed(5)}</td><td class="mono">${r.referenceQM3s.toFixed(5)}</td><td class="mono">${r.qPercentError.toFixed(1)}%</td></tr>`
-      )
-      .join('');
+    const t1El = domTbody.get('t1');
+    if (t1El) {
+      t1El.innerHTML = p1
+        .slice(-10)
+        .reverse()
+        .map(
+          (r) =>
+            `<tr><td class="mono">${r.trialId}</td><td class="mono">${String(r.timestamp || '').slice(11, 19)}</td><td class="mono">${r.lidarDistanceM.toFixed(3)}</td><td class="mono">${r.calculatedWlM.toFixed(3)}</td><td class="mono">${r.referenceWlM.toFixed(3)}</td><td class="mono">${r.wlAbsErrorCm.toFixed(2)}</td><td class="mono">${r.estimatedVsMs.toFixed(2)}</td><td class="mono">${r.referenceVsMs.toFixed(2)}</td></tr>`
+        )
+        .join('');
+    }
 
-    q('[data-tbody="t34"]').innerHTML = p1
-      .slice(-10)
-      .reverse()
-      .map(
-        (r) =>
-          `<tr><td class="mono">${r.trialId}</td><td>${r.lightingCondition}</td><td class="mono">${r.systemDebrisNs}/${r.manualDebrisNr}</td><td class="mono">${r.precisionPct.toFixed(0)}%</td><td class="mono">${r.recallPct.toFixed(0)}%</td><td class="mono">${r.tsrPct.toFixed(1)}%</td></tr>`
-      )
-      .join('');
+    const t2El = domTbody.get('t2');
+    if (t2El) {
+      t2El.innerHTML = p1
+        .slice(-10)
+        .reverse()
+        .map(
+          (r) =>
+            `<tr><td class="mono">${r.trialId}</td><td class="mono">${r.wettedAreaM2.toFixed(4)}</td><td class="mono">${r.velocityCoeffK.toFixed(2)}</td><td class="mono">${r.estimatedQM3s.toFixed(5)}</td><td class="mono">${r.referenceQM3s.toFixed(5)}</td><td class="mono">${r.qPercentError.toFixed(1)}%</td></tr>`
+        )
+        .join('');
+    }
 
-    q('[data-tbody="t5"]').innerHTML = (snapshot.functionalityChecks || [])
-      .map(
-        (c) =>
-          `<tr><td>${c.name}</td><td>${c.criterion}</td><td><span class="badge ${c.status === 'PASS' ? 'badge-ok' : 'badge-warn'}">${c.status}</span></td></tr>`
-      )
-      .join('');
+    const t34El = domTbody.get('t34');
+    if (t34El) {
+      t34El.innerHTML = p1
+        .slice(-10)
+        .reverse()
+        .map(
+          (r) =>
+            `<tr><td class="mono">${r.trialId}</td><td>${r.lightingCondition}</td><td class="mono">${r.systemDebrisNs}/${r.manualDebrisNr}</td><td class="mono">${r.tp}/${r.fp}/${r.fn}</td><td class="mono">${r.f1Pct.toFixed(0)}%</td><td class="mono">${Number(r.lidarTsrPct ?? r.tsrPct).toFixed(0)}%</td><td class="mono">${Number(r.videoTsrPct ?? r.tsrPct).toFixed(0)}%</td></tr>`
+        )
+        .join('');
+    }
 
-    q('[data-tbody="field"]').innerHTML = p2.length
-      ? p2
-          .slice(-10)
-          .reverse()
-          .map(
-            (r) =>
-              `<tr><td class="mono">${r.trialId}</td><td>${r.flowStage}</td><td class="mono">${r.calculatedWlM.toFixed(2)}</td><td class="mono">${r.estimatedVsMs.toFixed(2)}</td><td class="mono">${r.estimatedQM3s.toFixed(2)}</td><td class="mono">${r.systemDebrisNs}/${r.manualDebrisNr}</td><td class="mono">${r.tsrPct.toFixed(1)}%</td></tr>`
-          )
-          .join('')
-      : `<tr><td colspan="7" style="color:#94a3b8;text-align:center;">Switch to Phase 2 or Stage 6 to record Guimbal River field trials.</td></tr>`;
+    const t5El = domTbody.get('t5');
+    if (t5El) {
+      t5El.innerHTML = (snapshot.functionalityChecks || [])
+        .map(
+          (c) =>
+            `<tr><td>${c.name}</td><td>${c.criterion}</td><td class="mono">${c.tested ?? 1}</td><td class="mono">${c.passed ?? 1}</td><td><span class="badge ${c.status === 'PASS' ? 'badge-ok' : 'badge-warn'}">${c.status}</span></td></tr>`
+        )
+        .join('');
+    }
+
+    const fieldEl = domTbody.get('field');
+    if (fieldEl) {
+      fieldEl.innerHTML = p2.length
+        ? p2
+            .slice(-10)
+            .reverse()
+            .map(
+              (r) =>
+                `<tr><td class="mono">${r.trialId}</td><td>${r.flowStage}/${r.rainfall}</td><td class="mono">${r.calculatedWlM.toFixed(2)}</td><td class="mono">${r.estimatedVsMs.toFixed(2)}</td><td class="mono">${r.estimatedQM3s.toFixed(2)}</td><td class="mono">${r.independentRefAvailable ? 'Yes' : 'No'}</td></tr>`
+            )
+            .join('')
+        : `<tr><td colspan="6" style="color:#94a3b8;text-align:center;">Switch to Phase 2 or Stage 6 to record Tables 6–7 field trials.</td></tr>`;
+    }
+
+    const field89El = domTbody.get('field89');
+    if (field89El) {
+      field89El.innerHTML = p2.length
+        ? p2
+            .slice(-10)
+            .reverse()
+            .map(
+              (r) =>
+                `<tr><td class="mono">${r.trialId}</td><td>${r.lightingCondition}</td><td class="mono">${r.systemDebrisNs}/${r.manualDebrisNr}</td><td class="mono">${r.f1Pct.toFixed(0)}%</td><td class="mono">${Number(r.hazardIndex ?? 0).toFixed(1)}</td><td class="mono">${Number(r.lidarTsrPct ?? r.tsrPct).toFixed(0)}%</td><td class="mono">${Number(r.videoTsrPct ?? r.tsrPct).toFixed(0)}%</td></tr>`
+            )
+            .join('')
+        : `<tr><td colspan="7" style="color:#94a3b8;text-align:center;">No Phase 2 debris / TSR records logged yet.</td></tr>`;
+    }
   }
 
   function renderAlertInbox(alerts = []) {
     alertTabCount.textContent = String(alerts.length);
-    if (alerts.length === lastAlertCount) return;
-    lastAlertCount = alerts.length;
+    if (!drawerOpen || activeTab !== 'alerts') return;
+    const alertSig = alerts.map((a) => `${a.id}:${a.deliveryStatus}`).join('|');
+    if (alertSig === lastAlertSig) return;
+    lastAlertSig = alertSig;
 
     if (!alerts.length) {
       alertListEl.innerHTML = `<div style="font-size:11px;color:#94a3b8;padding:12px;text-align:center;">No threshold breaches logged yet. Raise flow/debris or run Stage 5 to trigger alerts.</div>`;
@@ -13662,13 +15267,14 @@ function createDashboardPanel(containerEl, state, actions = {}) {
     }, 6500);
   }
 
+  let lastStageIdxForBanner = -2;
   function update(snapshot, sensitivityData, trialLogs, timelineInfoArg) {
     lastSnapshot = snapshot;
     cachedTrialLogs = trialLogs;
 
     syncControlWidgets();
 
-    // Update Timeline Bar
+    // Update Timeline Bar & Stage Narration Banner
     const tInfo = timelineInfoArg || actions.getTimelineInfo?.() || state.timelineInfo;
     if (tInfo) {
       playPauseBtn.textContent = tInfo.playing ? '⏸ Pause' : '▶ Play Story';
@@ -13679,106 +15285,166 @@ function createDashboardPanel(containerEl, state, actions = {}) {
       }
       stageTitleEl.textContent = tInfo.title || '7-Stage Pipeline';
       stageTimeEl.textContent = `${(tInfo.currentTime || 0).toFixed(1)}s / ${(tInfo.totalDuration || TOTAL_TIMELINE_DURATION_S).toFixed(1)}s`;
-      qa('[data-stage]').forEach((b) =>
+      stagePills.forEach((b) =>
         b.classList.toggle('active', Number(b.dataset.stage) === tInfo.index)
       );
+
+      if (tInfo.index !== lastStageIdxForBanner) {
+        lastStageIdxForBanner = tInfo.index;
+        if (tInfo.playing || tInfo.index >= 0) {
+          bannerDismissed = false;
+        }
+      }
+      if (stageBannerEl) {
+        stageBannerEl.classList.toggle('hidden', bannerDismissed);
+        if (bannerTitleEl) bannerTitleEl.textContent = tInfo.title || 'Ready — 7-Stage Pipeline';
+        if (bannerSubEl) bannerSubEl.textContent = tInfo.subtitle || 'Press Play Story or use ← / → to step through thesis stages.';
+        if (bannerEqEl) bannerEqEl.textContent = tInfo.equation || 'WL = H_mount - D · cos(θ) • Q = k · Vs · A(WL)';
+      }
+      if (holdBtn) {
+        const holdOn = Boolean(tInfo.holdAtStageEnd);
+        holdAtStageEnd = holdOn;
+        holdBtn.textContent = holdOn ? 'Hold: ON' : 'Hold: OFF';
+        holdBtn.classList.toggle('active', holdOn);
+      }
     }
 
     if (!snapshot) return;
 
-    // Telemetry KPI Cards
+    // Sample live time-series buffer at ~4 Hz regardless of active tab
+    const nowMs = performance.now();
+    if (lastTsPhase && lastTsPhase !== snapshot.phase) {
+      tsSeries.length = 0;
+    }
+    lastTsPhase = snapshot.phase;
+    if (nowMs - lastTsSampleMs >= 250) {
+      lastTsSampleMs = nowMs;
+      const th = state.thresholds || getDefaultThresholds(snapshot.phase === 'phase2' ? 'river' : 'lab');
+      tsSeries.push({
+        wl: snapshot.waterLevel.calculatedM,
+        vs: snapshot.velocity.estimatedVs,
+        q: snapshot.discharge.estimatedQ,
+        wlTh: Number(th.waterLevelM ?? (snapshot.phase === 'phase2' ? 2.5 : 0.345)),
+        vsTh: Number(th.surfaceVelocityMs ?? (snapshot.phase === 'phase2' ? 2.4 : 0.28)),
+        qTh: Number(th.dischargeM3s ?? (snapshot.phase === 'phase2' ? 28.0 : 0.00145)),
+      });
+      if (tsSeries.length > 90) tsSeries.shift();
+    }
+
     const isRiver = snapshot.phase === 'phase2';
-    q('[data-kpi="wl"]').textContent = `${snapshot.waterLevel.calculatedM.toFixed(3)} m`;
-    q('[data-kpi="wl-err"]').textContent = `AE: ${snapshot.waterLevel.absErrorCm.toFixed(2)} cm | ${snapshot.waterLevel.tableXPass ? 'PASS' : 'FAIL'}`;
 
-    q('[data-kpi="vs"]').textContent = `${snapshot.velocity.estimatedVs.toFixed(2)} m/s`;
-    q('[data-kpi="vs-err"]').textContent = `rRMSE: ${snapshot.velocity.rRrmsePct.toFixed(1)}% (<=20%)`;
+    // Update Telemetry KPI Cards & Charts only when visible
+    if (drawerOpen && activeTab === 'telemetry') {
+      setKpiText('wl', `${snapshot.waterLevel.calculatedM.toFixed(3)} m`);
+      setKpiText(
+        'wl-err',
+        `AE: ${snapshot.waterLevel.absErrorCm.toFixed(2)} cm (Max ${Number(snapshot.waterLevel.maxAbsErrorCm ?? snapshot.waterLevel.absErrorCm).toFixed(1)} cm) | ${snapshot.waterLevel.tableXPass ? 'PASS' : 'FAIL'}`
+      );
 
-    const qVal = snapshot.discharge.estimatedQ;
-    q('[data-kpi="q"]').textContent = `${qVal < 0.05 ? qVal.toFixed(5) : qVal.toFixed(2)} m³/s`;
-    q('[data-kpi="q-sub"]').textContent = `A: ${snapshot.discharge.wettedAreaM2.toFixed(isRiver ? 2 : 4)} m² | k: ${snapshot.discharge.velocityCoeffK.toFixed(2)}`;
+      setKpiText('vs', `${snapshot.velocity.estimatedVs.toFixed(2)} m/s`);
+      setKpiText('vs-err', `rRMSE: ${snapshot.velocity.rRrmsePct.toFixed(1)}% (<=20%)`);
 
-    q('[data-kpi="ns"]').textContent = `${snapshot.debris.systemCountNs} / ${snapshot.debris.manualCountNr}`;
-    q('[data-kpi="f1"]').textContent = `P:${snapshot.debris.precisionPct.toFixed(0)}% R:${snapshot.debris.recallPct.toFixed(0)}% F1:${snapshot.debris.f1Pct.toFixed(0)}%`;
+      const qVal = snapshot.discharge.estimatedQ;
+      setKpiText('q', `${qVal < 0.05 ? qVal.toFixed(5) : qVal.toFixed(2)} m³/s`);
+      setKpiText('q-sub', `A: ${snapshot.discharge.wettedAreaM2.toFixed(isRiver ? 2 : 4)} m² | k: ${snapshot.discharge.velocityCoeffK.toFixed(2)}`);
 
-    // Mounting Location & Incidence Telemetry
-    const mnt = snapshot.mounting;
-    if (mnt) {
-      const mBadge = q('[data-kpi="mount-badge"]');
-      if (mBadge) {
-        mBadge.textContent = mnt.mode === 'lab_pole'
-          ? 'LAB-POLE'
-          : mnt.mode === 'side_pole'
-            ? 'SIDE-POLE'
-            : mnt.mode === 'bridge'
-              ? 'BRIDGE'
-              : 'LAB GANTRY';
-        mBadge.className = `badge mono ${mnt.hitDryBank ? 'badge-warn' : 'badge-ok'}`;
+      setKpiText('ns', `${snapshot.debris.systemCountNs} / ${snapshot.debris.manualCountNr}`);
+      setKpiText('f1', `F1:${snapshot.debris.f1Pct.toFixed(0)}% | HI: ${Number(snapshot.debris.hazardIndex ?? 0).toFixed(1)} (${snapshot.debris.alertLevel || 'NORMAL'})`);
+
+      const mnt = snapshot.mounting;
+      if (mnt) {
+        const mBadge = domKpi.get('mount-badge');
+        if (mBadge) {
+          mBadge.textContent = mnt.mode === 'lab_pole'
+            ? 'LAB-POLE'
+            : mnt.mode === 'side_pole'
+              ? 'SIDE-POLE'
+              : mnt.mode === 'bridge'
+                ? 'BRIDGE'
+                : 'LAB GANTRY';
+          mBadge.className = `badge mono ${mnt.hitDryBank ? 'badge-warn' : 'badge-ok'}`;
+        }
+        setKpiText('mount-loc', mnt.label);
+        setKpiText('mount-h', `${mnt.heightM.toFixed(2)} m`);
+        setKpiText(
+          'lidar-ang',
+          mnt.lidarIncidenceDeg > 0.1 ? `${mnt.lidarIncidenceDeg.toFixed(1)}° Slant` : '0.0° Nadir'
+        );
+        setKpiText('cam-ang', `${mnt.cameraIncidenceDeg.toFixed(1)}°`);
+        setKpiText(
+          'd-laser',
+          mnt.lidarIncidenceDeg > 0.1
+            ? `${mnt.rawLaserDistanceM.toFixed(2)}m → ${mnt.compensatedDistanceM.toFixed(2)}m`
+            : `${mnt.rawLaserDistanceM.toFixed(3)} m`
+        );
+        setKpiText(
+          'gcp-comp',
+          (mnt.mode === 'side_pole' || mnt.mode === 'lab_pole')
+            ? `H_gcp | ${mnt.slantCompEnabled ? 'cos(θ) ON' : 'RAW OFF'}`
+            : mnt.gcpLayout
+        );
       }
-      const mLoc = q('[data-kpi="mount-loc"]');
-      if (mLoc) mLoc.textContent = mnt.label;
-      const mH = q('[data-kpi="mount-h"]');
-      if (mH) mH.textContent = `${mnt.heightM.toFixed(2)} m`;
-      const mLAng = q('[data-kpi="lidar-ang"]');
-      if (mLAng) {
-        mLAng.textContent = mnt.lidarIncidenceDeg > 0.1
-          ? `${mnt.lidarIncidenceDeg.toFixed(1)}° Slant`
-          : '0.0° Nadir';
+
+      const edge = snapshot.edgeStorage;
+      const syncBadge = domKpi.get('sync-badge');
+      if (syncBadge) {
+        syncBadge.textContent = edge.uploadStatus;
+        syncBadge.className = `badge mono ${edge.wifiOnline ? 'badge-ok' : 'badge-warn'}`;
       }
-      const mCAng = q('[data-kpi="cam-ang"]');
-      if (mCAng) mCAng.textContent = `${mnt.cameraIncidenceDeg.toFixed(1)}°`;
-      const mDL = q('[data-kpi="d-laser"]');
-      if (mDL) {
-        mDL.textContent = mnt.lidarIncidenceDeg > 0.1
-          ? `${mnt.rawLaserDistanceM.toFixed(2)}m → ${mnt.compensatedDistanceM.toFixed(2)}m`
-          : `${mnt.rawLaserDistanceM.toFixed(3)} m`;
+      setKpiText('rtc-time', snapshot.rtcLocalLabel);
+      setKpiText('tsr', `${Number(edge.lidarTsrPct ?? edge.tsrPct).toFixed(1)}% / ${Number(edge.videoTsrPct ?? edge.tsrPct).toFixed(1)}%`);
+      setKpiText('queue', String(edge.queuedCount));
+      setKpiText('latency', `${edge.processingLatencyMs} ms`);
+      setKpiText(
+        'proc-mode',
+        edge.architectureProfile === 'edge_lora'
+          ? `${edge.ramUsedMb}MB (${edge.edgeStageLabel?.split(':')[0] || '5s'})`
+          : edge.processingMode || 'Real-Time'
+      );
+      if (snapshot.alertsMeta) {
+        setKpiText('alert-meta', `${snapshot.alertsMeta.deliveryRatePct.toFixed(0)}% / ${snapshot.alertsMeta.meanDelayMs}ms`);
       }
-      const mComp = q('[data-kpi="gcp-comp"]');
-      if (mComp) {
-        mComp.textContent = (mnt.mode === 'side_pole' || mnt.mode === 'lab_pole')
-          ? `H_gcp | ${mnt.slantCompEnabled ? 'cos(θ) ON' : 'RAW OFF'}`
-          : mnt.gcpLayout;
+      setKpiText('sd-logs', String(edge.microSdRecords));
+      setKpiText('ssd-mb', `${edge.ssdUsedMB.toFixed(1)} MB`);
+      const lora = snapshot.loraPayload;
+      if (lora) {
+        setKpiText('lora-hex', lora.hex || lora.compactHex || '--');
+        const rfSuffix = edge.architectureProfile === 'edge_lora'
+          ? ` | ${edge.loraRssiDbm}dBm SNR+${edge.loraSnrDb}dB`
+          : '';
+        setKpiText(
+          'lora-meta',
+          `Node ${lora.nodeId ?? 1} | WL ${lora.waterMm}mm | Vs ${lora.velocityMms ?? lora.distanceMm}mm/s | Q ${lora.dischargeLs ?? 0}L/s | HI ${(Number(lora.hazardIndexX100 ?? 0) / 100).toFixed(1)} | CRC16 ${lora.crc16Hex || lora.crc8Hex}${rfSuffix}`
+        );
       }
+
+      const txItems = [
+        { label: 'Water Level', rule: snapshot.waterLevel.tableXRule, pass: snapshot.waterLevel.tableXPass },
+        { label: 'Surface Velocity', rule: snapshot.velocity.tableXRule, pass: snapshot.velocity.tableXPass },
+        { label: 'Discharge', rule: snapshot.discharge.tableXRule, pass: snapshot.discharge.tableXPass },
+        { label: 'YOLOv8 Exact Match', rule: snapshot.debris.tableXRule, pass: snapshot.debris.tableXPass },
+        { label: 'Data Transmission TSR', rule: edge.tableXRule, pass: edge.tableXPass },
+        {
+          label: 'Email Alert Delivery',
+          rule: `${snapshot.alertsMeta?.deliveryRatePct ?? 100}% @ ${snapshot.alertsMeta?.meanDelayMs ?? 0}ms`,
+          pass: snapshot.alertsMeta?.tableXPass !== false,
+        },
+      ];
+      const txSig = txItems.map((it) => `${it.rule}:${it.pass}`).join('|');
+      if (tableXListEl && txSig !== lastTableXSig) {
+        lastTableXSig = txSig;
+        tableXListEl.innerHTML = txItems
+          .map(
+            (it) =>
+              `<div style="display:flex;justify-content:space-between;align-items:center;"><span>${it.label} <span class="mono" style="color:#94a3b8;font-size:10px;">(${it.rule})</span></span><span class="badge ${it.pass ? 'badge-ok' : 'badge-alert'}">${it.pass ? 'PASS' : 'CHECK'}</span></div>`
+          )
+          .join('');
+      }
+
+      renderSensitivityChart(sensitivityData);
+      renderTimeSeriesChart();
     }
 
-    // Edge Storage & RTC
-    const edge = snapshot.edgeStorage;
-    const syncBadge = q('[data-kpi="sync-badge"]');
-    syncBadge.textContent = edge.uploadStatus;
-    syncBadge.className = `badge mono ${edge.wifiOnline ? 'badge-ok' : 'badge-warn'}`;
-    q('[data-kpi="rtc-time"]').textContent = snapshot.rtcLocalLabel;
-    q('[data-kpi="tsr"]').textContent = `${edge.tsrPct.toFixed(1)}%`;
-    q('[data-kpi="queue"]').textContent = String(edge.queuedCount);
-    q('[data-kpi="latency"]').textContent = `${edge.processingLatencyMs} ms`;
-    q('[data-kpi="sd-logs"]').textContent = String(edge.microSdRecords);
-    q('[data-kpi="ssd-mb"]').textContent = `${edge.ssdUsedMB.toFixed(1)} MB`;
-    const lora = snapshot.loraPayload;
-    const loraHexEl = q('[data-kpi="lora-hex"]');
-    if (loraHexEl && lora) {
-      loraHexEl.textContent = lora.hex || lora.compactHex || '--';
-    }
-    const loraMetaEl = q('[data-kpi="lora-meta"]');
-    if (loraMetaEl && lora) {
-      const fHex = `0x${Number(lora.flagsByte ?? 0).toString(16).toUpperCase().padStart(2, '0')}`;
-      loraMetaEl.textContent = `Flags ${fHex} | WL ${lora.waterMm} mm | D ${lora.distanceMm} mm | Vs ${lora.velocityMms} mm/s | CRC ${lora.crc8Hex}`;
-    }
-
-    // Table X Acceptance List
-    const txItems = [
-      { label: 'Water Level', rule: snapshot.waterLevel.tableXRule, pass: snapshot.waterLevel.tableXPass },
-      { label: 'Surface Velocity', rule: snapshot.velocity.tableXRule, pass: snapshot.velocity.tableXPass },
-      { label: 'Discharge', rule: snapshot.discharge.tableXRule, pass: snapshot.discharge.tableXPass },
-      { label: 'YOLOv8 Exact Match', rule: snapshot.debris.tableXRule, pass: snapshot.debris.tableXPass },
-      { label: 'Data Transmission TSR', rule: edge.tableXRule, pass: edge.tableXPass },
-    ];
-    q('[data-el="tablex-list"]').innerHTML = txItems
-      .map(
-        (it) =>
-          `<div style="display:flex;justify-content:space-between;align-items:center;"><span>${it.label} <span class="mono" style="color:#94a3b8;font-size:10px;">(${it.rule})</span></span><span class="badge ${it.pass ? 'badge-ok' : 'badge-alert'}">${it.pass ? 'PASS' : 'CHECK'}</span></div>`
-      )
-      .join('');
-
-    renderSensitivityChart(sensitivityData);
     renderTables(trialLogs, snapshot);
 
     const allAlerts = trialLogs?.alerts || snapshot.alerts || [];
@@ -13800,14 +15466,21 @@ function createDashboardPanel(containerEl, state, actions = {}) {
       hudVisible = Boolean(v);
       quickHudBtn.classList.toggle('active', hudVisible);
     },
+    setDrawerOpen,
+    isDrawerOpen: () => drawerOpen,
+    setPresentationMode,
+    isPresentationMode: () => presentationMode,
+    syncControlWidgets,
   };
 }
 
-  return { createDashboardPanel };
-})(RiverSimModules.pipelineModel, RiverSimModules.timelineController);
+  return {
+    createDashboardPanel,
+  };
+})(RiverSimModules.pipelineModel, RiverSimModules.timelineController, RiverSimModules.bomData);
 
 /* === BOOTSTRAP: src/main.js === */
-(function (THREE, OrbitControls, RoomEnvironment, { createFlumeTank }, { createGantryFrame }, { createRiverField }, { createEnclosures }, { createHardwareRig }, { createLabHydraulics }, { createRealRiverHydraulics }, { createWaterSystem }, { createSensorOptics }, { createPipelineModel, getDefaultThresholds }, { createVideoHud }, { createDashboardPanel }, { createTimelineController }) {
+(function (THREE, OrbitControls, RoomEnvironment, { createFlumeTank }, { createGantryFrame }, { createRiverField }, { createEnclosures }, { createHardwareRig }, { createLabHydraulics }, { createRealRiverHydraulics }, { createWaterSystem }, { createSensorOptics }, { createPipelineModel, getDefaultThresholds, crc16Ccitt, computeHazardIndex, encodeLoRa12BytePayload }, { createVideoHud }, { createDashboardPanel }, { createTimelineController }) {
 const LAB_ONLY_PRESETS = new Set([
   'video_replica',
   'side_profile',
@@ -13840,6 +15513,8 @@ function initApp() {
   /* ------------------------------------------------------------------------ */
 
   const state = {
+    architectureProfile: 'proposal', // 'proposal' | 'edge_lora'
+    independentFieldRef: false,
     mode: 'lab', // 'lab' | 'river'
     cameraPreset: 'video_replica',
     pumpActive: true,
@@ -13905,6 +15580,23 @@ function initApp() {
   renderer.toneMappingExposure = 1.08;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
+
+  let contextLost = false;
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    contextLost = true;
+    if (loadingStatus) {
+      loadingStatus.textContent = 'WebGL context lost — awaiting GPU restore…';
+      loadingStatus.style.color = '#fcd34d';
+    }
+    loadingOverlay?.classList.remove('hidden');
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    contextLost = false;
+    loadingOverlay?.classList.add('hidden');
+    renderer.shadowMap.needsUpdate = true;
+  });
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#0c121e');
@@ -13952,12 +15644,56 @@ function initApp() {
   scene.add(fillLight);
 
   // Active 850 nm IR Illuminator SpotLight (activates in Night IR mode)
-  const irSpotLight = new THREE.SpotLight(0xe879f9, 0, 14, Math.PI * 0.32, 0.55, 1.2);
+  const irSpotLight = new THREE.SpotLight(0xdb2777, 0, 18, Math.PI * 0.34, 0.58, 2.0);
   irSpotLight.position.set(0.08, 0.72, -0.02);
   scene.add(irSpotLight);
   scene.add(irSpotLight.target);
 
   const riverFog = new THREE.FogExp2(0x9ec6de, 0.0);
+
+  // Procedural sky dome for Phase 2 Guimbal River reach
+  const skyUniforms = {
+    uZenithColor: { value: new THREE.Color('#4d8ec4') },
+    uHorizonColor: { value: new THREE.Color('#cbe3f2') },
+    uSunDir: { value: new THREE.Vector3(8.5, 13.5, 7.5).normalize() },
+    uSunColor: { value: new THREE.Color('#fff6eb') },
+    uSunStrength: { value: 0.65 },
+  };
+  const riverSkyDome = new THREE.Mesh(
+    new THREE.SphereGeometry(64, 24, 16),
+    new THREE.ShaderMaterial({
+      uniforms: skyUniforms,
+      vertexShader: /* glsl */ `
+        varying vec3 vDir;
+        void main() {
+          vDir = normalize(position);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform vec3 uZenithColor;
+        uniform vec3 uHorizonColor;
+        uniform vec3 uSunDir;
+        uniform vec3 uSunColor;
+        uniform float uSunStrength;
+        varying vec3 vDir;
+        void main() {
+          vec3 d = normalize(vDir);
+          float h = clamp(d.y * 0.85 + 0.12, 0.0, 1.0);
+          vec3 sky = mix(uHorizonColor, uZenithColor, pow(h, 0.62));
+          float sunDot = max(dot(d, normalize(uSunDir)), 0.0);
+          float sunHalo = pow(sunDot, 22.0) * 0.32 + pow(sunDot, 280.0) * 1.15;
+          vec3 col = sky + uSunColor * sunHalo * uSunStrength;
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `,
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: false,
+    })
+  );
+  riverSkyDome.name = 'GuimbalSkyDome';
+  riverSkyDome.renderOrder = -10;
 
   /* ------------------------------------------------------------------------ */
   /*  3. Build Scene Geometry, Hydraulics, Optics, Pipeline & HUD             */
@@ -13985,7 +15721,7 @@ function initApp() {
 
   const riverSceneGroup = new THREE.Group();
   riverSceneGroup.name = 'Phase2RiverSceneGroup';
-  riverSceneGroup.add(riverField.group, waterSystem.riverWaterGroup);
+  riverSceneGroup.add(riverSkyDome, riverField.group, waterSystem.riverWaterGroup);
   riverSceneGroup.visible = false;
   scene.add(riverSceneGroup);
 
@@ -14002,9 +15738,20 @@ function initApp() {
   scene.add(sensorOptics.group);
 
   const componentById = new Map();
+  const compObjectsById = new Map();
   for (const item of hardwareRig.getComponentMetadata()) {
     componentById.set(item.id, item);
   }
+  hardwareRootGroup.traverse((obj) => {
+    const info = obj.userData?.componentInfo;
+    if (info && info.id) {
+      if (!componentById.has(info.id)) {
+        componentById.set(info.id, info);
+      }
+      if (!compObjectsById.has(info.id)) compObjectsById.set(info.id, []);
+      compObjectsById.get(info.id).push(obj);
+    }
+  });
 
   /* ------------------------------------------------------------------------ */
   /*  4. Camera Presets & Smooth Lerping                                      */
@@ -14145,9 +15892,11 @@ function initApp() {
     riverSceneGroup.visible = isRiver;
 
     if (isRiver) {
+      camera.near = 0.12;
       controls.minDistance = 0.35;
       controls.maxDistance = 32.0;
       controls.maxPolarAngle = Math.PI * 0.492;
+      sunLight.shadow.normalBias = 0.015;
       sunLight.shadow.camera.left = -15;
       sunLight.shadow.camera.right = 15;
       sunLight.shadow.camera.top = 15;
@@ -14155,9 +15904,11 @@ function initApp() {
       sunLight.shadow.camera.near = 0.5;
       sunLight.shadow.camera.far = 45;
     } else {
+      camera.near = 0.03;
       controls.minDistance = 0.16;
       controls.maxDistance = 4.6;
       controls.maxPolarAngle = Math.PI * 0.88;
+      sunLight.shadow.normalBias = 0.002;
       sunLight.shadow.camera.left = -1.2;
       sunLight.shadow.camera.right = 1.2;
       sunLight.shadow.camera.top = 1.6;
@@ -14165,6 +15916,7 @@ function initApp() {
       sunLight.shadow.camera.near = 0.2;
       sunLight.shadow.camera.far = 12;
     }
+    camera.updateProjectionMatrix();
     sunLight.shadow.camera.updateProjectionMatrix();
   }
 
@@ -14172,14 +15924,15 @@ function initApp() {
     const normalized = nextMode === 'river' ? 'river' : 'lab';
     const changed = state.mode !== normalized;
     state.mode = normalized;
+    lastModeSynced = normalized;
 
     if (normalized === 'river') {
       state.lidarHeightM = state.riverLidarHeightM || 4.5;
-      if (state.turbidityMode === 'clear') state.turbidityMode = 'silty';
+      if (changed && state.turbidityMode === 'clear') state.turbidityMode = 'silty';
       state.thresholds = getDefaultThresholds('river');
     } else {
       state.lidarHeightM = state.labLidarHeightM || 0.693;
-      if (state.turbidityMode === 'muddy' && changed) state.turbidityMode = 'clear';
+      if (changed && state.turbidityMode === 'muddy') state.turbidityMode = 'clear';
       state.thresholds = getDefaultThresholds('lab');
     }
 
@@ -14236,6 +15989,7 @@ function initApp() {
   const _mountDown = new THREE.Vector3(0, -1, 0);
   const _mountAimDir = new THREE.Vector3();
   const _mountTarget = new THREE.Vector3();
+  const _irMountPos = new THREE.Vector3();
 
   function syncHardwareMounts() {
     const isRiver = state.mode === 'river';
@@ -14346,10 +16100,10 @@ function initApp() {
       hardwareRig.routerGroup.scale.setScalar(1);
 
       const deltaH = riverField.mountAnchor.y - 4.5;
-      enclosures.controlBoxGroup.position.set(0.80, 4.92 + deltaH, -0.425);
+      enclosures.controlBoxGroup.position.set(1.16, Math.min(4.84, 4.76 + deltaH), -0.35);
       enclosures.controlBoxGroup.rotation.set(0, Math.PI, 0);
 
-      hardwareRig.routerGroup.position.set(0.99, 5.35, -0.45);
+      hardwareRig.routerGroup.position.set(1.24, 5.28, -0.45);
       hardwareRig.routerGroup.rotation.set(0, 0, 0);
 
       enclosures.lidarPodGroup.position.copy(riverField.mountAnchor);
@@ -14358,13 +16112,13 @@ function initApp() {
       enclosures.cameraPodGroup.position.copy(riverField.cameraAnchor);
       enclosures.cameraPodGroup.rotation.set(0.08, 0, 0.06);
 
-      const irPos = new THREE.Vector3(0.95, riverField.cameraAnchor.y, -0.35);
-      enclosures.irIlluminatorGroup.position.copy(irPos);
+      _irMountPos.set(0.95, riverField.cameraAnchor.y, -0.35);
+      enclosures.irIlluminatorGroup.position.copy(_irMountPos);
       enclosures.irIlluminatorGroup.rotation.set(0.06, 0, -0.03);
 
       activeAnchors.lidar.copy(riverField.mountAnchor);
       activeAnchors.camera.copy(riverField.cameraAnchor);
-      activeAnchors.ir.copy(irPos);
+      activeAnchors.ir.copy(_irMountPos);
     }
   }
 
@@ -14372,17 +16126,33 @@ function initApp() {
   const _sunColorTarget = new THREE.Color();
   const _hemiSkyTarget = new THREE.Color();
   const _hemiGroundTarget = new THREE.Color();
+  const _fillColorTarget = new THREE.Color();
+  const _skyZenithTarget = new THREE.Color();
+  const _skyHorizonTarget = new THREE.Color();
   const _sunPosTarget = new THREE.Vector3();
   const _sunLookTarget = new THREE.Vector3();
+  const _waterEnv = {
+    metrics: null,
+    particles: null,
+    sunDir: new THREE.Vector3(8.5, 13.5, 7.5).normalize(),
+    skyColor: new THREE.Color('#89bddc'),
+    fogColor: new THREE.Color('#89bddc'),
+    fogDensity: 0.013,
+    irSpotPos: new THREE.Vector3(0.95, 4.4, -0.35),
+    irSpotDir: new THREE.Vector3(0, -1, 0),
+    irSpotIntensity: 0.0,
+  };
 
   function updateLighting(dt) {
     const isRiver = state.mode === 'river';
     const isNight = Boolean(state.nightMode);
     const tod = isNight
       ? 'night'
-      : (state.sunGlare ?? 0) > 0.45
-        ? 'glare'
-        : state.timeOfDay || 'day';
+      : state.timeOfDay === 'night_no_ir'
+        ? 'night_no_ir'
+        : (state.sunGlare ?? 0) > 0.45
+          ? 'glare'
+          : state.timeOfDay || 'day';
 
     let hemiIntensity = 0.92;
     let sunIntensity = isRiver ? 2.55 : 2.1;
@@ -14390,56 +16160,73 @@ function initApp() {
     let envIntensity = 0.52;
     let exposure = 1.08;
     let fogDensity = isRiver ? 0.013 : 0.0;
+    let sunDiscStrength = 0.65;
 
-    if (tod === 'night') {
+    if (tod === 'night' || tod === 'night_no_ir') {
       _bgTarget.set(isRiver ? '#040812' : '#050811');
-      _hemiSkyTarget.set('#384d78');
-      _hemiGroundTarget.set('#0e1526');
+      _skyZenithTarget.set('#02050c');
+      _skyHorizonTarget.set('#0a1324');
+      _hemiSkyTarget.set(tod === 'night_no_ir' ? '#1e2942' : '#384d78');
+      _hemiGroundTarget.set('#0b101d');
       _sunColorTarget.set('#6d89bd');
-      hemiIntensity = 0.24;
-      sunIntensity = 0.42;
-      fillIntensity = 0.18;
-      envIntensity = 0.14;
-      exposure = 0.88;
+      _fillColorTarget.set('#3b517a');
+      hemiIntensity = tod === 'night_no_ir' ? 0.14 : 0.24;
+      sunIntensity = tod === 'night_no_ir' ? 0.22 : 0.42;
+      fillIntensity = tod === 'night_no_ir' ? 0.08 : 0.18;
+      envIntensity = tod === 'night_no_ir' ? 0.08 : 0.14;
+      exposure = tod === 'night_no_ir' ? 0.72 : 0.88;
       fogDensity = isRiver ? 0.018 : 0.0;
+      sunDiscStrength = 0.05;
       _sunPosTarget.set(isRiver ? -6 : -1.5, isRiver ? 10 : 3.2, isRiver ? 6 : 2.2);
     } else if (tod === 'dusk') {
       _bgTarget.set(isRiver ? '#2b334f' : '#121826');
+      _skyZenithTarget.set('#1f2847');
+      _skyHorizonTarget.set('#c46d4c');
       _hemiSkyTarget.set('#8094c4');
       _hemiGroundTarget.set('#2c2420');
       _sunColorTarget.set('#ff9b54');
+      _fillColorTarget.set('#6b7eb8');
       hemiIntensity = 0.50;
       sunIntensity = isRiver ? 1.35 : 1.15;
       fillIntensity = 0.45;
       envIntensity = 0.30;
       exposure = 0.98;
       fogDensity = isRiver ? 0.017 : 0.0;
+      sunDiscStrength = 0.85;
       _sunPosTarget.set(isRiver ? -11 : -2.2, isRiver ? 3.8 : 1.5, isRiver ? -4 : 2.0);
     } else if (tod === 'glare') {
       _bgTarget.set(isRiver ? '#b6d8ed' : '#141c2b');
+      _skyZenithTarget.set('#5a9dd4');
+      _skyHorizonTarget.set('#e1f0fa');
       _hemiSkyTarget.set('#ffffff');
       _hemiGroundTarget.set('#695c48');
       _sunColorTarget.set('#fffbe8');
+      _fillColorTarget.set('#dbeafe');
       hemiIntensity = 1.12;
       sunIntensity = isRiver ? 3.75 : 3.0;
       fillIntensity = 0.78;
       envIntensity = 0.68;
       exposure = 1.20;
       fogDensity = isRiver ? 0.010 : 0.0;
+      sunDiscStrength = 1.25;
       // Overhead/forward angle inducing crisp water glare reflections
       _sunPosTarget.set(isRiver ? 2.5 : 0.4, isRiver ? 14.0 : 4.8, isRiver ? -6.5 : -1.4);
     } else {
       // Daylight clear
       _bgTarget.set(isRiver ? '#89bddc' : '#0c121e');
+      _skyZenithTarget.set('#4684bc');
+      _skyHorizonTarget.set('#cbe3f2');
       _hemiSkyTarget.set('#dbeafe');
       _hemiGroundTarget.set('#443c30');
       _sunColorTarget.set('#fff6eb');
+      _fillColorTarget.set('#93c5fd');
       hemiIntensity = isRiver ? 1.02 : 0.92;
       sunIntensity = isRiver ? 2.55 : 2.15;
       fillIntensity = 0.65;
       envIntensity = 0.54;
       exposure = 1.08;
       fogDensity = isRiver ? 0.013 : 0.0;
+      sunDiscStrength = 0.65;
       _sunPosTarget.set(isRiver ? 8.5 : 2.2, isRiver ? 13.5 : 4.2, isRiver ? 7.5 : 2.8);
     }
 
@@ -14457,17 +16244,30 @@ function initApp() {
     sunLight.target.position.lerp(_sunLookTarget, k);
     sunLight.target.updateMatrixWorld();
 
+    fillLight.color.lerp(_fillColorTarget, k);
     fillLight.intensity += (fillIntensity - fillLight.intensity) * k;
     scene.environmentIntensity += (envIntensity - scene.environmentIntensity) * k;
     renderer.toneMappingExposure += (exposure - renderer.toneMappingExposure) * k;
 
     if (fogDensity > 0.0005) {
       if (scene.fog !== riverFog) scene.fog = riverFog;
-      riverFog.color.copy(scene.background);
+      riverFog.color.lerp(_skyHorizonTarget, k);
       riverFog.density += (fogDensity - riverFog.density) * k;
     } else if (scene.fog) {
       scene.fog = null;
     }
+
+    // Update procedural river sky dome uniforms & water shader environment sync
+    skyUniforms.uZenithColor.value.lerp(_skyZenithTarget, k);
+    skyUniforms.uHorizonColor.value.lerp(_skyHorizonTarget, k);
+    skyUniforms.uSunColor.value.copy(sunLight.color);
+    skyUniforms.uSunStrength.value += (sunDiscStrength - skyUniforms.uSunStrength.value) * k;
+
+    _waterEnv.sunDir.subVectors(sunLight.position, sunLight.target.position).normalize();
+    skyUniforms.uSunDir.value.copy(_waterEnv.sunDir);
+    _waterEnv.skyColor.copy(skyUniforms.uHorizonColor.value).lerp(skyUniforms.uZenithColor.value, 0.38);
+    _waterEnv.fogColor.copy(riverFog.color);
+    _waterEnv.fogDensity = fogDensity > 0.0005 ? riverFog.density : 0.0;
 
     // 850nm IR SpotLight illuminates water + tracers in Night mode
     const isLabPole = isRiver && state.riverMountMode === 'lab_pole';
@@ -14489,9 +16289,15 @@ function initApp() {
           : 0.0
     );
     irSpotLight.target.updateMatrixWorld();
-    const targetIrIntensity = isNight ? (isRiver ? 14.0 : 2.4) : 0.0;
+    const targetIrIntensity = isNight ? (isRiver ? 28.0 : 3.5) : 0.0;
     irSpotLight.intensity += (targetIrIntensity - irSpotLight.intensity) * clamp(dt * 6, 0.05, 1.0);
-    irSpotLight.distance = isRiver ? 16 : 3.0;
+    irSpotLight.distance = isRiver ? 18 : 3.2;
+
+    _waterEnv.irSpotPos.copy(irSpotLight.position);
+    _waterEnv.irSpotDir.subVectors(irSpotLight.target.position, irSpotLight.position).normalize();
+    _waterEnv.irSpotIntensity = targetIrIntensity > 0.1 || irSpotLight.intensity > 0.1
+      ? clamp(irSpotLight.intensity / 28.0, 0, 1.2)
+      : 0.0;
   }
 
   /* ------------------------------------------------------------------------ */
@@ -14522,13 +16328,109 @@ function initApp() {
     },
   });
 
+  const highlightedMeshes = [];
+  let lastHoverHlId = null;
+  let lastSelectHlId = null;
+  const _focusBox = new THREE.Box3();
+  const _compBox = new THREE.Box3();
+  const _focusCenter = new THREE.Vector3();
+  const _focusSize = new THREE.Vector3();
+  const _focusDir = new THREE.Vector3();
+
+  function tintComponentObjects(compId, hexColor, intensity) {
+    const objs = compObjectsById.get(compId);
+    if (!objs) return;
+    for (let i = 0; i < objs.length; i++) {
+      const rootObj = objs[i];
+      const stack = [rootObj];
+      while (stack.length > 0) {
+        const node = stack.pop();
+        if (node !== rootObj && node.userData?.componentInfo && node.userData.componentInfo.id !== compId) {
+          continue;
+        }
+        if (node.isMesh && node.material && !Array.isArray(node.material) && 'emissive' in node.material) {
+          if (!node.userData._origMat) {
+            node.userData._origMat = node.material;
+            node.userData._hlMat = node.material.clone();
+          }
+          node.userData._hlMat.emissive.set(hexColor);
+          node.userData._hlMat.emissiveIntensity = intensity;
+          node.material = node.userData._hlMat;
+          highlightedMeshes.push(node);
+        }
+        for (let c = 0; c < node.children.length; c++) {
+          stack.push(node.children[c]);
+        }
+      }
+    }
+  }
+
+  function applyComponentHighlight(hoverId, selectId) {
+    const h = hoverId || null;
+    const s = selectId || null;
+    if (h === lastHoverHlId && s === lastSelectHlId) return;
+    lastHoverHlId = h;
+    lastSelectHlId = s;
+
+    for (let i = 0; i < highlightedMeshes.length; i++) {
+      const m = highlightedMeshes[i];
+      if (m.userData._origMat) m.material = m.userData._origMat;
+    }
+    highlightedMeshes.length = 0;
+
+    if (h && h !== s) tintComponentObjects(h, '#38bdf8', 0.65);
+    if (s) tintComponentObjects(s, '#10b981', 0.85);
+  }
+
   function selectComponentById(compId) {
-    const info = componentById.get(compId) || null;
+    const info = compId ? (componentById.get(compId) || null) : null;
     state.selectedComponent = info;
     videoHud.setSelectedComponent(info);
-    if (info && compId !== 'AP1' && compId !== 'IR1') {
-      if (state.explodeFactor < 0.5) state.explodeFactor = 0.85;
-      setCameraPreset('exploded_cad', false);
+    applyComponentHighlight(state.hoveredComponent?.id || null, info?.id || null);
+
+    if (info) {
+      const isExternalPod =
+        compId === 'AP1' ||
+        compId === 'IR1' ||
+        compId === 'CAM1' ||
+        compId === 'LIDAR1' ||
+        compId === 'ENC-CAM' ||
+        compId === 'ENC-LIDAR';
+      if (!isExternalPod && state.explodeFactor < 0.5) {
+        state.explodeFactor = 0.85;
+      }
+      if (!isExternalPod) {
+        state.cameraPreset = 'exploded_cad';
+      }
+      enclosures.updateExplode(state.explodeFactor, 0.05, state);
+      syncHardwareMounts();
+      hardwareRootGroup.updateMatrixWorld(true);
+
+      const objs = compObjectsById.get(compId);
+      _focusBox.makeEmpty();
+      if (objs && objs.length) {
+        for (let i = 0; i < objs.length; i++) {
+          if (objs[i].visible) {
+            _compBox.setFromObject(objs[i]);
+            if (!_compBox.isEmpty()) _focusBox.union(_compBox);
+          }
+        }
+      }
+      if (!_focusBox.isEmpty()) {
+        _focusBox.getCenter(_focusCenter);
+        _focusBox.getSize(_focusSize);
+        const radius = Math.max(_focusSize.length(), 0.04);
+        const refPose = computeCameraPresetPose(isExternalPod ? (state.cameraPreset || 'video_replica') : 'exploded_cad');
+        _focusDir.subVectors(refPose.pos, refPose.target);
+        if (_focusDir.lengthSq() < 1e-6) _focusDir.set(0.4, 0.2, 0.9);
+        _focusDir.normalize();
+        const dist = clamp(radius * 3.1, 0.24, 1.35);
+        camTransition.targetGoal.copy(_focusCenter);
+        camTransition.posGoal.copy(_focusCenter).addScaledVector(_focusDir, dist);
+        camTransition.active = true;
+      } else if (!isExternalPod) {
+        setCameraPreset('exploded_cad', false);
+      }
     }
   }
 
@@ -14558,9 +16460,27 @@ function initApp() {
       if (timeline.isPlaying()) timeline.pause();
       else timeline.play();
     },
+    pauseTimeline: () => {
+      if (timeline.isPlaying()) timeline.pause();
+    },
     seekStage: (idx) => {
       timeline.seekStage(idx);
       applyModeEnvironment(state.mode);
+    },
+    onPrevStage: () => {
+      const cur = timeline.getCurrentStageInfo().index;
+      const nextIdx = cur <= 0 ? 0 : cur - 1;
+      timeline.seekStage(nextIdx);
+      applyModeEnvironment(state.mode);
+    },
+    onNextStage: () => {
+      const cur = timeline.getCurrentStageInfo().index;
+      const nextIdx = cur < 0 ? 0 : Math.min(6, cur + 1);
+      timeline.seekStage(nextIdx);
+      applyModeEnvironment(state.mode);
+    },
+    onToggleHold: (holdOn) => {
+      timeline.setHoldAtStageEnd(holdOn);
     },
     setTimelineProgress: (p) => {
       timeline.setProgress(p);
@@ -14576,8 +16496,26 @@ function initApp() {
       state.hudVisible = Boolean(visible);
       videoHud.setVisible(state.hudVisible);
     },
+    onScreenshot: () => {
+      if (contextLost) return;
+      renderer.render(scene, camera);
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `river_twin_${state.mode}_${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    },
     onCaptureTrial: () => {
       pipelineModel.captureTrial(state);
+    },
+    onTriggerTestAlert: () => {
+      const alertObj = pipelineModel.triggerTestAlert(state);
+      if (alertObj && dashboardPanel) {
+        dashboardPanel.showEmailAlert(alertObj);
+      }
+      return alertObj;
     },
     onResetLogs: () => {
       pipelineModel.resetLogs();
@@ -14623,6 +16561,7 @@ function initApp() {
 
   const raycaster = new THREE.Raycaster();
   const pointerNdc = new THREE.Vector2();
+  const _rootBox = new THREE.Box3();
   const inspectRoots = [
     enclosures.controlBoxGroup,
     enclosures.lidarPodGroup,
@@ -14631,16 +16570,32 @@ function initApp() {
     hardwareRig.routerGroup,
   ];
   let downPos = { x: 0, y: 0 };
+  let canvasRect = renderer.domElement.getBoundingClientRect();
+  let hoverRafPending = false;
+  let lastPointerX = 0;
+  let lastPointerY = 0;
 
   function pickHardwareComponent(clientX, clientY) {
-    const rect = renderer.domElement.getBoundingClientRect();
-    if (!rect.width || !rect.height) return null;
-    pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    if (!canvasRect.width || !canvasRect.height) {
+      canvasRect = renderer.domElement.getBoundingClientRect();
+    }
+    if (!canvasRect.width || !canvasRect.height) return null;
+    pointerNdc.x = ((clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
+    pointerNdc.y = -((clientY - canvasRect.top) / canvasRect.height) * 2 + 1;
 
     raycaster.setFromCamera(pointerNdc, camera);
-    const hits = raycaster.intersectObjects(inspectRoots, true);
+    const hits = [];
+    for (let i = 0; i < inspectRoots.length; i++) {
+      const rootObj = inspectRoots[i];
+      if (!rootObj.visible) continue;
+      _rootBox.setFromObject(rootObj);
+      if (!_rootBox.isEmpty() && raycaster.ray.intersectsBox(_rootBox)) {
+        const subHits = raycaster.intersectObject(rootObj, true);
+        for (let j = 0; j < subHits.length; j++) hits.push(subHits[j]);
+      }
+    }
     if (!hits.length) return null;
+    hits.sort((a, b) => a.distance - b.distance);
 
     const candidates = [];
     for (const hit of hits) {
@@ -14673,12 +16628,21 @@ function initApp() {
   });
 
   renderer.domElement.addEventListener('pointermove', (e) => {
-    const info = pickHardwareComponent(e.clientX, e.clientY);
-    if (info?.id !== state.hoveredComponent?.id) {
-      state.hoveredComponent = info;
-      videoHud.setHoveredComponent(info);
-      renderer.domElement.style.cursor = info ? 'pointer' : 'grab';
-    }
+    if (e.buttons !== 0) return;
+    lastPointerX = e.clientX;
+    lastPointerY = e.clientY;
+    if (hoverRafPending) return;
+    hoverRafPending = true;
+    requestAnimationFrame(() => {
+      hoverRafPending = false;
+      const info = pickHardwareComponent(lastPointerX, lastPointerY);
+      if (info?.id !== state.hoveredComponent?.id) {
+        state.hoveredComponent = info;
+        videoHud.setHoveredComponent(info);
+        applyComponentHighlight(info?.id || null, state.selectedComponent?.id || null);
+        renderer.domElement.style.cursor = info ? 'pointer' : 'grab';
+      }
+    });
   });
 
   renderer.domElement.addEventListener('pointerup', (e) => {
@@ -14688,6 +16652,91 @@ function initApp() {
       const info = pickHardwareComponent(e.clientX, e.clientY);
       state.selectedComponent = info;
       videoHud.setSelectedComponent(info);
+      applyComponentHighlight(state.hoveredComponent?.id || null, info?.id || null);
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    const target = e.target;
+    if (
+      target &&
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'SELECT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable)
+    ) {
+      return;
+    }
+    if (e.key === 'Escape') {
+      selectComponentById(null);
+      if (dashboardPanel.isPresentationMode?.()) {
+        dashboardPanel.setPresentationMode(false);
+      }
+      return;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (timeline.isPlaying()) timeline.pause();
+      else timeline.play();
+      return;
+    }
+    if (e.key === 'ArrowLeft' || e.key === '[') {
+      const cur = timeline.getCurrentStageInfo().index;
+      const nextIdx = cur <= 0 ? 0 : cur - 1;
+      timeline.seekStage(nextIdx);
+      applyModeEnvironment(state.mode);
+      return;
+    }
+    if (e.key === 'ArrowRight' || e.key === ']') {
+      const cur = timeline.getCurrentStageInfo().index;
+      const nextIdx = cur < 0 ? 0 : Math.min(6, cur + 1);
+      timeline.seekStage(nextIdx);
+      applyModeEnvironment(state.mode);
+      return;
+    }
+    if (e.key >= '1' && e.key <= '6') {
+      const idx = Number(e.key) - 1;
+      const list =
+        state.mode === 'river'
+          ? ['river_cross_section', 'exploded_cad', 'noir_pov', 'gcp_aerial']
+          : ['video_replica', 'side_profile', 'overhead_gantry', 'hydraulic_cutaway', 'exploded_cad', 'noir_pov'];
+      if (idx < list.length) {
+        if (timeline.isPlaying()) timeline.pause();
+        setCameraPreset(list[idx], false);
+        dashboardPanel.syncControlWidgets();
+      }
+      return;
+    }
+    const lower = e.key.toLowerCase();
+    if (lower === 'd') {
+      dashboardPanel.setDrawerOpen(!dashboardPanel.isDrawerOpen?.());
+    } else if (lower === 'h') {
+      state.hudVisible = state.hudVisible === false;
+      videoHud.setVisible(state.hudVisible);
+      dashboardPanel.setHudVisible(state.hudVisible);
+    } else if (lower === 'n') {
+      if (timeline.isPlaying()) timeline.pause();
+      state.nightMode = !state.nightMode;
+      if (state.nightMode) {
+        state.sunGlare = 0.0;
+        state.timeOfDay = 'night';
+      } else if (state.timeOfDay === 'night') {
+        state.timeOfDay = 'night_no_ir';
+      }
+      dashboardPanel.syncControlWidgets();
+    } else if (lower === 'e') {
+      if (timeline.isPlaying()) timeline.pause();
+      state.explodeFactor = (state.explodeFactor ?? 0) > 0.2 ? 0.0 : 0.85;
+      if (state.explodeFactor > 0.2) setCameraPreset('exploded_cad', false);
+      dashboardPanel.syncControlWidgets();
+    } else if (lower === 'p') {
+      dashboardPanel.setPresentationMode(!dashboardPanel.isPresentationMode?.());
+    } else if (lower === 'r') {
+      if (timeline.isPlaying()) timeline.pause();
+      setCameraPreset(state.mode === 'river' ? 'river_cross_section' : 'video_replica', false);
+      dashboardPanel.syncControlWidgets();
     }
   });
 
@@ -14701,6 +16750,7 @@ function initApp() {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
+    canvasRect = renderer.domElement.getBoundingClientRect();
     syncHudChromeClearance();
   });
 
@@ -14714,38 +16764,57 @@ function initApp() {
 
     if (state.mode !== lastModeSynced) {
       lastModeSynced = state.mode;
-      state.thresholds = getDefaultThresholds(state.mode === 'river' ? 'river' : 'lab');
+      if (!timeline.isPlaying() && (timelineInfo?.index ?? -1) !== 6) {
+        state.thresholds = getDefaultThresholds(state.mode === 'river' ? 'river' : 'lab');
+      }
       applyModeEnvironment(state.mode);
     }
 
     const isRiver = state.mode === 'river';
 
+    let labMetrics = null;
     if (!isRiver) {
       labHydraulics.update(safeDt, state);
-      const labMetrics = labHydraulics.getMetrics();
-      flumeTank.update(safeDt, { ...state, riserFill: labMetrics.riserFill });
-      gantryFrame.update(state);
+      labMetrics = labHydraulics.getMetrics();
+      flumeTank.update(safeDt, state, labMetrics.riserFill);
     } else {
       riverHydraulics.update(safeDt, state);
       const riverMetrics = riverHydraulics.getMetrics();
       riverField.update(safeDt, state, riverMetrics);
     }
 
-    waterSystem.update(safeDt, state, labHydraulics, riverHydraulics);
+    const activeHydraulics = isRiver ? riverHydraulics : labHydraulics;
+    const activeMetrics = isRiver ? riverHydraulics.getMetrics() : labMetrics;
+    const activeParticles = activeHydraulics.getParticles();
+
+    state._labPoleTopRailY = riverField.labPoleTopRailY;
+    state._hydraulics = activeHydraulics;
+    state._gcpCorners = isRiver ? riverField.getActiveGcpCorners() : null;
+
     syncHardwareMounts();
     enclosures.updateExplode(state.explodeFactor, safeDt, state);
     hardwareRig.update(safeDt, state);
 
-    const activeHydraulics = isRiver ? riverHydraulics : labHydraulics;
-    const activeMetrics = activeHydraulics.getMetrics();
-    const activeParticles = activeHydraulics.getParticles();
+    updateLighting(safeDt);
+    _waterEnv.metrics = activeMetrics;
+    _waterEnv.particles = activeParticles;
+    waterSystem.update(safeDt, state, labHydraulics, riverHydraulics, _waterEnv);
 
     const lidarReading = sensorOptics.update(
       safeDt,
       state,
       activeAnchors,
-      activeHydraulics
+      activeHydraulics,
+      activeParticles
     );
+
+    // Couple each particle's inFov strictly to the live Pi Camera NoIR projection
+    const maxFovDepth = isRiver ? 22.0 : 3.5;
+    for (let i = 0; i < activeParticles.length; i++) {
+      const p = activeParticles[i];
+      const proj = sensorOptics.projectWorldToPip(p);
+      p.inFov = proj.visible && proj.depthM < maxFovDepth;
+    }
 
     const snapshot = pipelineModel.step(
       safeDt,
@@ -14754,8 +16823,6 @@ function initApp() {
       lidarReading,
       activeParticles
     );
-
-    updateLighting(safeDt);
 
     if (camTransition.active) {
       const k = clamp(safeDt * camTransition.speed, 0.02, 0.35);
@@ -14787,7 +16854,10 @@ function initApp() {
       );
     }
 
-    renderer.render(scene, camera);
+    if (!contextLost) {
+      renderer.shadowMap.needsUpdate = true;
+      renderer.render(scene, camera);
+    }
     return snapshot;
   }
 
@@ -14795,10 +16865,17 @@ function initApp() {
   applyModeEnvironment(state.mode);
   setCameraPreset('video_replica', true);
   stepSimulation(0.016);
+  window.__RIVER_SIM_READY__ = true;
 
   if (loadingOverlay) {
     loadingOverlay.classList.add('hidden');
   }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      prevTimeMs = performance.now();
+    }
+  });
 
   let prevTimeMs = performance.now();
   function animate(nowMs) {
@@ -14855,6 +16932,9 @@ function initApp() {
     inspectComponent: (compId) => selectComponentById(compId),
     getMetrics: () =>
       (state.mode === 'river' ? riverHydraulics : labHydraulics).getMetrics(),
+    encodeLoRa: (opts) => encodeLoRa12BytePayload(opts),
+    crc16Ccitt,
+    computeHazardIndex,
     getRenderStats: () => {
       const gl = renderer.getContext();
       return {
@@ -14887,5 +16967,4 @@ try {
     statusEl.style.color = '#fca5a5';
   }
 }
-
 })(THREE, OrbitControls, RoomEnvironment, RiverSimModules.flumeTank, RiverSimModules.gantryFrame, RiverSimModules.riverField, RiverSimModules.enclosures, RiverSimModules.hardwareRig, RiverSimModules.hydraulics, RiverSimModules.realRiverHydraulics, RiverSimModules.waterShader, RiverSimModules.sensorOptics, RiverSimModules.pipelineModel, RiverSimModules.videoHud, RiverSimModules.dashboardPanel, RiverSimModules.timelineController);

@@ -30,19 +30,46 @@ log = logging.getLogger("edge_node.main")
 CYCLE_PERIOD_S = 5.0
 
 
+def letterbox_320(bgr: np.ndarray, size: int = 320) -> np.ndarray:
+    """Resize BGR image to square size while preserving aspect ratio via padding."""
+    import cv2  # type: ignore
+
+    h, w = bgr.shape[:2]
+    if h == size and w == size:
+        return bgr
+    scale = min(size / max(1, w), size / max(1, h))
+    new_w, new_h = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
+    resized = cv2.resize(bgr, (new_w, new_h))
+    pad_w = size - new_w
+    pad_h = size - new_h
+    top = pad_h // 2
+    bottom = pad_h - top
+    left = pad_w // 2
+    right = pad_w - left
+    return cv2.copyMakeBorder(
+        resized,
+        top,
+        bottom,
+        left,
+        right,
+        cv2.BORDER_CONSTANT,
+        value=(114, 114, 114),
+    )
+
+
 def capture_frame_pair(
     camera: Optional[object] = None,
     size: Tuple[int, int] = (320, 240),
     simulate: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Acquire two consecutive grayscale frames for LSPIV and one BGR frame for YOLO."""
+    """Acquire two consecutive grayscale frames for LSPIV and one letterboxed BGR frame for YOLO."""
     w, h = size
     if simulate or camera is None:
         rng = np.random.default_rng()
         prev_gray = rng.integers(60, 180, size=(h, w), dtype=np.uint8)
         curr_gray = np.roll(prev_gray, shift=3, axis=1)
         bgr = np.stack([curr_gray, curr_gray, curr_gray], axis=-1)
-        return prev_gray, curr_gray, bgr
+        return prev_gray, curr_gray, letterbox_320(bgr, 320) if not simulate else np.resize(bgr, (320, 320, 3))
 
     import cv2  # type: ignore
 
@@ -52,7 +79,7 @@ def capture_frame_pair(
         raise RuntimeError("Failed to capture consecutive frames from Pi Camera.")
     prev_gray = cv2.cvtColor(cv2.resize(frame1, size), cv2.COLOR_BGR2GRAY)
     curr_gray = cv2.cvtColor(cv2.resize(frame2, size), cv2.COLOR_BGR2GRAY)
-    bgr = cv2.resize(frame2, (320, 320))
+    bgr = letterbox_320(frame2, 320)
     return prev_gray, curr_gray, bgr
 
 
@@ -67,8 +94,14 @@ def run_edge_loop(simulate: bool = False, max_cycles: Optional[int] = None) -> N
     db_logger = TelemetryLogger(db_path="river_telemetry.db")
     uart_bridge = ESP32UartBridge(node_id=1)
 
+    camera: Optional[object] = None
     db_logger.connect()
     if not simulate:
+        import cv2  # type: ignore
+
+        camera = cv2.VideoCapture(0)
+        if not camera.isOpened():
+            raise RuntimeError("Unable to open Pi Camera (cv2.VideoCapture(0)).")
         lidar.open()
         debris.load()
         uart_bridge.open()
@@ -86,7 +119,10 @@ def run_edge_loop(simulate: bool = False, max_cycles: Optional[int] = None) -> N
                 lidar_res = lidar.read_sample()
 
             # Stage 2: Frame acquisition + LSPIV Farneback optical flow
-            prev_gray, curr_gray, bgr_frame = capture_frame_pair(simulate=simulate)
+            prev_gray, curr_gray, bgr_frame = capture_frame_pair(
+                camera=camera,
+                simulate=simulate,
+            )
             if simulate:
                 # Provide synthetic LSPIV result when OpenCV/camera are absent
                 v_surf = 1.18
@@ -151,6 +187,8 @@ def run_edge_loop(simulate: bool = False, max_cycles: Optional[int] = None) -> N
             if sleep_s > 0 and (max_cycles is None or cycle < max_cycles):
                 time.sleep(sleep_s)
     finally:
+        if camera is not None:
+            camera.release()
         db_logger.close()
         lidar.close()
         uart_bridge.close()

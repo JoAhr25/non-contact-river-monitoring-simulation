@@ -1,0 +1,12 @@
+{
+  "name": "river-monitoring-digital-twin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Autonomous River Water-Level, Surface Velocity, Discharge & Floating Debris 3D Digital Twin",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:check": "node scripts/build.mjs --check",
+    "test": "node scripts/verify_physics.mjs"
+  }
+}
